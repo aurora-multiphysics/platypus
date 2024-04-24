@@ -1,2 +1,6 @@
-# platypus
-A MOOSE-based app to enable finite element problem setup using the MFEM FE library.
+Platypus
+=====
+
+Platypus is a MOOSE-based application created to enable custom MOOSE problems to be set up and solved using the MFEM finite element library as an alternative backend to libMesh. It is based off of the MOOSE electromagnetics app [Apollo](https://github.com/aurora-multiphysics/apollo) that uses MFEM for solving electromagnetics problems in a variety of formulations.
+
+Platypus is under active development and is being updated frequently.
