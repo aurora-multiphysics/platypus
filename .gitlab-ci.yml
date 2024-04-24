@@ -1,0 +1,140 @@
+image: ubuntu:latest
+
+variables:
+  GIT_SUBMODULE_STRATEGY: recursive
+
+stages:
+  - build
+  - test
+  - quality
+  - security
+  - deploy
+
+# Build the software, along with all tests
+build:
+  stage: build
+  script:
+    - mkdir build
+    - cd build
+    - cmake ..
+    - make -j
+    - cd ..
+  artifacts:
+    paths:
+    - build/
+    - bin/
+    - lib/
+    expire_in: 1 day
+
+# Run tests
+
+.template: &coverage_template
+  stage: test
+  before_script:
+    - apt install gcovr
+    - cd build
+    - cmake .. -DBUILD_TYPE=TEST
+    - make -j
+#   after_script:
+#     - make gcovr
+  coverage: '/^lines: (\d+.\d+)%/'
+
+
+unit_tests:
+  <<: *coverage_template
+  script:
+    - ../bin/unit_tests
+    - make gcovr
+    - mv gcovr unit_test_coverage
+  artifacts:
+    paths:
+    - build/unit_test_coverage
+    expire_in: 1 week
+
+integration_tests:
+  <<: *coverage_template
+  script:
+    - ../bin/integration_tests
+    - make gcovr
+    - mv gcovr integration_test_coverage
+  artifacts:
+    paths:
+    - build/integration_test_coverage
+    expire_in: 1 week
+
+regression_tests:
+  <<: *coverage_template
+  script:
+    - ../bin/regression_tests
+    - make gcovr
+    - mv gcovr regression_test_coverage
+  artifacts:
+    paths:
+    - build/regression_test_coverage
+    expire_in: 1 week
+
+format_tests:
+  stage: test
+  script:
+    - find ./{test,src}/ -iname *.h -o -iname *.cpp -o -iname *.hpp | xargs clang-format-8 -style=file | clang-format-diff-8 > out.txt
+    - if [[ -s out.txt ]]; then false; fi
+  allow_failure: true
+
+# Code quality
+cyclomatic_complexity:
+  stage: quality
+  script:
+    - python /home/lizard/lizard.py --CCN=15 --length=100 --arguments=10 src
+
+static_analysis:
+  stage: quality
+  script:
+    - script -c "cppcheck src --enable=all" cppcheck.out
+  artifacts:
+    paths:
+    - cppcheck.out
+    expire_in: 1 week
+
+similarity:
+  stage: quality
+  script:
+    - script -c "sim_c++ -aRn src/*" similarity.out
+  artifacts:
+    paths:
+    - similarity.out
+    expire_in: 1 week
+
+
+flaws:
+  stage: security
+  script:
+    - script -c "flawfinder src" flawfinder.out
+  artifacts:
+    paths:
+    - flawfinder.out
+    expire_in: 1 week
+
+pages:
+  stage: deploy
+  script:
+    # assuming build folder in the build stage is kept
+    - mkdir builddoc && cd builddoc
+    - cmake ..
+    - make doc
+    # doxygen output folder name is controlled in defined Doxygen.in
+    # gitlab pages request document must put into `public` folder of the repo directory
+    - mv public/html ../public
+    - cd ..
+    - mv build/unit_test_coverage public/unit_coverage
+    - mv build/integration_test_coverage public/integration_coverage
+    - mv build/regression_test_coverage public/regression_coverage
+  dependencies:
+    - unit_tests
+    - integration_tests
+    - regression_tests
+  only:
+    - master
+  artifacts:
+    paths:
+    - public
+  allow_failure: true # TODO change to false

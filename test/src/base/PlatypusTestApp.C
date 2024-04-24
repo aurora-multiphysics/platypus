@@ -1,0 +1,54 @@
+#include "PlatypusTestApp.h"
+#include "PlatypusApp.h"
+#include "Moose.h"
+#include "AppFactory.h"
+#include "MooseSyntax.h"
+#include "ModulesApp.h"
+
+InputParameters
+PlatypusTestApp::validParams()
+{
+  InputParameters params = PlatypusApp::validParams();
+  return params;
+}
+
+PlatypusTestApp::PlatypusTestApp(InputParameters parameters) : MooseApp(parameters)
+{
+  PlatypusTestApp::registerAll(
+      _factory, _action_factory, _syntax, getParam<bool>("allow_test_objects"));
+}
+
+PlatypusTestApp::~PlatypusTestApp() {}
+
+void
+PlatypusTestApp::registerAll(Factory & f, ActionFactory & af, Syntax & s, bool use_test_objs)
+{
+  PlatypusApp::registerAll(f, af, s);
+  if (use_test_objs)
+  {
+    Registry::registerObjectsTo(f, {"PlatypusTestApp"});
+    Registry::registerActionsTo(af, {"PlatypusTestApp"});
+  }
+}
+
+void
+PlatypusTestApp::registerApps()
+{
+  registerApp(PlatypusApp);
+  registerApp(PlatypusTestApp);
+}
+
+/***************************************************************************************************
+ *********************** Dynamic Library Entry Points - DO NOT MODIFY ******************************
+ **************************************************************************************************/
+// External entry point for dynamic application loading
+extern "C" void
+PlatypusTestApp__registerAll(Factory & f, ActionFactory & af, Syntax & s)
+{
+  PlatypusTestApp::registerAll(f, af, s);
+}
+extern "C" void
+PlatypusTestApp__registerApps()
+{
+  PlatypusTestApp::registerApps();
+}
