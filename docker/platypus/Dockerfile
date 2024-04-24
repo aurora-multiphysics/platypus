@@ -1,12 +1,12 @@
 # Build and test Platypus image
 # Get base image
-FROM alexanderianblair/platypus-deps:master
+FROM alexanderianblair/platypus-deps:main
 
 # By default four cores are used to compile
 ARG compile_cores=4
 
-# By default checkout master branch from aurora-multiphysics/platypus
-ARG build_git_sha=master
+# By default checkout main branch from aurora-multiphysics/platypus
+ARG build_git_sha=main
 ARG build_git_repo=aurora-multiphysics/platypus
 
 # By default we install everything under /opt
