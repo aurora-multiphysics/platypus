@@ -12,6 +12,9 @@ ARG build_git_repo=aurora-multiphysics/platypus
 # By default we install everything under /opt
 ARG WORKDIR=opt
 
+# By default, build without code coverage flags
+ARG coverage=false
+
 # Get Platypus with Hephaestus
 RUN cd /$WORKDIR && \
     git clone https://github.com/$build_git_repo && \
@@ -32,8 +35,8 @@ RUN cd /$WORKDIR/platypus/contrib/hephaestus/build && \
 
 # Build Platypus
 RUN cd /$WORKDIR/platypus && \
-    make -j$compile_cores
+    make -j$compile_cores coverage=$coverage
 
 # Test Platypus
 RUN cd /$WORKDIR/platypus && \
-    make test
+    make test linkcoverage=$coverage
