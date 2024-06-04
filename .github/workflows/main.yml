@@ -28,3 +28,7 @@ jobs:
                           --build-arg build_git_sha=${PRCOMMITSHA:-$GITHUB_SHA} \
                           --build-arg build_git_repo=${PRREPOSITORY:-$GITHUB_REPOSITORY} \
                           docker/platypus
+      - name: UploadCoverage
+        run: |
+          ci_env=`bsah <(curl -s https://codecov.io/env)`
+          docker run $ci_env -e CI=true ci-platypus-ubuntu:latest bash opt/platypus/upload-coverage.sh
