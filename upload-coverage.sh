@@ -9,4 +9,5 @@ gpg --verify codecov.SHA256SUM.sig codecov.SHA256SUM
 shasum -a 256 -c codecov.SHA256SUM
 chmod +x codecov
 
-./codecov --verbose upload-process --fail-on-error
+cd /opt/platypus
+./codecov --verbose
