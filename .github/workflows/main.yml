@@ -30,5 +30,5 @@ jobs:
                           docker/platypus
       - name: UploadCoverage
         run: |
-          ci_env=`bsah <(curl -s https://codecov.io/env)`
+          ci_env=`bash <(curl -s https://codecov.io/env)`
           docker run $ci_env -e CI=true ci-platypus-ubuntu:latest bash opt/platypus/upload-coverage.sh
