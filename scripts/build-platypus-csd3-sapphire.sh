@@ -116,29 +116,29 @@ function _build_petsc() {
     cd petsc-3.19.3 || exit 1
     ./configure \
         --with-cc=$CC --with-cxx=$CXX --with-fc=$FC -CXXPP=cpp \
-         --prefix="${WORKDIR}/${PETSC_DIR_NAME}" \
-         --download-hypre=1 \
-         --with-shared-libraries \
-         --with-debugging=no \
-         --with-hdf5-dir="${WORKDIR}"/${HDF5_DIR_NAME} \
-         --with-blaslapack-dir="${MKLROOT}" \
-         --download-metis=1 \
-         --download-parmetis=1 \
-         --download-ptscotch=1 \
-         --download-mumps=1 \
-         --download-superlu_dist="${WORKDIR}"/superlu_dist-8.1.0.tar.gz \
-         --download-scalapack=1 \
-         --download-slepc=1 \
-         --with-mpi=1 \
-         --with-cxx-dialect=C++17 \
-         --with-fortran-bindings=0 \
-         --with-sowing=0 \
-         --with-64-bit-indices \
-         --with-make-np="${SLURM_NTASKS}" \
-         COPTFLAGS='-O3 -fno-slp-vectorize' \
-         CXXOPTFLAGS='-O3 -fno-slp-vectorize' \
-               FOPTFLAGS='-O3 -fno-slp-vectorize' \
-            PETSC_DIR="$(pwd)" PETSC_ARCH=arch-linux-c-opt
+        --prefix="${WORKDIR}/${PETSC_DIR_NAME}" \
+        --download-hypre=1 \
+        --with-shared-libraries \
+        --with-debugging=no \
+        --with-hdf5-dir="${WORKDIR}"/${HDF5_DIR_NAME} \
+        --with-blaslapack-dir="${MKLROOT}" \
+        --download-metis=1 \
+        --download-parmetis=1 \
+        --download-ptscotch=1 \
+        --download-mumps=1 \
+        --download-superlu_dist="${WORKDIR}"/superlu_dist-8.1.0.tar.gz \
+        --download-scalapack=1 \
+        --download-slepc=1 \
+        --with-mpi=1 \
+        --with-cxx-dialect=C++17 \
+        --with-fortran-bindings=0 \
+        --with-sowing=0 \
+        --with-64-bit-indices \
+        --with-make-np="${SLURM_NTASKS}" \
+        COPTFLAGS='-O3 -fno-slp-vectorize' \
+        CXXOPTFLAGS='-O3 -fno-slp-vectorize' \
+        FOPTFLAGS='-O3 -fno-slp-vectorize' \
+        PETSC_DIR="$(pwd)" PETSC_ARCH=arch-linux-c-opt
     make
     make PETSC_DIR="${WORKDIR}"/${PETSC_DIR_NAME}/petsc-3.19.3 PETSC_ARCH=arch-linux-c-opt install ||
         {
