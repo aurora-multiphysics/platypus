@@ -33,4 +33,4 @@ jobs:
         run: |
           ci_env=$(bash <(curl -s https://codecov.io/env))
           # shellcheck disable=SC2086
-          docker run $ci_env -e CI=true ci-platypus-ubuntu:latest bash opt/platypus/scripts/upload-coverage.sh
+          docker run $ci_env -e CI=true ci-platypus-ubuntu:latest bash /opt/platypus/scripts/upload-coverage.sh
