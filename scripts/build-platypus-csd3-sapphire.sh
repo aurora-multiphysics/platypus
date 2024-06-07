@@ -8,7 +8,7 @@
 #SBATCH --cpus-per-task=1
 #SBATCH -o out_%j_%A_%a
 #SBATCH --exclusive
-. /etc/profile.d/modules.sh  
+. /etc/profile.d/modules.sh
 
 #TODO:
 # - Remove xdr requirement from moose/scripts/configure_libmesh
@@ -59,7 +59,7 @@ function load_modules() {
     echo "-Wno-tautological-constant-compare" >> icpx.cfg
     export ICPXCFG=${WORKDIR}/icpx.cfg
 
-    export CC=mpiicc 
+    export CC=mpiicc
     export CXX=mpiicpc
     export FC=mpiifort
     export F77=mpiifort
@@ -68,20 +68,26 @@ function load_modules() {
     export I_MPI_CXX=icpx
     export I_MPI_F90=ifx
     export I_MPI_FC=ifx
-    export I_MPI_F77=ifx  
+    export I_MPI_F77=ifx
 }
 
 function _build_hdf5() {
     cd "${WORKDIR}" || exit 1
-    mkdir -p ${HDF5_DIR_NAME} || { echo "Failed to create ${HDF5_DIR_NAME}" ; exit 1 ; }
+    mkdir -p ${HDF5_DIR_NAME} || {
+        echo "Failed to create ${HDF5_DIR_NAME}"
+        exit 1
+    }
 
     HDF5_MAJ_VER=1.10
     HDF5_MIN_VER=10
     HDF5_VER=${HDF5_MAJ_VER}.${HDF5_MIN_VER}
     echo "Downloading HDF5"
     curl -kLJO \
-        https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-${HDF5_MAJ_VER}/hdf5-${HDF5_VER}/src/hdf5-${HDF5_VER}.tar.gz \
-        || { echo "Failed to download hdf5" ; exit 1 ; }
+        https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-${HDF5_MAJ_VER}/hdf5-${HDF5_VER}/src/hdf5-${HDF5_VER}.tar.gz ||
+        {
+            echo "Failed to download hdf5"
+            exit 1
+        }
     tar -xf hdf5-${HDF5_VER}.tar.gz
 
     cd hdf5-${HDF5_VER} || exit 1
@@ -92,7 +98,7 @@ function _build_hdf5() {
         echo "HDF5 Build failed"
         exit 1
     fi
-    echo "HDF5 built" 
+    echo "HDF5 built"
 }
 
 function _build_petsc() {
@@ -109,33 +115,36 @@ function _build_petsc() {
     tar -xf petsc-3.19.3.tar.gz -C .
     cd petsc-3.19.3 || exit 1
     ./configure \
-    --with-cc=$CC --with-cxx=$CXX --with-fc=$FC -CXXPP=cpp \
-		       --prefix="${WORKDIR}"/${PETSC_DIR_NAME} \
-		       --download-hypre=1 \
-		       --with-shared-libraries \
-		       --with-debugging=no \
-		       --with-hdf5-dir="${WORKDIR}"/${HDF5_DIR_NAME} \
-		       --with-blaslapack-dir="${MKLROOT}" \
-		       --download-metis=1 \
-		       --download-parmetis=1 \
-		       --download-ptscotch=1 \
-		       --download-mumps=1 \
-		       --download-superlu_dist="${WORKDIR}"/superlu_dist-8.1.0.tar.gz \
-		       --download-scalapack=1 \
-		       --download-slepc=1 \
-		       --with-mpi=1 \
-		       --with-cxx-dialect=C++17 \
-		       --with-fortran-bindings=0 \
-		       --with-sowing=0 \
-		       --with-64-bit-indices \
-		       --with-make-np="${SLURM_NTASKS}" \
-		       COPTFLAGS='-O3 -fno-slp-vectorize' \
-		       CXXOPTFLAGS='-O3 -fno-slp-vectorize' \
+        --with-cc=$CC --with-cxx=$CXX --with-fc=$FC -CXXPP=cpp \
+         --prefix="${WORKDIR}"/${PETSC_DIR_NAME} \
+         --download-hypre=1 \
+         --with-shared-libraries \
+         --with-debugging=no \
+         --with-hdf5-dir="${WORKDIR}"/${HDF5_DIR_NAME} \
+         --with-blaslapack-dir="${MKLROOT}" \
+         --download-metis=1 \
+         --download-parmetis=1 \
+         --download-ptscotch=1 \
+         --download-mumps=1 \
+         --download-superlu_dist="${WORKDIR}"/superlu_dist-8.1.0.tar.gz \
+         --download-scalapack=1 \
+         --download-slepc=1 \
+         --with-mpi=1 \
+         --with-cxx-dialect=C++17 \
+         --with-fortran-bindings=0 \
+         --with-sowing=0 \
+         --with-64-bit-indices \
+         --with-make-np="${SLURM_NTASKS}" \
+         COPTFLAGS='-O3 -fno-slp-vectorize' \
+         CXXOPTFLAGS='-O3 -fno-slp-vectorize' \
                FOPTFLAGS='-O3 -fno-slp-vectorize' \
-	           PETSC_DIR=$(pwd) PETSC_ARCH=arch-linux-c-opt
+            PETSC_DIR=$(pwd) PETSC_ARCH=arch-linux-c-opt
     make
-    make PETSC_DIR="${WORKDIR}"/${PETSC_DIR_NAME}/petsc-3.19.3 PETSC_ARCH=arch-linux-c-opt install \
-	|| { echo "Failed to build petsc" ; exit 1 ; }
+    make PETSC_DIR="${WORKDIR}"/${PETSC_DIR_NAME}/petsc-3.19.3 PETSC_ARCH=arch-linux-c-opt install ||
+        {
+            echo "Failed to build petsc"
+            exit 1
+        }
     cd ..
     cd ..
     export PETSC_DIR=$WORKDIR/petsc
@@ -150,10 +159,13 @@ function build_moose() {
     cd "$WORKDIR" || exit 1
     git clone https://github.com/idaholab/moose
     cd moose || exit 1
-    git checkout ${MOOSE_COMMIT} || { echo "Checkout failed" ; exit 1 ; }
-    if [ ! -f "$WORKDIR/petsc/lib/libpetsc.so" ] ; then
-      echo "PETSc Install Unsuccessful"
-      return
+    git checkout ${MOOSE_COMMIT} || {
+        echo "Checkout failed"
+        exit 1
+    }
+    if [ ! -f "$WORKDIR/petsc/lib/libpetsc.so" ]; then
+        echo "PETSc Install Unsuccessful"
+        return
     fi
     export PETSC_DIR=$WORKDIR/petsc
     export PETSC_ARCH=arch-linux-c-opt
@@ -195,7 +207,7 @@ function build_moose() {
     export I_MPI_F90=ifx
     export I_MPI_F77=ifx
     export I_MPI_C=icx
-  
+
     ./configure --with-derivative-size=200 --with-ad-indexing-type=global
     METHODS='opt' ./scripts/update_and_rebuild_wasp.sh
     cd framework || exit 1
@@ -213,8 +225,8 @@ function build_moose() {
 
 function build_gslib() {
     cd "$WORKDIR" || exit 1
-    if [ -d "$WORKDIR/gslb" ] ; then
-       return
+    if [ -d "$WORKDIR/gslb" ]; then
+        return
     fi
     git clone https://github.com/Nek5000/gslib.git
     cd gslib || exit 1
@@ -235,9 +247,9 @@ function build_mfem() {
     echo "Building MFEM"
     cmake .. \
         -DCMAKE_BUILD_TYPE=Release \
-	    -DCMAKE_POSITION_INDEPENDENT_CODE=YES \
-	    -DMFEM_USE_OPENMP=NO \
-	    -DMFEM_THREAD_SAFE=NO \
+        -DCMAKE_POSITION_INDEPENDENT_CODE=YES \
+        -DMFEM_USE_OPENMP=NO \
+        -DMFEM_THREAD_SAFE=NO \
         -DHYPRE_DIR=/"$WORKDIR"/petsc/ \
         -DMFEM_USE_LAPACK=YES \
         -DMFEM_USE_MPI=YES \

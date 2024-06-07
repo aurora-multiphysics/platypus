@@ -16,8 +16,8 @@ function load_modules() {
 function build_petsc() {
     cd "$WORKDIR" || exit 1
     curl -LJO https://github.com/xiaoyeli/superlu_dist/archive/refs/tags/v8.1.0.tar.gz
-    if [ -d "$WORKDIR/petsc" ] ; then
-       return
+    if [ -d "$WORKDIR/petsc" ]; then
+        return
     fi
     mkdir petsc
     cd petsc || exit 1
@@ -25,28 +25,28 @@ function build_petsc() {
     tar -xf petsc-3.19.3.tar.gz -C .
     cd petsc-3.19.3 || exit 1
     ./configure \
-	--prefix="$WORKDIR"/petsc \
+        --prefix="$WORKDIR"/petsc \
         CXXOPTFLAGS='-O3 -march=cascadelake -funroll-loops' COPTFLAGS='-O3 -march=cascadelake -funroll-loops' FOPTFLAGS='-O3 -march=cascadelake' \
-	--with-debugging=0 \
-	--with-ssl=0 \
-	--with-pic=1 \
-	--with-openmp=1 \
-	--with-mpi=1 \
-	--with-shared-libraries=1 \
-    --with-fortran-bindings=0 \
-    --with-sowing=0 \
-    --download-hypre=1 \
-    --download-fblaslapack=1 \
-    --download-metis=1 \
-    --download-ptscotch=1 \
-    --download-parmetis=1 \
-    --download-superlu_dist="$WORKDIR"/superlu_dist-8.1.0.tar.gz \
-    --download-scalapack=1 \
-    --download-mumps=1 \
-    --download-slepc=1 \
-    --with-64-bit-indices=1 \
-    --with-mpi-dir=/usr/local/Cluster-Apps/openmpi/gcc/9.3/4.0.4 \
-    PETSC_DIR=$(pwd) PETSC_ARCH=arch-linux-c-opt
+        --with-debugging=0 \
+        --with-ssl=0 \
+        --with-pic=1 \
+        --with-openmp=1 \
+        --with-mpi=1 \
+        --with-shared-libraries=1 \
+        --with-fortran-bindings=0 \
+        --with-sowing=0 \
+        --download-hypre=1 \
+        --download-fblaslapack=1 \
+        --download-metis=1 \
+        --download-ptscotch=1 \
+        --download-parmetis=1 \
+        --download-superlu_dist="$WORKDIR"/superlu_dist-8.1.0.tar.gz \
+        --download-scalapack=1 \
+        --download-mumps=1 \
+        --download-slepc=1 \
+        --with-64-bit-indices=1 \
+        --with-mpi-dir=/usr/local/Cluster-Apps/openmpi/gcc/9.3/4.0.4 \
+        PETSC_DIR=$(pwd) PETSC_ARCH=arch-linux-c-opt
     make
     make PETSC_DIR="$WORKDIR"/petsc/petsc-3.19.3 PETSC_ARCH=arch-linux-c-opt install
     make PETSC_DIR="$WORKDIR"/petsc PETSC_ARCH="" check
@@ -58,19 +58,19 @@ function build_petsc() {
 function build_moose() {
     export MOOSE_JOBS=32
     cd "$WORKDIR" || exit 1
-    if [ -d "$WORKDIR/moose" ] ; then
-       return
+    if [ -d "$WORKDIR/moose" ]; then
+        return
     fi
-#    _build_mpich33
+    # _build_mpich33
     load_modules
-    #build_vtk_git
+    # build_vtk_git
     cd "$WORKDIR" || exit 1
     git clone https://github.com/idaholab/moose
     cd moose || exit 1
     git checkout master
-    if [ ! -f "$WORKDIR/petsc/lib/libpetsc.so" ] ; then
-      echo "PETSc Install Unsuccessful"
-      return
+    if [ ! -f "$WORKDIR/petsc/lib/libpetsc.so" ]; then
+        echo "PETSc Install Unsuccessful"
+        return
     fi
 
     export PETSC_DIR=$WORKDIR/petsc
@@ -80,12 +80,12 @@ function build_moose() {
     export F90=mpif90
     export F77=mpif77
     export FC=mpif90
-    if [ -d "$WORKDIR/vtk" ] ; then
-      echo "building libmesh with VTK"
-      METHODS='opt' ./scripts/update_and_rebuild_libmesh.sh --with-mpi --with-cxx-std=2017 --with-vtk-include="$WORKDIR"/vtk/include/vtk-9.1 --with-vtk-lib="$WORKDIR"/vtk/lib64
+    if [ -d "$WORKDIR/vtk" ]; then
+        echo "building libmesh with VTK"
+        METHODS='opt' ./scripts/update_and_rebuild_libmesh.sh --with-mpi --with-cxx-std=2017 --with-vtk-include="$WORKDIR"/vtk/include/vtk-9.1 --with-vtk-lib="$WORKDIR"/vtk/lib64
     else
-      echo "Building libmesh withOUT VTK"
-      METHODS='opt' ./scripts/update_and_rebuild_libmesh.sh --with-mpi
+        echo "Building libmesh withOUT VTK"
+        METHODS='opt' ./scripts/update_and_rebuild_libmesh.sh --with-mpi
     fi
     ./configure --with-derivative-size=200 --with-ad-indexing-type=global
     METHODS='opt' ./scripts/update_and_rebuild_wasp.sh
@@ -104,8 +104,8 @@ function build_moose() {
 
 function build_mfem() {
     cd "$WORKDIR" || exit 1
-    if [ -d "$WORKDIR/mfem" ] ; then
-       return
+    if [ -d "$WORKDIR/mfem" ]; then
+        return
     fi
     git clone https://github.com/Heinrich-BR/mfem.git
     cd mfem || exit 1
@@ -141,8 +141,8 @@ function build_mfem() {
 
 function build_platypus() {
     cd "$WORKDIR" || exit 1
-    if [ -d "$WORKDIR/platypus" ] ; then
-       return
+    if [ -d "$WORKDIR/platypus" ]; then
+        return
     fi
 
     git clone https://github.com/aurora-multiphysics/platypus.git
