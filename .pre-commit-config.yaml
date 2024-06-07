@@ -5,13 +5,54 @@ repos:
     hooks:
       - id: clang-format
 
-  - repo: https://github.com/pocc/pre-commit-hooks
-    rev: v1.3.5
+  # - repo: https://github.com/pocc/pre-commit-hooks
+  #   rev: v1.3.5
+  #   hooks:
+  #     - id: clang-tidy
+  #       args:
+  #         - "-p=./build"
+  #         - "-config-file=./.clang-tidy"
+  #         - "--warnings-as-errors=*"
+  #         - "-extra-arg=-std=c++17"
+  #         - "-extra-arg=-stdlib=libstdc++"
+
+  - repo: https://github.com/editorconfig-checker/editorconfig-checker.python
+    rev: 2.7.3
     hooks:
-      - id: clang-tidy
-        args:
-          - "-p=./build"
-          - "-config-file=./.clang-tidy"
-          - "--warnings-as-errors=*"
-          - "-extra-arg=-std=c++17"
-          - "-extra-arg=-stdlib=libstdc++"
+      - id: editorconfig-checker
+        alias: ec
+
+  - repo: https://github.com/scop/pre-commit-shfmt
+    rev: v3.8.0-1
+    hooks:
+      - id: shfmt
+
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: v0.10.0.1
+    hooks:
+      - id: shellcheck
+
+  - repo: https://github.com/hadolint/hadolint
+    rev: v2.12.0
+    hooks:
+      - id: hadolint
+
+  - repo: https://github.com/igorshubovych/markdownlint-cli
+    rev: v0.41.0
+    hooks:
+    - id: markdownlint-fix
+
+  - repo: https://github.com/rhysd/actionlint
+    rev: v1.7.1
+    hooks:
+      - id: actionlint
+
+  - repo: https://github.com/adrienverge/yamllint
+    rev: v1.35.1
+    hooks:
+      - id: yamllint
+
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.16.1
+    hooks:
+      - id: gitleaks
