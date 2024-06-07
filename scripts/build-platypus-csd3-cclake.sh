@@ -1,8 +1,10 @@
 #!/bin/bash
 #set -ue
 
-export STACK_SRC=$(mktemp -d /tmp/moose_stack_src.XXXXXX)
-export WORKDIR=$(pwd)
+STACK_SRC=$(mktemp -d /tmp/moose_stack_src.XXXXXX)
+export STACK_SRC
+WORKDIR=$(pwd)
+export WORKDIR
 export compile_cores=32
 export OMPI_MCA_mca_base_component_show_load_errors=0
 
@@ -46,7 +48,7 @@ function build_petsc() {
         --download-slepc=1 \
         --with-64-bit-indices=1 \
         --with-mpi-dir=/usr/local/Cluster-Apps/openmpi/gcc/9.3/4.0.4 \
-        PETSC_DIR=$(pwd) PETSC_ARCH=arch-linux-c-opt
+        PETSC_DIR="$(pwd)" PETSC_ARCH=arch-linux-c-opt
     make
     make PETSC_DIR="$WORKDIR"/petsc/petsc-3.19.3 PETSC_ARCH=arch-linux-c-opt install
     make PETSC_DIR="$WORKDIR"/petsc PETSC_ARCH="" check
