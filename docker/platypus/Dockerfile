@@ -16,27 +16,27 @@ ARG WORKDIR=opt
 ARG coverage=false
 
 # Get Platypus with Hephaestus
-RUN cd /$WORKDIR && \
-    git clone https://github.com/$build_git_repo && \
+WORKDIR /$WORKDIR 
+RUN git clone https://github.com/$build_git_repo && \
     cd platypus && \
     git checkout $build_git_sha && \
     git submodule update --init --recursive
 
 # Build Hephaestus
-RUN cd /$WORKDIR/platypus/contrib/hephaestus/ && \
-    mkdir build && \
+WORKDIR /$WORKDIR/platypus/contrib/hephaestus/
+RUN mkdir build && \
     cd build && \
     cmake -G Ninja -DCMAKE_BUILD_TYPE=Release -DMFEM_DIR=/$WORKDIR/mfem/build .. && \
     ninja
 
 # Test Hephaestus
-RUN cd /$WORKDIR/platypus/contrib/hephaestus/build && \
-    ninja test
+WORKDIR /$WORKDIR/platypus/contrib/hephaestus/build
+RUN ninja test
 
 # Build Platypus
-RUN cd /$WORKDIR/platypus && \
-    make -j$compile_cores coverage=$coverage
+WORKDIR /$WORKDIR/platypus
+RUN make -j$compile_cores coverage=$coverage
 
 # Test Platypus
-RUN cd /$WORKDIR/platypus && \
-    make test linkcoverage=$coverage
+WORKDIR /$WORKDIR/platypus
+RUN make test linkcoverage=$coverage
