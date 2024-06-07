@@ -20,7 +20,7 @@ else
     echo "$patch"
     exit 1
 fi
-' > $hookfile
+' > "$hookfile"
 
-chmod a+x $hookfile
+chmod a+x "$hookfile"
 
