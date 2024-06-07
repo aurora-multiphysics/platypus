@@ -3,17 +3,17 @@ name: BuildTest
 on:
   push:
     branches:
-       - main
+      - main
   pull_request:
     branches:
-       - main
+      - main
 
 jobs:
   docker-build-test-ubuntu:
     runs-on: ubuntu-latest
     name: BuildTestUbuntu
     env:
-      PRCOMMITSHA : ${{ github.event.pull_request.head.sha }}
+      PRCOMMITSHA: ${{ github.event.pull_request.head.sha }}
       PRREPOSITORY: ${{ github.event.pull_request.head.repo.full_name }}
     steps:
       # First check out the repository to get the docker file
