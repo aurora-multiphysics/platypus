@@ -9,4 +9,9 @@ repos:
     rev: v1.3.5
     hooks:
       - id: clang-tidy
-        args: [-p=./build, -config-file=./.clang-tidy, --warnings-as-errors=*, -extra-arg=-std=c++17, -extra-arg=-stdlib=libstdc++]
+        args:
+          - "-p=./build"
+          - "-config-file=./.clang-tidy"
+          - "--warnings-as-errors=*"
+          - "-extra-arg=-std=c++17"
+          - "-extra-arg=-stdlib=libstdc++"
