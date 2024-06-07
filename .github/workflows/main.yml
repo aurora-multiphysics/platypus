@@ -28,6 +28,7 @@ jobs:
              docker build -t ci-platypus-ubuntu \
                           --build-arg build_git_sha="${PRCOMMITSHA:-$GITHUB_SHA}" \
                           --build-arg build_git_repo="${PRREPOSITORY:-$GITHUB_REPOSITORY}" \
+                          --build-arg coverage=true \
                           docker/platypus
       - name: UploadCoverage
         run: |
