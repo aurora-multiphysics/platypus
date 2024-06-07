@@ -1,6 +1,6 @@
 #!/bin/bash
 
-REPO_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/../"
+REPO_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}")"  && pwd)/../"
 hookfile="$REPO_DIR/.git/hooks/pre-commit"
 
 if [[ -f $hookfile ]]; then
@@ -23,4 +23,3 @@ fi
 ' > "$hookfile"
 
 chmod a+x "$hookfile"
-
