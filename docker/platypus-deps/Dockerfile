@@ -10,6 +10,7 @@ ARG WORKDIR=opt
 
 # Configure MOOSE
 WORKDIR /$WORKDIR
+# hadolint ignore=DL3003
 RUN export MOOSE_JOBS=$compile_cores && \
     git clone https://github.com/idaholab/moose && \
     cd moose && \
