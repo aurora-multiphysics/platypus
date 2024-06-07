@@ -4,12 +4,12 @@ name: Lint
 on:
   push:
     branches:
-       - main
+      - main
   pull_request:
     branches:
-       - main
+      - main
 
-permissions: { }
+permissions: {}
 
 jobs:
   build:
@@ -32,7 +32,9 @@ jobs:
 
       - name: Super-linter
         uses: super-linter/super-linter/slim@v6.6.0
-        with:
+        env:
+          # To report GitHub Actions status checks
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VALIDATE_ANSIBLE: false
           VALIDATE_CHECKOV: false
           VALIDATE_CPP: false
@@ -43,6 +45,3 @@ jobs:
           VALIDATE_PYTHON_MYPY: false
           VALIDATE_PYTHON_PYLINT: false
           VALIDATE_PYTHON_RUFF: false
-        env:
-          # To report GitHub Actions status checks
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

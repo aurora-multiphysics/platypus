@@ -1,9 +1,10 @@
+---
 name: Publish Docker Images
 on:
   workflow_dispatch:
   schedule:
     # Schedule to update image every Monday morning at 04:00.
-    - cron:  '00 4 * * 1'
+    - cron: '00 4 * * 1'
 
 jobs:
   push-platypus-deps-image-to-docker-hub:
