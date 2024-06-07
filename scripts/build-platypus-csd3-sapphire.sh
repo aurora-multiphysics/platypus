@@ -8,6 +8,7 @@
 #SBATCH --cpus-per-task=1
 #SBATCH -o out_%j_%A_%a
 #SBATCH --exclusive
+# shellcheck source=/dev/null
 . /etc/profile.d/modules.sh
 
 #TODO:
@@ -25,8 +26,10 @@ function load_modules() {
     module load python/3.8
     module load ninja
 
-    export STACK_SRC=$(mktemp -d /tmp/moose_stack_src.XXXXXX)
-    export WORKDIR=$(pwd)
+    STACK_SRC=$(mktemp -d /tmp/moose_stack_src.XXXXXX)
+    export STACK_SRC
+    WORKDIR=$(pwd)
+    export WORKDIR
     export compile_cores=8
     export OMPI_MCA_mca_base_component_show_load_errors=0
 
@@ -35,16 +38,13 @@ function load_modules() {
 
     ROOT_PATH=/home/${USER}/rds/rds-ukaea-ap001/${USER}
     BUILD_PATH=${ROOT_PATH}/${BUILD_DIR_NAME}
-    USR_PATH=${BUILD_PATH}/usr
 
     HDF5_MAJ_VER=1.10
     HDF5_MIN_VER=10
     HDF5_DIR_NAME=hdf5
     HDF5_INSTALL_PATH=${WORKDIR}/${HDF5_DIR_NAME}
 
-    PETSC_COMMIT=38aca504f6ea08cc814f159b2c9bcf837a5876f3
     PETSC_DIR_NAME=petsc
-    PETSC_INSTALL_DIR=${BUILD_PATH}/petsc
 
     MOOSE_COMMIT=4e99faf9804480e7be302895ff9b8ded5b9944ea
 
@@ -116,7 +116,7 @@ function _build_petsc() {
     cd petsc-3.19.3 || exit 1
     ./configure \
         --with-cc=$CC --with-cxx=$CXX --with-fc=$FC -CXXPP=cpp \
-         --prefix="${WORKDIR}"/${PETSC_DIR_NAME} \
+         --prefix="${WORKDIR}/${PETSC_DIR_NAME}" \
          --download-hypre=1 \
          --with-shared-libraries \
          --with-debugging=no \
@@ -138,7 +138,7 @@ function _build_petsc() {
          COPTFLAGS='-O3 -fno-slp-vectorize' \
          CXXOPTFLAGS='-O3 -fno-slp-vectorize' \
                FOPTFLAGS='-O3 -fno-slp-vectorize' \
-            PETSC_DIR=$(pwd) PETSC_ARCH=arch-linux-c-opt
+            PETSC_DIR="$(pwd)" PETSC_ARCH=arch-linux-c-opt
     make
     make PETSC_DIR="${WORKDIR}"/${PETSC_DIR_NAME}/petsc-3.19.3 PETSC_ARCH=arch-linux-c-opt install ||
         {
