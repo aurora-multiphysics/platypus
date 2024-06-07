@@ -17,6 +17,7 @@ ARG coverage=false
 
 # Get Platypus with Hephaestus
 WORKDIR /$WORKDIR 
+# hadolint ignore=DL3003
 RUN git clone https://github.com/$build_git_repo && \
     cd platypus && \
     git checkout $build_git_sha && \
@@ -24,6 +25,7 @@ RUN git clone https://github.com/$build_git_repo && \
 
 # Build Hephaestus
 WORKDIR /$WORKDIR/platypus/contrib/hephaestus/
+# hadolint ignore=DL3003
 RUN mkdir build && \
     cd build && \
     cmake -G Ninja -DCMAKE_BUILD_TYPE=Release -DMFEM_DIR=/$WORKDIR/mfem/build .. && \
