@@ -1,8 +1,8 @@
 #!/bin/bash
 #set -ue
 
-export STACK_SRC=`mktemp -d /tmp/moose_stack_src.XXXXXX`
-export WORKDIR=`pwd`
+export STACK_SRC=$(mktemp -d /tmp/moose_stack_src.XXXXXX)
+export WORKDIR=$(pwd)
 export compile_cores=32
 export OMPI_MCA_mca_base_component_show_load_errors=0
 
@@ -14,18 +14,18 @@ function load_modules() {
 }
 
 function build_petsc() {
-    cd $WORKDIR
+    cd "$WORKDIR" || exit 1
     curl -LJO https://github.com/xiaoyeli/superlu_dist/archive/refs/tags/v8.1.0.tar.gz
     if [ -d "$WORKDIR/petsc" ] ; then
        return
     fi
     mkdir petsc
-    cd petsc
+    cd petsc || exit 1
     curl -L -O http://ftp.mcs.anl.gov/pub/petsc/release-snapshots/petsc-3.19.3.tar.gz
     tar -xf petsc-3.19.3.tar.gz -C .
-    cd petsc-3.19.3
+    cd petsc-3.19.3 || exit 1
     ./configure \
-	--prefix=$WORKDIR/petsc \
+	--prefix="$WORKDIR"/petsc \
         CXXOPTFLAGS='-O3 -march=cascadelake -funroll-loops' COPTFLAGS='-O3 -march=cascadelake -funroll-loops' FOPTFLAGS='-O3 -march=cascadelake' \
 	--with-debugging=0 \
 	--with-ssl=0 \
@@ -40,16 +40,16 @@ function build_petsc() {
     --download-metis=1 \
     --download-ptscotch=1 \
     --download-parmetis=1 \
-    --download-superlu_dist=$WORKDIR/superlu_dist-8.1.0.tar.gz \
+    --download-superlu_dist="$WORKDIR"/superlu_dist-8.1.0.tar.gz \
     --download-scalapack=1 \
     --download-mumps=1 \
     --download-slepc=1 \
     --with-64-bit-indices=1 \
     --with-mpi-dir=/usr/local/Cluster-Apps/openmpi/gcc/9.3/4.0.4 \
-    PETSC_DIR=`pwd` PETSC_ARCH=arch-linux-c-opt
+    PETSC_DIR=$(pwd) PETSC_ARCH=arch-linux-c-opt
     make
-    make PETSC_DIR=$WORKDIR/petsc/petsc-3.19.3 PETSC_ARCH=arch-linux-c-opt install
-    make PETSC_DIR=$WORKDIR/petsc PETSC_ARCH="" check
+    make PETSC_DIR="$WORKDIR"/petsc/petsc-3.19.3 PETSC_ARCH=arch-linux-c-opt install
+    make PETSC_DIR="$WORKDIR"/petsc PETSC_ARCH="" check
     cd ..
     cd ..
     export PETSC_DIR=$WORKDIR/petsc
@@ -57,16 +57,16 @@ function build_petsc() {
 
 function build_moose() {
     export MOOSE_JOBS=32
-    cd $WORKDIR
+    cd "$WORKDIR" || exit 1
     if [ -d "$WORKDIR/moose" ] ; then
        return
     fi
 #    _build_mpich33
     load_modules
     #build_vtk_git
-    cd $WORKDIR
+    cd "$WORKDIR" || exit 1
     git clone https://github.com/idaholab/moose
-    cd moose
+    cd moose || exit 1
     git checkout master
     if [ ! -f "$WORKDIR/petsc/lib/libpetsc.so" ] ; then
       echo "PETSc Install Unsuccessful"
@@ -82,20 +82,20 @@ function build_moose() {
     export FC=mpif90
     if [ -d "$WORKDIR/vtk" ] ; then
       echo "building libmesh with VTK"
-      METHODS='opt' ./scripts/update_and_rebuild_libmesh.sh --with-mpi --with-cxx-std=2017 --with-vtk-include=$WORKDIR/vtk/include/vtk-9.1 --with-vtk-lib=$WORKDIR/vtk/lib64
+      METHODS='opt' ./scripts/update_and_rebuild_libmesh.sh --with-mpi --with-cxx-std=2017 --with-vtk-include="$WORKDIR"/vtk/include/vtk-9.1 --with-vtk-lib="$WORKDIR"/vtk/lib64
     else
       echo "Building libmesh withOUT VTK"
       METHODS='opt' ./scripts/update_and_rebuild_libmesh.sh --with-mpi
     fi
     ./configure --with-derivative-size=200 --with-ad-indexing-type=global
     METHODS='opt' ./scripts/update_and_rebuild_wasp.sh
-    cd framework
+    cd framework || exit 1
     METHOD=opt make -j32
     cd ..
-    cd modules
+    cd modules || exit 1
     METHOD=opt make -j32
     cd ..
-    cd test
+    cd test || exit 1
     METHOD=opt make -j32
     ./run_tests -j32
     cd ..
@@ -103,16 +103,16 @@ function build_moose() {
 }
 
 function build_mfem() {
-    cd $WORKDIR
+    cd "$WORKDIR" || exit 1
     if [ -d "$WORKDIR/mfem" ] ; then
        return
     fi
     git clone https://github.com/Heinrich-BR/mfem.git
-    cd mfem 
+    cd mfem || exit 1
     git checkout SubmeshBoundary
-    sed -i "s|list|# list|g" $WORKDIR/mfem/config/cmake/modules/FindNetCDF.cmake
+    sed -i "s|list|# list|g" "$WORKDIR"/mfem/config/cmake/modules/FindNetCDF.cmake
     mkdir build
-    cd build
+    cd build || exit 1
     echo "Building MFEM"
     cmake .. \
         -DCMAKE_BUILD_TYPE=Release \
@@ -120,41 +120,41 @@ function build_mfem() {
         -DMFEM_SHARED=YES \
         -DMFEM_USE_OPENMP=YES \
         -DMFEM_THREAD_SAFE=NO \
-        -DHYPRE_DIR=/$WORKDIR/petsc/ \
-        -DBLAS_LIBRARIES=/$WORKDIR/petsc/lib/libfblas.a \
-        -DLAPACK_LIBRARIES=/$WORKDIR/petsc/lib/libflapack.a \
+        -DHYPRE_DIR=/"$WORKDIR"/petsc/ \
+        -DBLAS_LIBRARIES=/"$WORKDIR"/petsc/lib/libfblas.a \
+        -DLAPACK_LIBRARIES=/"$WORKDIR"/petsc/lib/libflapack.a \
         -DMFEM_USE_MPI=YES \
         -DMFEM_USE_METIS_5=YES \
-        -DMETIS_DIR=/$WORKDIR/petsc/ \
-        -DParMETIS_DIR=/$WORKDIR/petsc/ \
+        -DMETIS_DIR=/"$WORKDIR"/petsc/ \
+        -DParMETIS_DIR=/"$WORKDIR"/petsc/ \
         -DMFEM_USE_SUPERLU=YES \
-        -DSuperLUDist_DIR=/$WORKDIR/petsc/ \
+        -DSuperLUDist_DIR=/"$WORKDIR"/petsc/ \
         -DMFEM_USE_NETCDF=YES \
-        -DNETCDF_LIBRARIES=$WORKDIR/moose/libmesh/installed/lib/libnetcdf.so \
-        -DNETCDF_INCLUDE_DIRS=$WORKDIR/moose/libmesh/contrib/netcdf/netcdf-c-4.6.2/include \
+        -DNETCDF_LIBRARIES="$WORKDIR"/moose/libmesh/installed/lib/libnetcdf.so \
+        -DNETCDF_INCLUDE_DIRS="$WORKDIR"/moose/libmesh/contrib/netcdf/netcdf-c-4.6.2/include \
         -DHDF5_DIR=/usr/local/Cluster-Apps/hdf5/openmpi/gcc/9.3/1.12.0 \
         -DCMAKE_POLICY_DEFAULT_CMP0057=NEW
     make -j"$compile_cores"
-    cd miniapps/common
+    cd miniapps/common || exit 1
     make -j"$compile_cores"
 }
 
 function build_platypus() {
-    cd $WORKDIR
+    cd "$WORKDIR" || exit 1
     if [ -d "$WORKDIR/platypus" ] ; then
        return
     fi
 
     git clone https://github.com/aurora-multiphysics/platypus.git
-    cd platypus
+    cd platypus || exit 1
     git checkout master
     git submodule update --init --recursive
-    cd contrib/hephaestus/
+    cd contrib/hephaestus/ || exit 1
     mkdir build
-    cd build
-    cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DMFEM_DIR=/$WORKDIR/mfem/build -DMFEM_COMMON_INCLUDES=/$WORKDIR/mfem/miniapps/common  ..
+    cd build || exit 1
+    cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DMFEM_DIR=/"$WORKDIR"/mfem/build -DMFEM_COMMON_INCLUDES=/"$WORKDIR"/mfem/miniapps/common  ..
     make -j1
-    cd /$WORKDIR/platypus
+    cd /"$WORKDIR"/platypus || exit 1
     make -j"$compile_cores"
 }
 
