@@ -36,3 +36,5 @@ jobs:
           # shellcheck disable=SC2086
           docker run $ci_env -e CI=true ci-platypus-ubuntu:latest \
                  bash /opt/platypus/scripts/upload-coverage.sh
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
