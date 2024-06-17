@@ -31,7 +31,7 @@
 
 ### Relevant MOOSE/libMesh GitHub issues/PRs
 
-- Issue #
+- libMesh/libmesh#3884
 - Issue #
 - Issue #
 
@@ -64,7 +64,7 @@
 
 ### Relevant MOOSE/libMesh GitHub issues/PRs
 
-- Issue #
+- idaholab/moose#26595
 - Issue #
 - Issue #
 
