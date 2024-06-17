@@ -10,6 +10,8 @@
 
 ### Affected Problems
 
+- All non-trivial problems since, in general, problems benefit quicker from p-refinement than from h-refinement, i.e. for the same error it is usually more efficient to use a higher order set of basis functions than to refine the underlying mesh.
+
 ### Relevant MOOSE/libMesh GitHub issues/PRs
 
 - Issue #
@@ -25,6 +27,8 @@
 
 ### Affected Problems
 
+- Any non-trivial problem in H(curl) or H(div) discretised with ND1 or RT FEs, respectively, since these are likely to benefit from p-refinement for the reasons above.
+
 ### Relevant MOOSE/libMesh GitHub issues/PRs
 
 - Issue #
@@ -38,6 +42,8 @@
 - Orientation information needed when setting up hypre's AMS and ADS preconditioners not provided, since orientation information is currently calculated on-the-fly in libMesh. These preconditioners are thus currently unavailable to the user in both libMesh and MOOSE.
 
 ### Affected Problems
+
+- Any non-trivial problem in H(curl) or H(div) discretised with ND1 or RT FEs, respectively.
 
 ### Relevant MOOSE/libMesh GitHub issues/PRs
 
@@ -54,6 +60,8 @@
 
 ### Affected Problems
 
+- Any kind of problem which uses ND1 or RT FEs, such as electromagnetic formulations.
+
 ### Relevant MOOSE/libMesh GitHub issues/PRs
 
 - Issue #
@@ -67,6 +75,8 @@
 - Systems of complex variables are difficult to set up in MOOSE, and separate kernels for real and imaginary components must be created - highly error prone.
 
 ### Affected Problems
+
+- Any kind of problem we might like to solve in the frequency domain.
 
 ### Relevant MOOSE/libMesh GitHub issues/PRs
 
