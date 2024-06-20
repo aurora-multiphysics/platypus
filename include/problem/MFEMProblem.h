@@ -23,7 +23,7 @@
 #include "SystemBase.h"
 #include "Transient.h"
 #include "Steady.h"
-#include "hephaestus.hpp"
+#include "hephaestus.h"
 #include "libmesh/string_to_enum.h"
 #include "libmesh/point.h"
 
@@ -147,7 +147,8 @@ protected:
   void setMOOSEElementalVarData(MooseVariableFieldBase & moose_variable);
 
   /**
-   * Template method for adding kernels. We can only add kernels using equation system problem builders.
+   * Template method for adding kernels. We can only add kernels using equation system problem
+   * builders.
    */
   template <class T>
   void addKernel(std::string var_name, std::shared_ptr<hephaestus::Kernel<T>> kernel)
@@ -156,13 +157,15 @@ protected:
 
     EquationSystemProblemBuilderInterface * eqn_system_problem_builder{nullptr};
 
-    if ((eqn_system_problem_builder = dynamic_cast<EquationSystemProblemBuilderInterface *>(mfem_problem_builder.get())))
+    if ((eqn_system_problem_builder =
+             dynamic_cast<EquationSystemProblemBuilderInterface *>(mfem_problem_builder.get())))
     {
       eqn_system_problem_builder->AddKernel(std::move(var_name), std::move(kernel));
     }
-    else 
+    else
     {
-      mooseError("Cannot add kernel with name '" + var_name + "' because there is no equation system.");
+      mooseError("Cannot add kernel with name '" + var_name +
+                 "' because there is no equation system.");
     }
   }
 
@@ -170,7 +173,7 @@ protected:
   std::string _formulation_name;
   int _order;
 
-  hephaestus::Coefficients _coefficients;
+  Coefficients _coefficients;
   hephaestus::InputParameters _solver_options;
   hephaestus::Outputs _outputs;
   hephaestus::InputParameters _exec_params;
