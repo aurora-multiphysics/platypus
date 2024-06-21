@@ -16,6 +16,10 @@ endif
 
 # framework
 FRAMEWORK_DIR      := $(MOOSE_DIR)/framework
+
+# Disable MOOSE error: Werror=reorder temporarily.
+ADDITIONAL_CPPFLAGS += -Wno-reorder
+
 include $(FRAMEWORK_DIR)/build.mk
 include $(FRAMEWORK_DIR)/moose.mk
 
