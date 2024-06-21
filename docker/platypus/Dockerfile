@@ -12,23 +12,11 @@ ARG build_git_repo=aurora-multiphysics/platypus
 # By default we install everything under /opt
 ARG WORKDIR=opt
 
-# Get Platypus with Hephaestus
+# Get Platypus
 RUN cd /$WORKDIR && \
     git clone https://github.com/$build_git_repo && \
     cd platypus && \
-    git checkout $build_git_sha && \
-    git submodule update --init --recursive
-
-# Build Hephaestus
-RUN cd /$WORKDIR/platypus/contrib/hephaestus/ && \
-    mkdir build && \
-    cd build && \
-    cmake -G Ninja -DCMAKE_BUILD_TYPE=Release -DMFEM_DIR=/$WORKDIR/mfem/build .. && \
-    ninja
-
-# Test Hephaestus
-RUN cd /$WORKDIR/platypus/contrib/hephaestus/build && \
-    ninja test
+    git checkout $build_git_sha
 
 # Build Platypus
 RUN cd /$WORKDIR/platypus && \
