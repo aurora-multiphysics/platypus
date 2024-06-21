@@ -49,12 +49,6 @@ RUN pip install packaging && \
     pip install setuptools && \
     pip install jinja2
 
-# Install GSLib
-RUN cd /$WORKDIR && \
-    git clone https://github.com/Nek5000/gslib.git && \
-    cd gslib/ && \
-    make CFLAGS='-O2 -fPIC'
-
 # Install CMake
 RUN cd /$WORKDIR && \
     git clone https://github.com/Kitware/CMake.git && \
@@ -133,8 +127,6 @@ RUN cd /$WORKDIR && \
     -DSuperLUDist_DIR=/$WORKDIR/petsc/ \
     -DMFEM_USE_NETCDF=YES \
     -DHDF5_DIR=/usr/lib/x86_64-linux-gnu/hdf5/mpich/ \
-    -DMFEM_USE_GSLIB=YES \
-    -DGSLIB_DIR=/$WORKDIR/gslib/build && \
     make -j"$compile_cores" && \
     cd miniapps/common && \
     make -j"$compile_cores"
