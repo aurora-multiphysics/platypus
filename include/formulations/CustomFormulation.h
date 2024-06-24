@@ -11,10 +11,6 @@ public:
   CustomFormulation(const InputParameters & parameters);
   virtual ~CustomFormulation();
 
-  virtual void execute() override {}
-  virtual void initialize() override {}
-  virtual void finalize() override {}
-
   std::shared_ptr<platypus::ProblemBuilder> getProblemBuilder() override { return formulation; }
 
 private:
