@@ -1,0 +1,13 @@
+[*.sh]
+indent_style = space
+indent_size = 4
+space_redirects = true
+keep_padding = true
+never_split = true
+
+[unit/run_tests]
+indent_style = space
+indent_size = 4
+space_redirects = true
+keep_padding = true
+never_split = true

@@ -1,30 +1,40 @@
+---
 name: BuildTest
 on:
   push:
     branches:
-       - main
+      - main
   pull_request:
     branches:
-       - main
+      - main
 
 jobs:
   docker-build-test-ubuntu:
     runs-on: ubuntu-latest
     name: BuildTestUbuntu
     env:
-      PRCOMMITSHA : ${{ github.event.pull_request.head.sha }}
+      PRCOMMITSHA: ${{ github.event.pull_request.head.sha }}
       PRREPOSITORY: ${{ github.event.pull_request.head.repo.full_name }}
     steps:
       # First check out the repository to get the docker file
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       # Print the context for this GitHub workflow
       - name: PrintGithubContext
-        run: echo ${PRCOMMITSHA:-$GITHUB_SHA} ${PRREPOSITORY:-$GITHUB_REPOSITORY}
+        run: echo "${PRCOMMITSHA:-$GITHUB_SHA}" "${PRREPOSITORY:-$GITHUB_REPOSITORY}"
       # Now build in a container with all deps
       - name: DockerBuildTest
         run: |
              docker build -t ci-platypus-ubuntu \
-                          --build-arg build_git_sha=${PRCOMMITSHA:-$GITHUB_SHA} \
-                          --build-arg build_git_repo=${PRREPOSITORY:-$GITHUB_REPOSITORY} \
+                          --build-arg build_git_sha="${PRCOMMITSHA:-$GITHUB_SHA}" \
+                          --build-arg build_git_repo="${PRREPOSITORY:-$GITHUB_REPOSITORY}" \
+                          --build-arg coverage=true \
                           docker/platypus
+      - name: UploadCoverage
+        run: |
+          ci_env=$(bash <(curl -s https://codecov.io/env))
+          # shellcheck disable=SC2086
+          docker run $ci_env -e CI=true ci-platypus-ubuntu:latest \
+                 bash /opt/platypus/scripts/upload-coverage.sh
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-REPO_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/../"
+REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/../"
 hookfile="$REPO_DIR/.git/hooks/pre-commit"
 
 if [[ -f $hookfile ]]; then
@@ -8,7 +8,8 @@ if [[ -f $hookfile ]]; then
     exit 1
 fi
 
-echo '#!/bin/bash
+cat << 'EOF' > "$hookfile"
+#!/bin/bash
 patch=$(git clang-format --diff -- $(git diff --staged --name-only -- src include tests unit))
 if [[ "$patch" =~ "no modified files to format" || "$patch" =~ "clang-format did not modify any files" ]]; then
     echo "" > /dev/null
@@ -20,7 +21,6 @@ else
     echo "$patch"
     exit 1
 fi
-' > $hookfile
+EOF
 
-chmod a+x $hookfile
-
+chmod a+x "$hookfile"
