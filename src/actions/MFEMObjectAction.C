@@ -1,4 +1,5 @@
 #include "MFEMObjectAction.h"
+#include "MFEMProblem.h"
 
 InputParameters
 MFEMObjectAction::validParams()

@@ -1,9 +1,10 @@
 #pragma once
 
-#include "MFEMProblem.h"
-
 // MOOSE includes
 #include "MooseObjectAction.h"
+
+// Forward declaration.
+class MFEMProblem;
 
 /*
  * This class adds a getMFEMProblem method.
