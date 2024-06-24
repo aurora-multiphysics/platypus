@@ -1,10 +1,10 @@
 #pragma once
 
-#include "GeneralUserObject.h"
+#include "MFEMGeneralUserObject.h"
 #include "coefficients.h"
 #include "auxsolver_base.h"
 
-class MFEMAuxSolver : public GeneralUserObject
+class MFEMAuxSolver : public MFEMGeneralUserObject
 {
 public:
   static InputParameters validParams();
