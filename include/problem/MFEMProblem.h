@@ -172,6 +172,8 @@ protected:
   std::string _input_mesh;
   std::string _formulation_name;
   int _order;
+  mfem::Device _device;
+
 
   hephaestus::Coefficients _coefficients;
   hephaestus::InputParameters _solver_options;
