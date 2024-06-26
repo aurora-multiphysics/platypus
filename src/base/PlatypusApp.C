@@ -64,6 +64,8 @@ associateSyntaxInner(Syntax & syntax, ActionFactory & /*action_factory*/)
   addTaskDependency("add_elemental_field_variable", "add_mfem_fespaces");
   addTaskDependency("add_kernel", "add_mfem_fespaces");
   addTaskDependency("add_mfem_sources", "add_mfem_fespaces");
+
+  appendMooseObjectTask("add_aux_variable", MFEMVariable);
 }
 
 void
