@@ -1,7 +1,7 @@
 ############################### HEPHAESTUS ######################################
 #################################################################################
 MFEM_DIR				:=$(APPLICATION_DIR)/../mfem/build
-HEPHAESTUS_DIR 			:=$(APPLICATION_DIR)/contrib/hephaestus
+HEPHAESTUS_DIR 			:=$(APPLICATION_DIR)/contrib/hephaestus_master
 
 include $(MFEM_DIR)/config/config.mk
 MFEM_INCLUDES 			:= -I$(MFEM_INC_DIR)/config -I$(MFEM_DIR)/ -I$(MFEM_DIR)/../miniapps/common

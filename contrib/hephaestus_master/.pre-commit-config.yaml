@@ -1,0 +1,11 @@
+repos:
+- repo: https://github.com/pre-commit/mirrors-clang-format
+  rev: v14.0.6
+  hooks:
+  - id: clang-format
+
+- repo: https://github.com/pocc/pre-commit-hooks
+  rev: v1.3.5
+  hooks:
+  - id: clang-tidy
+    args: [-p=./build, -config-file=./.clang-tidy, --warnings-as-errors=*, -extra-arg=-std=c++17, -extra-arg=-stdlib=libstdc++]
