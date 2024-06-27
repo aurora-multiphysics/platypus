@@ -150,13 +150,6 @@ function build_platypus() {
     git clone https://github.com/aurora-multiphysics/platypus.git
     cd platypus || exit 1
     git checkout master
-    git submodule update --init --recursive
-    cd contrib/hephaestus/ || exit 1
-    mkdir build
-    cd build || exit 1
-    cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DMFEM_DIR=/"$WORKDIR"/mfem/build -DMFEM_COMMON_INCLUDES=/"$WORKDIR"/mfem/miniapps/common  ..
-    make -j1
-    cd /"$WORKDIR"/platypus || exit 1
     make -j"$compile_cores"
 }
 
