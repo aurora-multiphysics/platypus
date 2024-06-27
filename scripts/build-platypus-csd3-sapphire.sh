@@ -279,14 +279,6 @@ function build_platypus() {
     git clone https://github.com/aurora-multiphysics/platypus.git
     cd platypus || exit 1
     git checkout ${PLATYPUS_COMMIT}
-    git submodule update --init --recursive
-    cd contrib/hephaestus/ || exit 1
-    # git checkout master
-    mkdir build
-    cd build || exit 1
-    cmake -G Ninja -DCMAKE_BUILD_TYPE=Release -DMFEM_DIR=/"$WORKDIR"/mfem/build ..
-    ninja
-    cd /"$WORKDIR"/platypus || exit 1
     make -j"$compile_cores"
 }
 
