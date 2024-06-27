@@ -12,10 +12,6 @@ public:
   MFEMVariableDependentFunctionCoefficient(const InputParameters & parameters);
   virtual ~MFEMVariableDependentFunctionCoefficient();
 
-  virtual void execute() override {}
-  virtual void initialize() override {}
-  virtual void finalize() override {}
-
   double Eval(mfem::ElementTransformation & trans, const mfem::IntegrationPoint & ip) override;
 
   std::shared_ptr<mfem::Coefficient> getCoefficient() const override

@@ -62,10 +62,6 @@ public:
   MFEMJouleHeatingAux(const InputParameters & parameters);
   virtual ~MFEMJouleHeatingAux();
 
-  virtual void execute() override {}
-  virtual void initialize() override {}
-  virtual void finalize() override {}
-
   inline std::shared_ptr<platypus::AuxSolver> getAuxSolver() const override
   {
     return joule_heating_aux;
