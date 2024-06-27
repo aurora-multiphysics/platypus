@@ -55,7 +55,7 @@ printer:
 
 # dep apps
 APPLICATION_DIR    := $(CURDIR)
-PLATYPUS_DIR         := $(CURDIR)
+PLATYPUS_DIR       := $(CURDIR)
 APPLICATION_NAME   := platypus
 BUILD_EXEC         := yes
 GEN_REVISION       := no
