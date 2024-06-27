@@ -16,8 +16,9 @@ ARG WORKDIR=opt
 ARG coverage=false
 
 # Get Platypus
-RUN cd /$WORKDIR && \
-    git clone https://github.com/$build_git_repo && \
+WORKDIR /$WORKDIR
+# hadolint ignore=DL3003
+RUN git clone https://github.com/$build_git_repo && \
     cd platypus && \
     git checkout $build_git_sha
 

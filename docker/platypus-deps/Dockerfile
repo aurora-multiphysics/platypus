@@ -10,9 +10,10 @@ ENV OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1
 ARG compile_cores=4
 
 # By default checkout mfem-moose branch
-ARG OPT_DIR="opt"
+ARG WORKDIR=opt
 
 # Install apt dependencies
+# hadolint ignore=DL3008
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get install -y --no-install-recommends \
     build-essential \
     bison \
@@ -41,39 +42,44 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get install 
     libsdl2-dev \
     libssl-dev \
     rsync \
-    xxd
+    xxd && \
+    rm -rf /var/lib/apt/lists/*
 
 # Install pip packages
+# hadolint ignore=DL3042,DL3013
 RUN pip install packaging && \
     pip install pyyaml && \
     pip install setuptools && \
     pip install jinja2
 
 # Install CMake
-WORKDIR /$OPT_DIR
+WORKDIR /$WORKDIR
+# hadolint ignore=DL3003
 RUN git clone https://github.com/Kitware/CMake.git && \
     cd CMake/ && \
     git checkout 78ae759 && \
     ./bootstrap --parallel="$compile_cores" && \
     make -j"$compile_cores" && \
     make install && \
-    alias cmake='/$OPT_DIR/CMake/bin/cmake'
+    alias cmake='/$WORKDIR/CMake/bin/cmake'
 
 # Download SuperLU
-WORKDIR /$OPT_DIR
+WORKDIR /$WORKDIR
 RUN curl -LJO https://github.com/xiaoyeli/superlu_dist/archive/refs/tags/v8.1.0.tar.gz
 
 # Download PETSc
-WORKDIR /$OPT_DIR
+WORKDIR /$WORKDIR
+# hadolint ignore=DL3003,SC2006
 RUN mkdir petsc && \
     cd petsc && \
     curl -L -O http://ftp.mcs.anl.gov/pub/petsc/release-snapshots/petsc-3.19.3.tar.gz && \
     tar -xf petsc-3.19.3.tar.gz -C .
 
 # Build PETSc
-WORKDIR /$OPT_DIR/petsc/petsc-3.19.3
+WORKDIR /$WORKDIR/petsc/petsc-3.19.3
+# hadolint ignore=DL3003,SC2006
 RUN ./configure \
-    --prefix=/$OPT_DIR/petsc \
+    --prefix=/$WORKDIR/petsc \
     CXXOPTFLAGS='-O3 -funroll-loops' COPTFLAGS='-O3 -funroll-loops' FOPTFLAGS='-O3' \
     --with-debugging=0 \
     --with-ssl=0 \
@@ -88,7 +94,7 @@ RUN ./configure \
     --download-metis=1 \
     --download-ptscotch=1 \
     --download-parmetis=1 \
-    --download-superlu_dist=/$OPT_DIR/superlu_dist-8.1.0.tar.gz \
+    --download-superlu_dist=/$WORKDIR/superlu_dist-8.1.0.tar.gz \
     --download-scalapack=1 \
     --download-mumps=1 \
     --download-slepc=1 \
@@ -97,15 +103,17 @@ RUN ./configure \
     make
 
 # Install PETSc
-WORKDIR /$OPT_DIR/petsc/petsc-3.19.3
-RUN make PETSC_DIR=/$OPT_DIR/petsc/petsc-3.19.3 PETSC_ARCH=arch-linux-c-opt install && \
-    make PETSC_DIR=/$OPT_DIR/petsc/petsc-3.19.3 PETSC_ARCH=arch-linux-c-opt check && \
+WORKDIR /$WORKDIR/petsc/petsc-3.19.3
+# hadolint ignore=DL3003
+RUN make PETSC_DIR=/$WORKDIR/petsc/petsc-3.19.3 PETSC_ARCH=arch-linux-c-opt install && \
+    make PETSC_DIR=/$WORKDIR/petsc/petsc-3.19.3 PETSC_ARCH=arch-linux-c-opt check && \
     cd .. && \
     cd .. && \
-    export PETSC_DIR=/$OPT_DIR/petsc
+    export PETSC_DIR=/$WORKDIR/petsc
 
 # Build MFEM and common miniapp
-WORKDIR /$OPT_DIR
+WORKDIR /$WORKDIR
+# hadolint ignore=DL3003
 RUN git clone https://github.com/Heinrich-BR/mfem.git && \
     cd mfem && \
     git checkout SubmeshBoundary && \
@@ -116,15 +124,15 @@ RUN git clone https://github.com/Heinrich-BR/mfem.git && \
     -DCMAKE_POSITION_INDEPENDENT_CODE=YES \
     -DMFEM_USE_OPENMP=NO \
     -DMFEM_THREAD_SAFE=NO \
-    -DHYPRE_DIR=/$OPT_DIR/petsc/ \
-    -DBLAS_LIBRARIES=/$OPT_DIR/petsc/lib/libfblas.a \
-    -DLAPACK_LIBRARIES=/$OPT_DIR/petsc/lib/libflapack.a \
+    -DHYPRE_DIR=/$WORKDIR/petsc/ \
+    -DBLAS_LIBRARIES=/$WORKDIR/petsc/lib/libfblas.a \
+    -DLAPACK_LIBRARIES=/$WORKDIR/petsc/lib/libflapack.a \
     -DMFEM_USE_MPI=YES \
     -DMFEM_USE_METIS_5=YES \
-    -DMETIS_DIR=/$OPT_DIR/petsc/ \
-    -DParMETIS_DIR=/$OPT_DIR/petsc/ \
+    -DMETIS_DIR=/$WORKDIR/petsc/ \
+    -DParMETIS_DIR=/$WORKDIR/petsc/ \
     -DMFEM_USE_SUPERLU=YES \
-    -DSuperLUDist_DIR=/$OPT_DIR/petsc/ \
+    -DSuperLUDist_DIR=/$WORKDIR/petsc/ \
     -DMFEM_USE_NETCDF=YES \
     -DHDF5_DIR=/usr/lib/x86_64-linux-gnu/hdf5/mpich/ \
     make -j"$compile_cores" && \
@@ -132,22 +140,23 @@ RUN git clone https://github.com/Heinrich-BR/mfem.git && \
     make -j"$compile_cores"
 
 # Build GLVis
-WORKDIR /$OPT_DIR
+WORKDIR /$WORKDIR
+# hadolint ignore=DL3003
 RUN git clone https://github.com/GLVis/glvis.git && \
     cd glvis/ && \
     mkdir build && \
     cd build/ && \
-    cmake -G Ninja -DMFEM_DIR=/$OPT_DIR/mfem/build .. && \
+    cmake -G Ninja -DMFEM_DIR=/$WORKDIR/mfem/build .. && \
     ninja
 
 # Configure MOOSE
-WORKDIR /$OPT_DIR
+WORKDIR /$WORKDIR
 # hadolint ignore=DL3003
 RUN export MOOSE_JOBS=$compile_cores && \
     git clone https://github.com/idaholab/moose && \
     cd moose && \
     git checkout master && \
-    export PETSC_DIR=/$OPT_DIR/petsc && \
+    export PETSC_DIR=/$WORKDIR/petsc && \
     export PETSC_ARCH=arch-linux-c-opt && \
     export CC=mpicc && \
     export CXX=mpicxx && \
@@ -158,14 +167,14 @@ RUN export MOOSE_JOBS=$compile_cores && \
     ./configure --with-derivative-size=200
 
 # Build WASP
-WORKDIR /$OPT_DIR/moose/scripts
+WORKDIR /$WORKDIR/moose/scripts
 RUN METHODS=opt ./update_and_rebuild_wasp.sh
 
 # Build MOOSE
-WORKDIR /$OPT_DIR/moose/framework
+WORKDIR /$WORKDIR/moose/framework
 RUN METHOD=opt make -j$compile_cores
 
-WORKDIR /$OPT_DIR/moose/test
+WORKDIR /$WORKDIR/moose/test
 RUN METHOD=opt make -j$compile_cores
 
 # This is needed or it mpiexec complains because docker runs as root
@@ -173,7 +182,7 @@ RUN METHOD=opt make -j$compile_cores
 ENV OMPI_ALLOW_RUN_AS_ROOT=1
 ENV OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1
 
-# WORKDIR /$OPT_DIR/moose/test
+# WORKDIR /$WORKDIR/moose/test
 # RUN ./run_tests -j"$compile_cores" --re='(?!initial_condition.newton_with_exact_initialization)'
 
 # ENV OMPI_ALLOW_RUN_AS_ROOT=
