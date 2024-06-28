@@ -249,6 +249,3 @@ conf_vars.mk
 
 # Ignoring all of OutputData
 **/OutputData/
-
-#Ignore output mfem meshes
-*.mesh
