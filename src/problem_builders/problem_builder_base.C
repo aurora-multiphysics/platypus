@@ -11,16 +11,6 @@ Problem::~Problem()
 }
 
 void
-ProblemBuilder::SetMesh(std::shared_ptr<mfem::ParMesh> pmesh)
-{
-  // logger.info("Setting Mesh");
-  GetProblem()->_pmesh = pmesh;
-  GetProblem()->_comm = pmesh->GetComm();
-  MPI_Comm_size(pmesh->GetComm(), &(GetProblem()->_num_procs));
-  MPI_Comm_rank(pmesh->GetComm(), &(GetProblem()->_myid));
-}
-
-void
 ProblemBuilder::SetFESpaces(platypus::FESpaces & fespaces)
 {
   // logger.info("Setting FE Spaces");
