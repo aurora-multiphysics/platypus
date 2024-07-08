@@ -52,6 +52,23 @@ MFEMProblem::outputStep(ExecFlagType type)
 }
 
 void
+MFEMProblem::addMFEMSolverIfMissing()
+{
+  if (mfem_problem->_jacobian_solver != nullptr)
+  {
+    return; // No missing solver.
+  }
+
+  // Construct HypreGMRES solver (with no preconditioner!)
+  InputParameters solver_params = _factory.getValidParams("MFEMHypreGMRESSolver");
+
+  addMFEMSolver("MFEMHypreGMRESSolver", "Solver", solver_params);
+
+  // Print warning.
+  mooseWarning("No [Solver] block found. Using HypreGMRES solver with default parameters.");
+}
+
+void
 MFEMProblem::initialSetup()
 {
   FEProblemBase::initialSetup();
@@ -61,11 +78,11 @@ MFEMProblem::initialSetup()
 
   mfem_problem_builder->SetCoefficients(_coefficients);
 
+  // Check for and add (if missing) a Jacobian solver.
+  addMFEMSolverIfMissing();
+
   // NB: set to false to avoid reconstructing problem operator.
   mfem_problem_builder->FinalizeProblem(false);
-
-  // Verify that the Jacobian solver has been set.
-  checkJacobianSolverSet();
 
   platypus::InputParameters exec_params;
 
@@ -285,16 +302,6 @@ MFEMProblem::addAuxKernel(const std::string & kernel_name,
   else
   {
     mooseError("Unrecognized auxkernel base class '", base_auxkernel, "' detected.");
-  }
-}
-
-void
-MFEMProblem::checkJacobianSolverSet() const
-{
-  bool is_set = (mfem_problem && mfem_problem->_jacobian_solver);
-  if (!is_set)
-  {
-    mooseError("The Jacobian solver has not been set.");
   }
 }
 

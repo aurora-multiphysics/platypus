@@ -141,9 +141,10 @@ public:
 
 protected:
   /**
-   * Verifies that the Jacobian solver was set. The user must have a [Solve] block.
+   * Called internally. If there is no MFEM solver found, a default solver will
+   * be added with sensible options. A warning will be printed.
    */
-  void checkJacobianSolverSet() const;
+  void addMFEMSolverIfMissing();
 
   /**
    * Called internally by setMFEMVarData.
