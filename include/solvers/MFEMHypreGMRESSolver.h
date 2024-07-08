@@ -17,7 +17,8 @@ public:
   std::shared_ptr<mfem::Solver> getSolver() const override { return _solver; }
 
 protected:
-  void constructSolver(co
+  void constructSolver(const InputParameters & parameters) override;
+
 private:
   std::shared_ptr<mfem::HypreGMRES> _solver{nullptr};
 };
