@@ -64,9 +64,7 @@ public:
                   int ordering = mfem::Ordering::byNODES);
   void AddGridFunction(std::string gridfunction_name, std::string fespace_name);
 
-  virtual void RegisterFESpaces() = 0;
   virtual void RegisterGridFunctions() = 0;
-  virtual void RegisterCoefficients() = 0;
 
   virtual void SetOperatorGridFunctions() = 0;
   virtual void ConstructNonlinearSolver();
