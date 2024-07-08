@@ -81,8 +81,8 @@ MFEMProblem::initialSetup()
   // Check for and add (if missing) a Jacobian solver.
   addMFEMSolverIfMissing();
 
-  // NB: set to false to avoid reconstructing problem operator.
-  mfem_problem_builder->FinalizeProblem(false);
+  // Finalize construction (problem operator already created).
+  mfem_problem_builder->FinalizeProblem();
 
   platypus::InputParameters exec_params;
 

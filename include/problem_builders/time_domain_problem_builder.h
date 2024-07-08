@@ -19,19 +19,6 @@ public:
     return _problem_operator.get();
   }
 
-  void SetOperator(std::unique_ptr<platypus::TimeDomainProblemOperator> problem_operator)
-  {
-    _problem_operator.reset();
-    _problem_operator = std::move(problem_operator);
-  }
-
-  void ConstructOperator() override
-  {
-    _problem_operator.reset();
-    _problem_operator = std::make_unique<platypus::TimeDomainProblemOperator>(*this);
-  }
-
-private:
   std::unique_ptr<platypus::TimeDomainProblemOperator> _problem_operator{nullptr};
 };
 

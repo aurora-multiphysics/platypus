@@ -35,14 +35,9 @@ ProblemBuilder::InitializeOutputs()
 }
 
 void
-ProblemBuilder::FinalizeProblem(bool build_operator)
+ProblemBuilder::FinalizeProblem()
 {
   RegisterGridFunctions();
-
-  if (build_operator)
-  {
-    ConstructOperator();
-  }
 
   InitializeKernels();
   SetOperatorGridFunctions();

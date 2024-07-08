@@ -35,9 +35,6 @@ public:
 
   /// Returns a pointer to the operator. See derived classes.
   [[nodiscard]] virtual mfem::Operator * GetOperator() const = 0;
-
-  /// Virtual method to construct the operator. Call for default problems.
-  virtual void ConstructOperator() = 0;
 };
 
 /// ProblemBuilder base class.
@@ -62,10 +59,9 @@ public:
 
   void InitializeOutputs();
 
-  /// @brief Call @a FinalizeProblem to setup a problem.
-  /// @param build_operator Skips @a ConstructOperator step if false. Set this to false if the problem
-  /// operator has already been constructed earlier to avoid rebuilding it.
-  void FinalizeProblem(bool build_operator = true);
+  /// @brief Call @a FinalizeProblem to setup a problem. The operator should
+  /// have already been constructed by calling ConstructOperator().
+  void FinalizeProblem();
 
   /// Returns a shared pointer to the problem.
   std::shared_ptr<platypus::Problem> ReturnProblem() { return _problem; }
