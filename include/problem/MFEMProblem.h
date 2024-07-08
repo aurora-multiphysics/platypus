@@ -141,6 +141,11 @@ public:
 
 protected:
   /**
+   * Verifies that the Jacobian solver was set. The user must have a [Solve] block.
+   */
+  void checkJacobianSolverSet() const;
+
+  /**
    * Called internally by setMFEMVarData.
    */
   void setMFEMNodalVarData(MooseVariableFieldBase & moose_variable);
