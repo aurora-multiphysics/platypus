@@ -50,9 +50,6 @@ public:
   // Virtual destructor required to prevent leaks.
   virtual ~ProblemBuilder() = default;
 
-  void SetFESpaces(platypus::FESpaces & fespaces);
-  void SetGridFunctions(platypus::GridFunctions & gridfunctions);
-
   void AddFESpace(std::string fespace_name,
                   std::string fec_name,
                   int vdim = 1,
