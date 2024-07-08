@@ -119,19 +119,6 @@ ProblemBuilder::AddGridFunction(std::string gridfunction_name, std::string fespa
 }
 
 void
-ProblemBuilder::AddBoundaryCondition(std::string bc_name,
-                                     std::shared_ptr<platypus::BoundaryCondition> bc)
-{
-  if (GetProblem()->_bc_map.Has(bc_name))
-  {
-    const std::string error_message = "A boundary condition with the name " + bc_name +
-                                      " has already been added to the problem boundary conditions.";
-    mfem::mfem_error(error_message.c_str());
-  }
-  GetProblem()->_bc_map.Register(bc_name, std::move(bc));
-}
-
-void
 ProblemBuilder::ConstructNonlinearSolver()
 {
   auto nl_solver = std::make_shared<mfem::NewtonSolver>(GetProblem()->_comm);
