@@ -68,13 +68,6 @@ ProblemBuilder::SetJacobianSolver(std::shared_ptr<mfem::Solver> jacobian_solver)
 }
 
 void
-ProblemBuilder::SetCoefficients(platypus::Coefficients & coefficients)
-{
-  // logger.info("Setting Coefficients");
-  GetProblem()->_coefficients = coefficients;
-}
-
-void
 ProblemBuilder::AddFESpace(std::string fespace_name, std::string fec_name, int vdim, int ordering)
 {
   // logger.info("Adding {} FE Space to problem", fespace_name);
