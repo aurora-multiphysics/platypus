@@ -56,15 +56,10 @@ MFEMProblem::initialSetup()
 {
   FEProblemBase::initialSetup();
   EquationSystems & es = FEProblemBase::es();
-  _solver_options.SetParam("Tolerance", float(es.parameters.get<Real>("linear solver tolerance")));
-  _solver_options.SetParam("AbsTolerance",
-                           float(es.parameters.get<Real>("linear solver absolute tolerance")));
-  _solver_options.SetParam("MaxIter",
-                           es.parameters.get<unsigned int>("linear solver maximum iterations"));
+  
   _coefficients.AddGlobalCoefficientsFromSubdomains();
 
   mfem_problem_builder->SetCoefficients(_coefficients);
-  mfem_problem_builder->SetSolverOptions(_solver_options);
 
   // NB: set to false to avoid reconstructing problem operator.
   mfem_problem_builder->FinalizeProblem(false);
