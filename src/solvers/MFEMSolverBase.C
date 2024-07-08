@@ -1,7 +1,4 @@
-#include "MFEMSoverBase.h"
-
-namespace platypus
-{
+#include "MFEMSolverBase.h"
 
 InputParameters
 MFEMSolverBase::validParams()
@@ -13,5 +10,3 @@ MFEMSolverBase::MFEMSolverBase(const InputParameters & parameters)
   : MFEMGeneralUserObject(parameters)
 {
 }
-
-} // platypus
