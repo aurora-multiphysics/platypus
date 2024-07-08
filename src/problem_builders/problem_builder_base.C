@@ -62,12 +62,6 @@ ProblemBuilder::SetJacobianPreconditioner(std::shared_ptr<mfem::Solver> precondi
 }
 
 void
-ProblemBuilder::SetJacobianSolver(std::shared_ptr<mfem::Solver> jacobian_solver)
-{
-  GetProblem()->_jacobian_solver = jacobian_solver;
-}
-
-void
 ProblemBuilder::AddFESpace(std::string fespace_name, std::string fec_name, int vdim, int ordering)
 {
   // logger.info("Adding {} FE Space to problem", fespace_name);
