@@ -58,7 +58,6 @@ public:
   void SetFESpaces(platypus::FESpaces & fespaces);
   void SetGridFunctions(platypus::GridFunctions & gridfunctions);
   void SetBoundaryConditions(platypus::BCMap & bc_map);
-  void SetJacobianPreconditioner(std::shared_ptr<mfem::Solver> preconditioner);
 
   void AddFESpace(std::string fespace_name,
                   std::string fec_name,
