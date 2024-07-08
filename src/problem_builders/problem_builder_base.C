@@ -13,7 +13,7 @@ Problem::~Problem()
 void
 ProblemBuilder::ConstructNonlinearSolver()
 {
-  auto nl_solver = std::make_shared<mfem::NewtonSolver>(GetProblem()->_comm);
+  auto nl_solver = std::make_shared<mfem::NewtonSolver>(GetProblem()->_pmesh->GetComm());
 
   // Defaults to one iteration, without further nonlinear iterations
   nl_solver->SetRelTol(0.0);
