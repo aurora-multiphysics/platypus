@@ -5,7 +5,7 @@ namespace platypus
 
 SteadyExecutioner::SteadyExecutioner(const platypus::InputParameters & params)
   : Executioner(params),
-    _problem(params.GetParam<platypus::SteadyStateProblem *>("Problem")),
+    _problem(params.GetParam<platypus::Problem *>("Problem")),
     _problem_operator(params.GetParam<platypus::ProblemOperator *>("ProblemOperator"))
 {
 }

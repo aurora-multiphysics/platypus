@@ -8,10 +8,8 @@ SteadyStateEquationSystemProblemBuilder::InitializeKernels()
 {
   ProblemBuilder::InitializeKernels();
 
-  GetEquationSystem()->Init(GetProblem()->_gridfunctions,
-                            GetProblem()->_fespaces,
-                            GetProblem()->_bc_map,
-                            GetProblem()->_coefficients);
+  GetEquationSystem()->Init(
+      _problem->_gridfunctions, _problem->_fespaces, _problem->_bc_map, _problem->_coefficients);
 }
 
 } // namespace platypus

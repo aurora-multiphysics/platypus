@@ -6,10 +6,6 @@
 
 namespace platypus
 {
-/// Time-depent problems with an equation system.
-class TimeDomainEquationSystemProblem : public TimeDomainProblem
-{
-};
 
 // Problem-builder for TimeDomainEquationSystemProblem.
 class TimeDomainEquationSystemProblemBuilder : public TimeDomainProblemBuilder,
@@ -17,10 +13,7 @@ class TimeDomainEquationSystemProblemBuilder : public TimeDomainProblemBuilder,
 {
 public:
   /// NB: set "_problem" member variable in parent class.
-  TimeDomainEquationSystemProblemBuilder()
-    : TimeDomainProblemBuilder(new platypus::TimeDomainEquationSystemProblem)
-  {
-  }
+  TimeDomainEquationSystemProblemBuilder() : TimeDomainProblemBuilder(new platypus::Problem) {}
 
   ~TimeDomainEquationSystemProblemBuilder() override = default;
 
@@ -31,18 +24,13 @@ public:
   {
     auto equation_system = std::make_unique<platypus::TimeDependentEquationSystem>();
     auto problem_operator = std::make_shared<platypus::TimeDomainEquationSystemProblemOperator>(
-        *GetProblem(), std::move(equation_system));
+        *_problem, std::move(equation_system));
 
     _problem_operator = std::move(problem_operator);
   }
 
 protected:
-  [[nodiscard]] platypus::TimeDomainEquationSystemProblem * GetProblem() const override
-  {
-    return ProblemBuilder::GetProblem<platypus::TimeDomainEquationSystemProblem>();
-  }
-
-  [[nodiscard]] TimeDomainEquationSystemProblemOperator & GetOperator() const 
+  [[nodiscard]] TimeDomainEquationSystemProblemOperator & GetOperator() const
   {
     return static_cast<TimeDomainEquationSystemProblemOperator &>(*_problem_operator);
   }

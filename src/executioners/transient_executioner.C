@@ -12,7 +12,7 @@ TransientExecutioner::TransientExecutioner(const platypus::InputParameters & par
     _it(0),
     _vis_steps(params.GetOptionalParam<int>("VisualisationSteps", 1)),
     _last_step(false),
-    _problem(params.GetParam<platypus::TimeDomainProblem *>("Problem"))
+    _problem(params.GetParam<platypus::Problem *>("Problem"))
 {
 }
 

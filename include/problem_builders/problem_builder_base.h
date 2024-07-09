@@ -76,21 +76,6 @@ protected:
   {
   }
 
-  /// Overridden in derived classes.
-  [[nodiscard]] virtual platypus::Problem * GetProblem() const = 0;
-
-  /// Helper template getter with safety check.
-  template <class TDerivedProblem>
-  [[nodiscard]] TDerivedProblem * GetProblem() const
-  {
-    if (!_problem)
-    {
-      MFEM_ABORT("platypus::Problem instance is NULL.");
-    }
-
-    return static_cast<TDerivedProblem *>(_problem.get());
-  }
-
   /// Coefficient used in some derived classes.
   mfem::ConstantCoefficient _one_coef{1.0};
 
