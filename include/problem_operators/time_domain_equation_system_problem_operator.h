@@ -3,6 +3,7 @@
 #include "time_domain_problem_operator.h"
 #include "problem_operator_interface.h"
 #include "equation_system_interface.h"
+#include "problem_operator_base.h"
 
 namespace platypus
 {

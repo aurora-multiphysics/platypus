@@ -2,6 +2,7 @@
 #include "../common/pfem_extras.hpp"
 #include "problem_builder_base.h"
 #include "problem_operator_interface.h"
+#include "problem_operator_base.h"
 
 namespace platypus
 {
@@ -13,7 +14,8 @@ std::vector<std::string> GetTimeDerivativeNames(std::vector<std::string> gridfun
 /// Problem operator for time-dependent problems with no equation system. The user will need to subclass this since the solve is not
 /// implemented.
 class TimeDomainProblemOperator : public mfem::TimeDependentOperator,
-                                  public ProblemOperatorInterface
+                                  public ProblemOperatorInterface,
+                                  public ProblemOperatorBase
 {
 public:
   TimeDomainProblemOperator(platypus::Problem & problem) : ProblemOperatorInterface(problem) {}
