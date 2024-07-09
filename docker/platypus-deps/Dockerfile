@@ -56,10 +56,10 @@ RUN pip install --no-cache-dir packaging && \
 # Install CMake
 WORKDIR /$WORKDIR
 RUN git clone https://github.com/Kitware/CMake.git
-WORKDIR $WORKDIR/CMake/
+WORKDIR /$WORKDIR/CMake
 RUN git checkout 78ae759 && \
-    ./bootstrap --parallel="$compile_cores" && \
-    make -j"$compile_cores" && \
+    ./bootstrap --parallel=$compile_cores && \
+    make -j$compile_cores && \
     make install && \
     alias cmake='/$WORKDIR/CMake/bin/cmake'
 
@@ -128,14 +128,14 @@ RUN cmake .. \
     -DMFEM_USE_SUPERLU=YES \
     -DSuperLUDist_DIR=/$WORKDIR/petsc/ \
     -DMFEM_USE_NETCDF=YES \
-    -DHDF5_DIR=/usr/lib/x86_64-linux-gnu/hdf5/mpich/ \
-    make -j"$compile_cores"
-WORKDIR /$WORDIR/mfem/build/miniapps/common
-RUN make -j"$compile_cores"
+    -DHDF5_DIR=/usr/lib/x86_64-linux-gnu/hdf5/mpich/ && \
+    make -j$compile_cores
+WORKDIR /$WORKDIR/mfem/build/miniapps/common
+RUN make -j$compile_cores
 
 # Build GLVis
 WORKDIR /$WORKDIR
-RUN git clone https://github.com/GLVis/glvis.git
+RUN git clone https://github.com/GLVis/glvis.git 
 WORKDIR /$WORKDIR/glvis
 RUN mkdir build
 WORKDIR /$WORKDIR/glvis/build/
