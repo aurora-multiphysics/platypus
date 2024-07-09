@@ -10,8 +10,8 @@
 #SBATCH --output=platypus_gpu_build.%j.out
 #SBATCH --error=platypus_gpu_build.%j.err
 
-## WARNING: THIS SCRIPT WILL UNINSTALL ALL SPACK MODULES ASSOCIATED WITH 
-## THE ARCHITECTURE DEFINED IN THE ARCH VARIABLE. IF YOU DO NOT WISH TO DO 
+## WARNING: THIS SCRIPT WILL UNINSTALL ALL SPACK MODULES ASSOCIATED WITH
+## THE ARCHITECTURE DEFINED IN THE ARCH VARIABLE. IF YOU DO NOT WISH TO DO
 ## THAT, COMMENT OUT THE SPACK UNINSTALL LINE BEFORE SUBMITTING THE SCRIPT
 ## -> UNINSTALL LINE IN THE install_spack_deps() FUNCTION
 ARCH="linux-rocky8-zen"
@@ -39,7 +39,10 @@ set_paths() {
     BUILD_PATH=${ROOT_PATH}/${BUILD_DIR_NAME}
 
     echo "Building in ${BUILD_PATH}"
-    mkdir -p "${BUILD_PATH}" || { echo "Failed to create ${BUILD_PATH}" ; exit 1 ; }
+    mkdir -p "${BUILD_PATH}" || {
+                                  echo "Failed to create ${BUILD_PATH}"
+                                                                          exit 1
+    }
 
     cd "${BUILD_PATH}" || exit 1
 
@@ -48,7 +51,7 @@ set_paths() {
 check_spack() {
 
     cd "${ROOT_PATH}" || exit 1
-     
+
     if [ $(command -v spack) ]; then
         echo "Spack command detected. Using pre-loaded spack."
     elif [ -f ${ROOT_PATH}/spack/share/spack/setup-env.sh ]; then
@@ -104,7 +107,6 @@ install_spack_deps() {
     spack install py-setuptools
     spack load py-setuptools arch=${ARCH}
 
-
 }
 
 install_gslib() {
@@ -152,7 +154,7 @@ install_mfem() {
     if [ $? -eq 2 ]; then
         echo "MFEM config failed"
         exit 1
-    fi 
+    fi
 
     make -j"$compile_cores"
 
@@ -172,7 +174,6 @@ install_moose() {
     export METHOD="opt"
     export SLEPC_DIR=$(spack find --format "{prefix}" slepc arch=${ARCH})
 
-
     cd "${BUILD_PATH}" || exit 1
     git clone https://github.com/idaholab/moose
     cd moose || exit 1
@@ -189,27 +190,27 @@ install_moose() {
     if [ $? -eq 2 ]; then
         echo "WASP build failed"
         exit 1
-    fi 
+    fi
 
     ./configure --with-derivative-size=200
     if [ $? -eq 2 ]; then
         echo "MOOSE configure failed"
         exit 1
-    fi 
+    fi
 
     cd framework || exit 1
     make -j"$compile_cores"
     if [ $? -eq 2 ]; then
         echo "MOOSE framework build failed"
         exit 1
-    fi 
+    fi
 
     cd ../modules || exit 1
     make -j"$compile_cores"
     if [ $? -eq 2 ]; then
         echo "MOOSE modules build failed"
         exit 1
-    fi 
+    fi
 
     # This takes very long! Only run the tests if you really need to!
     #cd ../test || exit 1
@@ -217,7 +218,7 @@ install_moose() {
     #if [ $? -eq 2 ]; then
     #    echo "MOOSE test build failed"
     #    exit 1
-    #fi 
+    #fi
 
     #./run_tests -j"$compile_cores"
 }
