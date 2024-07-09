@@ -6,10 +6,10 @@ FROM ubuntu:22.04
 ENV OMPI_ALLOW_RUN_AS_ROOT=1
 ENV OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1
 
-# By default one core is used to compile
+# By default four cores are used to compile
 ARG compile_cores=4
 
-# By default checkout mfem-moose branch
+# By default we install everything under /opt
 ARG WORKDIR=opt
 
 # Install apt dependencies
