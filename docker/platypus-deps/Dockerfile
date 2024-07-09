@@ -68,7 +68,6 @@ RUN curl -LJO https://github.com/xiaoyeli/superlu_dist/archive/refs/tags/v8.1.0.
 
 # Download PETSc
 WORKDIR /$WORKDIR
-# hadolint ignore=SC2006
 RUN mkdir petsc
 WORKDIR /$WORKDIR/petsc
 RUN curl -L -O http://ftp.mcs.anl.gov/pub/petsc/release-snapshots/petsc-3.19.3.tar.gz && \
@@ -76,7 +75,6 @@ RUN curl -L -O http://ftp.mcs.anl.gov/pub/petsc/release-snapshots/petsc-3.19.3.t
 
 # Build PETSc
 WORKDIR /$WORKDIR/petsc/petsc-3.19.3
-# hadolint ignore=SC2006
 RUN ./configure \
     --prefix=/$WORKDIR/petsc \
     CXXOPTFLAGS='-O3 -funroll-loops' COPTFLAGS='-O3 -funroll-loops' FOPTFLAGS='-O3' \
@@ -98,7 +96,7 @@ RUN ./configure \
     --download-mumps=1 \
     --download-slepc=1 \
     --with-64-bit-indices=1 \
-    PETSC_DIR=`pwd` PETSC_ARCH=arch-linux-c-opt && \
+    PETSC_DIR="$(pwd)" PETSC_ARCH=arch-linux-c-opt && \
     make
 
 # Install PETSc
