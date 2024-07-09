@@ -1,3 +1,6 @@
+# Ignore warnings for not pinning versions in pip, apt-get install.
+# hadolint global ignore=DL3008,DL3013
+
 # Get base image
 FROM ubuntu:22.04
 
@@ -13,7 +16,6 @@ ARG compile_cores=4
 ARG WORKDIR=opt
 
 # Install apt dependencies
-# hadolint ignore=DL3008
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get install -y --no-install-recommends \
     build-essential \
     bison \
@@ -46,7 +48,6 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get install 
     rm -rf /var/lib/apt/lists/*
 
 # Install pip packages
-# hadolint ignore=DL3013
 RUN pip install --no-cache-dir packaging && \
     pip install --no-cache-dir pyyaml && \
     pip install --no-cache-dir setuptools && \
