@@ -21,6 +21,8 @@ export compile_cores=32
 load_modules() {
 
     # Load modules
+
+    # shellcheck source=/dev/null
     . /etc/profile.d/modules.sh                # Leave this line (enables the module command)
     module purge
     module load rhel8/slurm
@@ -39,10 +41,7 @@ set_paths() {
     BUILD_PATH=${ROOT_PATH}/${BUILD_DIR_NAME}
 
     echo "Building in ${BUILD_PATH}"
-    mkdir -p "${BUILD_PATH}" || {
-                                  echo "Failed to create ${BUILD_PATH}"
-                                                                          exit 1
-    }
+    mkdir -p "${BUILD_PATH}" || { echo "Failed to create ${BUILD_PATH}" ; exit 1 ; }
 
     cd "${BUILD_PATH}" || exit 1
 
@@ -51,15 +50,17 @@ set_paths() {
 check_spack() {
 
     cd "${ROOT_PATH}" || exit 1
-
-    if [ $(command -v spack) ]; then
+    
+    if [ "$(command -v spack)" ]; then
         echo "Spack command detected. Using pre-loaded spack."
-    elif [ -f ${ROOT_PATH}/spack/share/spack/setup-env.sh ]; then
+    elif [ -f "${ROOT_PATH}"/spack/share/spack/setup-env.sh ]; then
         echo "Spack detected in root directory. Loading."
+        # shellcheck source=/dev/null
         . spack/share/spack/setup-env.sh
     else
         echo "No spack detected. Building from source."
         git clone --depth=100 https://github.com/spack/spack.git
+        # shellcheck source=/dev/null
         . spack/share/spack/setup-env.sh
     fi
 
@@ -236,7 +237,7 @@ install_platypus() {
     cd build || exit 1
     cmake -G Ninja -DCMAKE_BUILD_TYPE=Release -DMFEM_DIR="${BUILD_PATH}/mfem/build" ..
     ninja
-    cd ${BUILD_PATH}/platypus || exit 1
+    cd "${BUILD_PATH}"/platypus || exit 1
     make -j"$compile_cores"
 
 }
