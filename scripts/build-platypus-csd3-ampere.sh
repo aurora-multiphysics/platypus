@@ -42,8 +42,8 @@ set_paths() {
 
     echo "Building in ${BUILD_PATH}"
     mkdir -p "${BUILD_PATH}" || {
-                                  echo "Failed to create ${BUILD_PATH}"
-                                                                          exit 1
+                                    echo "Failed to create ${BUILD_PATH}"
+                                                                            exit 1
     }
 
     cd "${BUILD_PATH}" || exit 1
