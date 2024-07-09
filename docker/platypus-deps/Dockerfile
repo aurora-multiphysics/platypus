@@ -54,10 +54,9 @@ RUN pip install packaging && \
 
 # Install CMake
 WORKDIR /$WORKDIR
-# hadolint ignore=DL3003
-RUN git clone https://github.com/Kitware/CMake.git && \
-    cd CMake/ && \
-    git checkout 78ae759 && \
+RUN git clone https://github.com/Kitware/CMake.git
+WORKDIR $WORKDIR/CMake/
+RUN git checkout 78ae759 && \
     ./bootstrap --parallel="$compile_cores" && \
     make -j"$compile_cores" && \
     make install && \
@@ -69,15 +68,15 @@ RUN curl -LJO https://github.com/xiaoyeli/superlu_dist/archive/refs/tags/v8.1.0.
 
 # Download PETSc
 WORKDIR /$WORKDIR
-# hadolint ignore=DL3003,SC2006
-RUN mkdir petsc && \
-    cd petsc && \
-    curl -L -O http://ftp.mcs.anl.gov/pub/petsc/release-snapshots/petsc-3.19.3.tar.gz && \
+# hadolint ignore=SC2006
+RUN mkdir petsc
+WORKDIR /$WORKDIR/petsc
+RUN curl -L -O http://ftp.mcs.anl.gov/pub/petsc/release-snapshots/petsc-3.19.3.tar.gz && \
     tar -xf petsc-3.19.3.tar.gz -C .
 
 # Build PETSc
 WORKDIR /$WORKDIR/petsc/petsc-3.19.3
-# hadolint ignore=DL3003,SC2006
+# hadolint ignore=SC2006
 RUN ./configure \
     --prefix=/$WORKDIR/petsc \
     CXXOPTFLAGS='-O3 -funroll-loops' COPTFLAGS='-O3 -funroll-loops' FOPTFLAGS='-O3' \
@@ -104,22 +103,18 @@ RUN ./configure \
 
 # Install PETSc
 WORKDIR /$WORKDIR/petsc/petsc-3.19.3
-# hadolint ignore=DL3003
 RUN make PETSC_DIR=/$WORKDIR/petsc/petsc-3.19.3 PETSC_ARCH=arch-linux-c-opt install && \
-    make PETSC_DIR=/$WORKDIR/petsc/petsc-3.19.3 PETSC_ARCH=arch-linux-c-opt check && \
-    cd .. && \
-    cd .. && \
-    export PETSC_DIR=/$WORKDIR/petsc
+    make PETSC_DIR=/$WORKDIR/petsc/petsc-3.19.3 PETSC_ARCH=arch-linux-c-opt check
+WORKDIR /$WORKDIR
+RUN export PETSC_DIR=/$WORKDIR/petsc
 
 # Build MFEM and common miniapp
 WORKDIR /$WORKDIR
-# hadolint ignore=DL3003
-RUN git clone https://github.com/Heinrich-BR/mfem.git && \
-    cd mfem && \
-    git checkout SubmeshBoundary && \
-    mkdir build && \
-    cd build && \
-    cmake .. \
+RUN git clone https://github.com/Heinrich-BR/mfem.git
+WORKDIR /$WORKDIR/mfem 
+RUN git checkout SubmeshBoundary && mkdir build
+WORKDIR /$WORKDIR/mfem/build
+RUN cmake .. \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_POSITION_INDEPENDENT_CODE=YES \
     -DMFEM_USE_OPENMP=NO \
@@ -135,27 +130,25 @@ RUN git clone https://github.com/Heinrich-BR/mfem.git && \
     -DSuperLUDist_DIR=/$WORKDIR/petsc/ \
     -DMFEM_USE_NETCDF=YES \
     -DHDF5_DIR=/usr/lib/x86_64-linux-gnu/hdf5/mpich/ \
-    make -j"$compile_cores" && \
-    cd miniapps/common && \
     make -j"$compile_cores"
+WORKDIR /$WORDIR/mfem/build/miniapps/common
+RUN make -j"$compile_cores"
 
 # Build GLVis
 WORKDIR /$WORKDIR
-# hadolint ignore=DL3003
-RUN git clone https://github.com/GLVis/glvis.git && \
-    cd glvis/ && \
-    mkdir build && \
-    cd build/ && \
-    cmake -G Ninja -DMFEM_DIR=/$WORKDIR/mfem/build .. && \
+RUN git clone https://github.com/GLVis/glvis.git
+WORKDIR /$WORKDIR/glvis
+RUN mkdir build
+WORKDIR /$WORKDIR/glvis/build/
+RUN cmake -G Ninja -DMFEM_DIR=/$WORKDIR/mfem/build .. && \
     ninja
 
 # Configure MOOSE
 WORKDIR /$WORKDIR
-# hadolint ignore=DL3003
 RUN export MOOSE_JOBS=$compile_cores && \
-    git clone https://github.com/idaholab/moose && \
-    cd moose && \
-    git checkout master && \
+    git clone https://github.com/idaholab/moose
+WORKDIR /$WORKDIR/moose
+RUN git checkout master && \
     export PETSC_DIR=/$WORKDIR/petsc && \
     export PETSC_ARCH=arch-linux-c-opt && \
     export CC=mpicc && \
