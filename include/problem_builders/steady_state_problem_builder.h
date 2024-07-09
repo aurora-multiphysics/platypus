@@ -7,21 +7,6 @@ namespace platypus
 /// Class for steady-state problems with no equation system.
 class SteadyStateProblem : public Problem
 {
-public:
-  SteadyStateProblem() = default;
-  ~SteadyStateProblem() override = default;
-
-  [[nodiscard]] platypus::ProblemOperator * GetOperator() const override
-  {
-    if (!_problem_operator)
-    {
-      MFEM_ABORT("No operator has been added.");
-    }
-
-    return _problem_operator.get();
-  }
-
-  std::unique_ptr<platypus::ProblemOperator> _problem_operator{nullptr};
 };
 
 class SteadyStateProblemBuilder : public ProblemBuilder
@@ -44,6 +29,11 @@ public:
 protected:
   // NB: constructor for derived classes.
   SteadyStateProblemBuilder(platypus::SteadyStateProblem * problem) : ProblemBuilder(problem) {}
+
+  [[nodiscard]] platypus::ProblemOperator & GetOperator() const
+  {
+    return static_cast<platypus::ProblemOperator &>(*_problem_operator);
+  }
 
   [[nodiscard]] platypus::SteadyStateProblem * GetProblem() const override
   {

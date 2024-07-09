@@ -15,6 +15,7 @@
 #include "MFEMBilinearFormKernel.h"
 #include "MFEMLinearFormKernel.h"
 #include "MFEMFormulation.h"
+#include "problem_operator_base.h"
 #include "MFEMDataCollection.h"
 #include "MFEMFESpace.h"
 #include "Function.h"
@@ -192,5 +193,7 @@ protected:
   std::shared_ptr<platypus::ProblemBuilder> mfem_problem_builder{nullptr};
 
   std::shared_ptr<platypus::Problem> mfem_problem{nullptr};
+  std::shared_ptr<platypus::ProblemOperatorBase> _mfem_operator{nullptr};
+
   std::unique_ptr<platypus::Executioner> executioner{nullptr};
 };

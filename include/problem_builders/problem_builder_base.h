@@ -32,9 +32,6 @@ public:
   platypus::FECollections _fecs;
   platypus::FESpaces _fespaces;
   platypus::GridFunctions _gridfunctions;
-
-  /// Returns a pointer to the operator. See derived classes.
-  [[nodiscard]] virtual mfem::Operator * GetOperator() const = 0;
 };
 
 /// ProblemBuilder base class.
@@ -97,7 +94,7 @@ protected:
   /// Coefficient used in some derived classes.
   mfem::ConstantCoefficient _one_coef{1.0};
 
-private:
+protected:
   std::shared_ptr<platypus::Problem> _problem{nullptr};
   std::shared_ptr<platypus::ProblemOperatorBase> _problem_operator{nullptr};
 };

@@ -8,21 +8,8 @@ namespace platypus
 {
 
 /// Steady-state problems with an equation system.
-class SteadyStateEquationSystemProblem : public SteadyStateProblem, public EquationSystemInterface
+class SteadyStateEquationSystemProblem : public SteadyStateProblem
 {
-public:
-  SteadyStateEquationSystemProblem() = default;
-  ~SteadyStateEquationSystemProblem() override = default;
-
-  [[nodiscard]] EquationSystemProblemOperator * GetOperator() const override
-  {
-    return static_cast<EquationSystemProblemOperator *>(SteadyStateProblem::GetOperator());
-  }
-
-  [[nodiscard]] platypus::EquationSystem * GetEquationSystem() const override
-  {
-    return GetOperator()->GetEquationSystem();
-  }
 };
 
 /// Problem-builder for SteadyStateEquationSystemProblem.
@@ -45,10 +32,10 @@ public:
   void ConstructOperator() override
   {
     auto equation_system = std::make_unique<platypus::EquationSystem>();
-    auto problem_operator = std::make_unique<platypus::EquationSystemProblemOperator>(
+    auto problem_operator = std::make_shared<platypus::EquationSystemProblemOperator>(
         *GetProblem(), std::move(equation_system));
 
-    GetProblem()->_problem_operator = std::move(problem_operator);
+    _problem_operator = std::move(problem_operator);
   }
 
 protected:
@@ -57,9 +44,14 @@ protected:
     return ProblemBuilder::GetProblem<platypus::SteadyStateEquationSystemProblem>();
   }
 
+  [[nodiscard]] platypus::EquationSystemProblemOperator & GetOperator() const
+  {
+    return static_cast<platypus::EquationSystemProblemOperator &>(*_problem_operator);
+  }
+
   [[nodiscard]] platypus::EquationSystem * GetEquationSystem() const override
   {
-    return GetProblem()->GetEquationSystem();
+    return GetOperator().GetEquationSystem();
   }
 };
 
