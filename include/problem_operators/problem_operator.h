@@ -12,7 +12,7 @@ class ProblemOperator : public mfem::Operator,
                         public ProblemOperatorBase
 {
 public:
-  ProblemOperator(platypus::Problem & problem) : ProblemOperatorInterface(problem) {}
+  ProblemOperator(platypus::MFEMProblemData & problem) : ProblemOperatorInterface(problem) {}
   ~ProblemOperator() override = default;
 
   void SetGridFunctions() override;

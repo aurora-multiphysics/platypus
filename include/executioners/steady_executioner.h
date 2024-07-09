@@ -17,7 +17,7 @@ public:
   void Execute() const override;
 
 private:
-  platypus::Problem * _problem{nullptr};
+  platypus::MFEMProblemData * _problem{nullptr};
   platypus::ProblemOperator * _problem_operator{nullptr};
 };
 

@@ -13,7 +13,7 @@ namespace platypus
 /**
  * Stores information required for simulation.
  */
-struct Problem
+struct MFEMProblemData
 {
   std::shared_ptr<mfem::ParMesh> _pmesh{nullptr};
   platypus::BCMap _bc_map;
@@ -59,7 +59,10 @@ public:
   void FinalizeProblem();
 
   /// Returns a shared pointer to the problem.
-  [[nodiscard]] std::shared_ptr<platypus::Problem> ReturnProblem() const { return _problem; }
+  [[nodiscard]] std::shared_ptr<platypus::MFEMProblemData> ReturnProblem() const
+  {
+    return _problem;
+  }
 
   /// Returns a shared pointer to the problem operator.
   [[nodiscard]] std::shared_ptr<platypus::ProblemOperatorBase> ReturnOperator() const
@@ -69,8 +72,8 @@ public:
 
 protected:
   /// Protected constructor. Derived classes must call this constructor.
-  ProblemBuilder(platypus::Problem * problem)
-    : _problem(std::shared_ptr<platypus::Problem>(problem))
+  ProblemBuilder(platypus::MFEMProblemData * problem)
+    : _problem(std::shared_ptr<platypus::MFEMProblemData>(problem))
   {
   }
 
@@ -78,7 +81,7 @@ protected:
   mfem::ConstantCoefficient _one_coef{1.0};
 
 protected:
-  std::shared_ptr<platypus::Problem> _problem{nullptr};
+  std::shared_ptr<platypus::MFEMProblemData> _problem{nullptr};
   std::shared_ptr<platypus::ProblemOperatorBase> _problem_operator{nullptr};
 };
 

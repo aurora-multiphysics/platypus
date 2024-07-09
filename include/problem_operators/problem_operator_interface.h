@@ -7,7 +7,7 @@ namespace platypus
 class ProblemOperatorInterface
 {
 public:
-  ProblemOperatorInterface(platypus::Problem & problem) : _problem(problem) {}
+  ProblemOperatorInterface(platypus::MFEMProblemData & problem) : _problem(problem) {}
   virtual ~ProblemOperatorInterface() = default;
 
   virtual void SetGridFunctions();
@@ -20,7 +20,7 @@ public:
 
 protected:
   // Reference to the current problem.
-  platypus::Problem & _problem;
+  platypus::MFEMProblemData & _problem;
 
   // Vector of names of state gridfunctions used in formulation, ordered by appearance in block
   // vector during solve.

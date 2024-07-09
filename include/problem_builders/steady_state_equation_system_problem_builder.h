@@ -13,7 +13,10 @@ class SteadyStateEquationSystemProblemBuilder : public SteadyStateProblemBuilder
 {
 public:
   /// NB: set "_problem" member variable in parent class.
-  SteadyStateEquationSystemProblemBuilder() : SteadyStateProblemBuilder(new platypus::Problem) {}
+  SteadyStateEquationSystemProblemBuilder()
+    : SteadyStateProblemBuilder(new platypus::MFEMProblemData)
+  {
+  }
 
   ~SteadyStateEquationSystemProblemBuilder() override = default;
 
