@@ -1,5 +1,6 @@
 #pragma once
 #include "equation_system.h"
+#include "problem_operator_base.h"
 #include "gridfunctions.h"
 #include "inputs.h"
 #include <fstream>
@@ -63,7 +64,13 @@ public:
   void FinalizeProblem();
 
   /// Returns a shared pointer to the problem.
-  std::shared_ptr<platypus::Problem> ReturnProblem() { return _problem; }
+  [[nodiscard]] std::shared_ptr<platypus::Problem> ReturnProblem() const { return _problem; }
+
+  /// Returns a shared pointer to the problem operator.
+  [[nodiscard]] std::shared_ptr<platypus::ProblemOperatorBase> ReturnOperator() const
+  {
+    return _problem_operator;
+  }
 
 protected:
   /// Protected constructor. Derived classes must call this constructor.
@@ -92,6 +99,7 @@ protected:
 
 private:
   std::shared_ptr<platypus::Problem> _problem{nullptr};
+  std::shared_ptr<platypus::ProblemOperatorBase> _problem_operator{nullptr};
 };
 
 /// Interface for problem builders that are constructing problems with an equation system.
