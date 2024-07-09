@@ -46,11 +46,11 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get install 
     rm -rf /var/lib/apt/lists/*
 
 # Install pip packages
-# hadolint ignore=DL3042,DL3013
-RUN pip install packaging && \
-    pip install pyyaml && \
-    pip install setuptools && \
-    pip install jinja2
+# hadolint ignore=DL3013
+RUN pip install --no-cache-dir packaging && \
+    pip install --no-cache-dir pyyaml && \
+    pip install --no-cache-dir setuptools && \
+    pip install --no-cache-dir jinja2
 
 # Install CMake
 WORKDIR /$WORKDIR
