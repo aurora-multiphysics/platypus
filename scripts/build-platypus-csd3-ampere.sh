@@ -41,7 +41,10 @@ set_paths() {
     BUILD_PATH=${ROOT_PATH}/${BUILD_DIR_NAME}
 
     echo "Building in ${BUILD_PATH}"
-    mkdir -p "${BUILD_PATH}" || { echo "Failed to create ${BUILD_PATH}" ; exit 1 ; }
+    mkdir -p "${BUILD_PATH}" || {
+                                  echo "Failed to create ${BUILD_PATH}"
+                                                                          exit 1
+    }
 
     cd "${BUILD_PATH}" || exit 1
 
@@ -50,7 +53,7 @@ set_paths() {
 check_spack() {
 
     cd "${ROOT_PATH}" || exit 1
-    
+
     if [ "$(command -v spack)" ]; then
         echo "Spack command detected. Using pre-loaded spack."
     elif [ -f "${ROOT_PATH}"/spack/share/spack/setup-env.sh ]; then
@@ -173,7 +176,8 @@ install_moose() {
     export MOOSE_JOBS=$compile_cores
     export LIBMESH_JOBS=$compile_cores
     export METHOD="opt"
-    export SLEPC_DIR=$(spack find --format "{prefix}" slepc arch=${ARCH})
+    SLEPC_DIR=$(spack find --format "{prefix}" slepc arch=${ARCH})
+    export SLEPC_DIR
 
     cd "${BUILD_PATH}" || exit 1
     git clone https://github.com/idaholab/moose
