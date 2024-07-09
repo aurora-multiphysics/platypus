@@ -176,14 +176,3 @@ RUN METHOD=opt make -j$compile_cores
 
 WORKDIR /$WORKDIR/moose/test
 RUN METHOD=opt make -j$compile_cores
-
-# This is needed or it mpiexec complains because docker runs as root
-# Discussion on this issue https://github.com/open-mpi/ompi/issues/4451
-ENV OMPI_ALLOW_RUN_AS_ROOT=1
-ENV OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1
-
-# WORKDIR /$WORKDIR/moose/test
-# RUN ./run_tests -j"$compile_cores" --re='(?!initial_condition.newton_with_exact_initialization)'
-
-# ENV OMPI_ALLOW_RUN_AS_ROOT=
-# ENV OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=
