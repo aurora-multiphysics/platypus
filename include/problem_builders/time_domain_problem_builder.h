@@ -8,7 +8,7 @@ namespace platypus
 class TimeDomainProblemBuilder : public ProblemBuilder
 {
 public:
-  TimeDomainProblemBuilder() : ProblemBuilder(new platypus::MFEMProblemData) {}
+  TimeDomainProblemBuilder() : ProblemBuilder() {}
 
   ~TimeDomainProblemBuilder() override = default;
 
@@ -27,9 +27,6 @@ public:
   void ConstructTimestepper() override;
 
 protected:
-  /// NB: constructor called in derived classes.
-  TimeDomainProblemBuilder(platypus::MFEMProblemData * problem) : ProblemBuilder(problem) {}
-
   [[nodiscard]] platypus::TimeDomainProblemOperator & GetOperator() const
   {
     return static_cast<TimeDomainProblemOperator &>(*_problem_operator);

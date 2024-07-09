@@ -36,9 +36,6 @@ struct MFEMProblemData
 class ProblemBuilder
 {
 public:
-  /// NB: delete empty constructor to allow only derived classes to be constructed.
-  ProblemBuilder() = delete;
-
   // Virtual destructor required to prevent leaks.
   virtual ~ProblemBuilder() = default;
 
@@ -72,10 +69,7 @@ public:
 
 protected:
   /// Protected constructor. Derived classes must call this constructor.
-  ProblemBuilder(platypus::MFEMProblemData * problem)
-    : _problem(std::shared_ptr<platypus::MFEMProblemData>(problem))
-  {
-  }
+  ProblemBuilder() : _problem(std::make_shared<platypus::MFEMProblemData>()) {}
 
   /// Coefficient used in some derived classes.
   mfem::ConstantCoefficient _one_coef{1.0};

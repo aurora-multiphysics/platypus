@@ -7,7 +7,7 @@ namespace platypus
 class SteadyStateProblemBuilder : public ProblemBuilder
 {
 public:
-  SteadyStateProblemBuilder() : ProblemBuilder(new platypus::MFEMProblemData) {}
+  SteadyStateProblemBuilder() : ProblemBuilder() {}
 
   ~SteadyStateProblemBuilder() override = default;
 
@@ -22,9 +22,6 @@ public:
   void ConstructTimestepper() override {}
 
 protected:
-  // NB: constructor for derived classes.
-  SteadyStateProblemBuilder(platypus::MFEMProblemData * problem) : ProblemBuilder(problem) {}
-
   [[nodiscard]] platypus::ProblemOperator & GetOperator() const
   {
     return static_cast<platypus::ProblemOperator &>(*_problem_operator);
