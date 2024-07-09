@@ -20,7 +20,6 @@ public:
   platypus::BCMap _bc_map;
   platypus::Coefficients _coefficients;
   platypus::Outputs _outputs;
-  platypus::InputParameters _solver_options;
 
   std::unique_ptr<mfem::ODESolver> _ode_solver{nullptr};
   std::unique_ptr<mfem::BlockVector> _f{nullptr};
