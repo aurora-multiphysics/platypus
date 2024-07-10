@@ -73,6 +73,7 @@ install_spack_deps() {
 
     # Cleaning up everything to start with a new environment
     spack uninstall -ay arch=${ARCH}
+    spack clean -ab
 
     spack external find cuda@11.7.1
 
