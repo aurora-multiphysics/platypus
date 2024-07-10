@@ -224,21 +224,21 @@ function build_mfem() {
 	    -DCMAKE_POSITION_INDEPENDENT_CODE=YES \
 	    -DMFEM_USE_OPENMP=NO \
 	    -DMFEM_THREAD_SAFE=NO \
-        -DHYPRE_DIR=/$WORKDIR/petsc/ \
+        -DHYPRE_DIR=$WORKDIR/petsc/ \
         -DMFEM_USE_LAPACK=YES \
         -DMFEM_USE_MPI=YES \
         -DMFEM_USE_METIS_5=YES \
-        -DMETIS_DIR=/$WORKDIR/petsc/ \
-        -DParMETIS_DIR=/$WORKDIR/petsc/ \
+        -DMETIS_DIR=$WORKDIR/petsc/ \
+        -DParMETIS_DIR=$WORKDIR/petsc/ \
         -DMFEM_USE_SUPERLU=YES \
-        -DSuperLUDist_DIR=/$WORKDIR/petsc/ \
+        -DSuperLUDist_DIR=$WORKDIR/petsc/ \
         -DSuperLUDist_VERSION_OK=YES \
         -DMFEM_USE_NETCDF=YES \
         -DNETCDF_LIBRARIES=$WORKDIR/moose/libmesh/installed/lib/libnetcdf.so \
         -DNETCDF_INCLUDE_DIRS=$WORKDIR/moose/libmesh/contrib/netcdf/netcdf-c-4.6.2/include \
-        -DHDF5_DIR=/$WORKDIR/${HDF5_DIR_NAME}/ \
+        -DHDF5_DIR=$WORKDIR/${HDF5_DIR_NAME}/ \
         -DMFEM_USE_GSLIB=YES \
-      	-DGSLIB_DIR=/$WORKDIR/gslib/build
+      	-DGSLIB_DIR=$WORKDIR/gslib/build
     make -j$compile_cores
     cd miniapps/common || exit 1
     make -j$compile_cores
