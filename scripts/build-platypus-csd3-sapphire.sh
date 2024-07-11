@@ -8,7 +8,9 @@
 #SBATCH --cpus-per-task=1
 #SBATCH -o out_%j_%A_%a
 #SBATCH --exclusive
-./etc/profile.d/modules.sh
+
+# shellcheck source=/dev/null
+. /etc/profile.d/modules.sh
 
 # TODO:
 # - Update the platypus-commit to master once the Platypus PR which makes
