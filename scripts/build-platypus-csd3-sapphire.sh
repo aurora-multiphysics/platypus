@@ -8,7 +8,7 @@
 #SBATCH --cpus-per-task=1
 #SBATCH -o out_%j_%A_%a
 #SBATCH --exclusive
-. /etc/profile.d/modules.sh
+./etc/profile.d/modules.sh
 
 # TODO:
 # - Update the platypus-commit to master once the Platypus PR which makes
@@ -23,9 +23,14 @@ function load_modules() {
     module load python/3.8
     module load ninja
 
-    export STACK_SRC=$(mktemp -d /tmp/moose_stack_src.XXXXXX)
-    export WORKDIR=$(pwd)
-    export compile_cores=8
+    STACK_SRC=$(mktemp -d /tmp/moose_stack_src.XXXXXX)
+    export STACK_SRC
+
+    WORKDIR=$(pwd)
+    export WORKDIR
+
+    export NUM_COMPILE_CORES=8
+
     export OMPI_MCA_mca_base_component_show_load_errors=0
 
     USER=$(whoami)
@@ -33,7 +38,6 @@ function load_modules() {
 
     ROOT_PATH=/home/${USER}/rds/rds-ukaea-ap001/${USER}
     BUILD_PATH=${ROOT_PATH}/${BUILD_DIR_NAME}
-    USR_PATH=${BUILD_PATH}/usr
 
     HDF5_MAJ_VER=1.10
     HDF5_MIN_VER=10
@@ -48,7 +52,7 @@ function load_modules() {
 
     export PATH=${BUILD_PATH}:${PATH}
 
-    cd ${WORKDIR} || exit 1
+    cd "$WORKDIR}" || exit
 
     #Need to set some compiler flags via config file"
     echo "-std=c++17" >> icpx.cfg
@@ -68,11 +72,11 @@ function load_modules() {
 }
 
 function build_hdf5() {
-    cd "${WORKDIR}" || exit 1
+    cd "${WORKDIR}" || exit
     mkdir -p ${HDF5_DIR_NAME} ||
         {
             echo "Failed to create ${HDF5_DIR_NAME}"
-            exit 1
+            exit
         }
 
     HDF5_MAJ_VER=1.10
@@ -84,47 +88,47 @@ function build_hdf5() {
         https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-${HDF5_MAJ_VER}/hdf5-${HDF5_VER}/src/hdf5-${HDF5_VER}.tar.gz ||
         {
             echo "Failed to download hdf5"
-            exit 1
+            exit
         }
     tar -xf hdf5-${HDF5_VER}.tar.gz
 
-    cd hdf5-${HDF5_VER} || exit 1
+    cd hdf5-${HDF5_VER} || exit
     make clean
-    ./configure --prefix=${HDF5_INSTALL_PATH} --enable-cxx --enable-fortran --enable-build-mode=production
-    make install -j ${compile_cores}
+    ./configure --prefix="${HDF5_INSTALL_PATH}" --enable-cxx --enable-fortran --enable-build-mode=production
+    make install -j ${NUM_COMPILE_CORES}
     if [ $? -eq 2 ]; then
         echo "HDF5 Build failed"
-        exit 1
+        exit
     fi
     echo "HDF5 built"
 }
 
 function download_superlu_dist() {
-    cd $WORKDIR
+    cd "$WORKDIR" || exit
     echo "Downloading SuperLU_dist"
     curl -kLJO https://github.com/xiaoyeli/superlu_dist/archive/refs/tags/v8.1.0.tar.gz
 }
 
 function build_petsc() {
-    cd $WORKDIR || exit 1
+    cd "$WORKDIR" || exit
     mkdir -p petsc
-    cd petsc
+    cd petsc || exit
     curl -kL -O http://ftp.mcs.anl.gov/pub/petsc/release-snapshots/petsc-3.19.3.tar.gz
     tar -xf petsc-3.19.3.tar.gz -C .
-    cd petsc-3.19.3 || exit 1
+    cd petsc-3.19.3 || exit
     ./configure \
         --with-cc=$CC --with-cxx=$CXX --with-fc=$FC -CXXPP=cpp \
-        --prefix=${WORKDIR}/${PETSC_DIR_NAME} \
+        --prefix="${WORKDIR}"/${PETSC_DIR_NAME} \
         --download-hypre=1 \
         --with-shared-libraries \
         --with-debugging=no \
-        --with-hdf5-dir=${WORKDIR}/${HDF5_DIR_NAME} \
-        --with-blaslapack-dir=${MKLROOT} \
+        --with-hdf5-dir="${WORKDIR}"/${HDF5_DIR_NAME} \
+        --with-blaslapack-dir="${MKLROOT}" \
         --download-metis=1 \
         --download-parmetis=1 \
         --download-ptscotch=1 \
         --download-mumps=1 \
-        --download-superlu_dist=${WORKDIR}/superlu_dist-8.1.0.tar.gz \
+        --download-superlu_dist="${WORKDIR}"/superlu_dist-8.1.0.tar.gz \
         --download-scalapack=1 \
         --download-slepc=1 \
         --with-mpi=1 \
@@ -132,19 +136,18 @@ function build_petsc() {
         --with-fortran-bindings=0 \
         --with-sowing=0 \
         --with-64-bit-indices \
-        --with-make-np=${SLURM_NTASKS} \
+        --with-make-np="${SLURM_NTASKS}" \
         COPTFLAGS='-O3 -fno-slp-vectorize' \
         CXXOPTFLAGS='-O3 -fno-slp-vectorize' \
         FOPTFLAGS='-O3 -fno-slp-vectorize' \
-        PETSC_DIR=$(pwd) PETSC_ARCH=arch-linux-c-opt
+        PETSC_DIR="$(pwd)" PETSC_ARCH=arch-linux-c-opt
     make
-    make PETSC_DIR=${WORKDIR}/${PETSC_DIR_NAME}/petsc-3.19.3 PETSC_ARCH=arch-linux-c-opt install ||
+    make PETSC_DIR="${WORKDIR}"/${PETSC_DIR_NAME}/petsc-3.19.3 PETSC_ARCH=arch-linux-c-opt install ||
         {
             echo "Failed to build petsc"
-            exit 1
+            exit
         }
-    cd ..
-    cd ..
+    cd ../..
     export PETSC_DIR=$WORKDIR/petsc
 }
 
@@ -153,24 +156,26 @@ function build_libtirpc() {
     wget https://sourceforge.net/projects/libtirpc/files/libtirpc/1.3.3/libtirpc-1.3.3.tar.bz2 -O- | tar -xj
     mkdir libtirpc
     mv libtirpc-* libtirpc/build
-    cd libtirpc/build
-    ./configure --prefix=$WORKDIR/libtirpc --disable-gssapi --disable-static && make && make install
+    cd libtirpc/build || exit
+    ./configure --prefix="$WORKDIR"/libtirpc --disable-gssapi --disable-static && make && make install
 }
 
 function build_moose() {
     export MOOSE_JOBS=32
-    cd $WORKDIR || exit 1
+    cd "$WORKDIR" || exit
     git clone https://github.com/idaholab/moose
-    cd moose || exit 1
+    cd moose || exit
     git checkout ${MOOSE_COMMIT} ||
         {
             echo "Checkout failed"
-            exit 1
+            exit
         }
+
     if [ ! -f "$WORKDIR/petsc/lib/libpetsc.so" ]; then
         echo "PETSc Install Unsuccessful"
         return
     fi
+
     export PETSC_DIR=$WORKDIR/petsc
     export PETSC_ARCH=arch-linux-c-opt
 
@@ -198,69 +203,66 @@ function build_moose() {
 
     ./configure --with-derivative-size=200 --with-ad-indexing-type=global
     METHODS='opt' ./scripts/update_and_rebuild_wasp.sh
-    cd framework || exit 1
-    METHOD=opt make -j$compile_cores
-    cd ..
-    cd modules || exit 1
-    METHOD=opt make -j$compile_cores
-    cd ..
-    cd test || exit 1
-    METHOD=opt make -j$compile_cores
-    ./run_tests -j"$compile_cores
-    cd ..
-    cd ..
+    cd framework || exit
+    METHOD=opt make -j$NUM_COMPILE_CORES
+    cd ../modules || exit
+    METHOD=opt make -j$NUM_COMPILE_CORES
+    cd ../test || exit
+    METHOD=opt make -j$NUM_COMPILE_CORES
+    ./run_tests -j$NUM_COMPILE_CORES
+    cd ../..
 }
 
 function build_gslib() {
-    cd $WORKDIR || exit 1
-    if [ -d "$WORKDIR/gslb" ] ; then
+    cd "$WORKDIR" || exit
+    if [ -d "$WORKDIR/gslb" ]; then
         return
     fi
     git clone https://github.com/Nek5000/gslib.git
-    cd gslib || exit 1
+    cd gslib || exit
     make CFLAGS='-O2 -fPIC'
 }
 
 function build_mfem() {
-    cd $WORKDIR || exit 1
+    cd "$WORKDIR" || exit
     git clone https://github.com/Heinrich-BR/mfem.git
-    cd mfem || exit 1
+    cd mfem || exit
     git checkout SubmeshBoundary
-    sed -i "s | list | # list|g" $WORKDIR/mfem/config/cmake/modules/FindNetCDF.cmake
-        mkdir build
-    cd build || exit 1
+    sed -i "s | list | # list|g" "$WORKDIR"/mfem/config/cmake/modules/FindNetCDF.cmake
+    mkdir build
+    cd build || exit
     echo "Building MFEM"
     cmake .. \
         -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_POSITION_INDEPENDENT_CODE=YES \
         -DMFEM_USE_OPENMP=NO \
         -DMFEM_THREAD_SAFE=NO \
-        -DHYPRE_DIR=$WORKDIR/petsc/ \
+        -DHYPRE_DIR="$WORKDIR"/petsc/ \
         -DMFEM_USE_LAPACK=YES \
         -DMFEM_USE_MPI=YES \
         -DMFEM_USE_METIS_5=YES \
-        -DMETIS_DIR=$WORKDIR/petsc/ \
-        -DParMETIS_DIR=$WORKDIR/petsc/ \
+        -DMETIS_DIR="$WORKDIR"/petsc/ \
+        -DParMETIS_DIR="$WORKDIR"/petsc/ \
         -DMFEM_USE_SUPERLU=YES \
-        -DSuperLUDist_DIR=$WORKDIR/petsc/ \
+        -DSuperLUDist_DIR="$WORKDIR"/petsc/ \
         -DSuperLUDist_VERSION_OK=YES \
         -DMFEM_USE_NETCDF=YES \
-        -DNETCDF_LIBRARIES=$WORKDIR/moose/libmesh/installed/lib/libnetcdf.so \
-        -DNETCDF_INCLUDE_DIRS=$WORKDIR/moose/libmesh/contrib/netcdf/netcdf-c-4.6.2/include \
-        -DHDF5_DIR=$WORKDIR/${HDF5_DIR_NAME}/ \
+        -DNETCDF_LIBRARIES="$WORKDIR"/moose/libmesh/installed/lib/libnetcdf.so \
+        -DNETCDF_INCLUDE_DIRS="$WORKDIR"/moose/libmesh/contrib/netcdf/netcdf-c-4.6.2/include \
+        -DHDF5_DIR="$WORKDIR"/${HDF5_DIR_NAME}/ \
         -DMFEM_USE_GSLIB=YES \
-        -DGSLIB_DIR=$WORKDIR/gslib/build
-    make -j$compile_cores
-    cd miniapps/common || exit 1
-    make -j$compile_cores
+        -DGSLIB_DIR="$WORKDIR"/gslib/build
+    make -j$NUM_COMPILE_CORES
+    cd miniapps/common || exit
+    make -j$NUM_COMPILE_CORES
 }
 
 function build_platypus() {
-    cd $WORKDIR || exit 1
+    cd "$WORKDIR" || exit
     git clone https://github.com/aurora-multiphysics/platypus.git
-    cd platypus || exit 1
+    cd platypus || exit
     git checkout ${PLATYPUS_COMMIT}
-    make -j$compile_cores
+    make -j$NUM_COMPILE_CORES
 }
 
 load_modules
