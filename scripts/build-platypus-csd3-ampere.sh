@@ -5,7 +5,7 @@
 #SBATCH --mail-type=none
 #SBATCH -p ampere
 #SBATCH -A ukaea-ap001-GPU
-#SBATCH --cpus-per-task=32
+#SBATCH --cpus-per-task=1
 #SBATCH --gres=gpu:1
 #SBATCH --output=platypus_gpu_build.%j.out
 #SBATCH --error=platypus_gpu_build.%j.err
@@ -50,6 +50,21 @@ set_paths() {
 
 }
 
+check_cuda_version() {
+
+    if grep -q "cuda@11.7.1" "${SPACK_ROOT}"/etc/spack/defaults/packages.yaml; then
+        echo "Ampere CUDA module found in spack."
+    else
+        echo "Ampere CUDA module not found in spack. Adding to packages.yaml."
+        CUDA_STR=$'  cuda:\n    externals:\n    - spec: "cuda@11.7.1"\n      prefix: /usr/local/software/spack/spack-modules/rocky8-a100-20230831/linux-rocky8-zen3/cuda/11.7.1/gcc/fgtvtwi5\n    buildable: False'
+        echo "${CUDA_STR}"  >> "${SPACK_ROOT}"/etc/spack/defaults/packages.yaml
+    fi
+
+    # shellcheck source=/dev/null
+    . "${SPACK_ROOT}"/share/spack/setup-env.sh
+
+}
+
 check_spack() {
 
     cd "${ROOT_PATH}" || exit 1
@@ -66,6 +81,8 @@ check_spack() {
         # shellcheck source=/dev/null
         . spack/share/spack/setup-env.sh
     fi
+
+    check_cuda_version
 
 }
 
