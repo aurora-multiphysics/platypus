@@ -15,25 +15,11 @@ ARG WORKDIR=opt
 # By default, build without code coverage flags
 ARG coverage=false
 
-# Get Platypus with Hephaestus
-WORKDIR /$WORKDIR 
-# hadolint ignore=DL3003
-RUN git clone https://github.com/$build_git_repo && \
-    cd platypus && \
-    git checkout $build_git_sha && \
-    git submodule update --init --recursive
-
-# Build Hephaestus
-WORKDIR /$WORKDIR/platypus/contrib/hephaestus/
-# hadolint ignore=DL3003
-RUN mkdir build && \
-    cd build && \
-    cmake -G Ninja -DCMAKE_BUILD_TYPE=Release -DMFEM_DIR=/$WORKDIR/mfem/build .. && \
-    ninja
-
-# Test Hephaestus
-WORKDIR /$WORKDIR/platypus/contrib/hephaestus/build
-RUN ninja test
+# Get Platypus
+WORKDIR /$WORKDIR
+RUN git clone https://github.com/$build_git_repo
+WORKDIR /$WORKDIR/platypus
+RUN git checkout $build_git_sha
 
 # Build Platypus
 WORKDIR /$WORKDIR/platypus
