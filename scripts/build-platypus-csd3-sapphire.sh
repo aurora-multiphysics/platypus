@@ -48,7 +48,7 @@ function load_modules() {
 
     MOOSE_COMMIT=4e99faf9804480e7be302895ff9b8ded5b9944ea
 
-    PLATYPUS_COMMIT=f76d45c2dab57cdd6de54e63002ef2ad5fb8881d
+    PLATYPUS_COMMIT=7cfad0fe4488da867c2c949447a2cbf037032e33
 
     export PATH=${BUILD_PATH}:${PATH}
 
