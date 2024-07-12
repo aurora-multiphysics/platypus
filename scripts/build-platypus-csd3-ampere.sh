@@ -27,8 +27,6 @@ load_modules() {
     module purge
     module load rhel8/slurm
     module use /usr/local/software/spack/spack-modules/rocky8-a100-20230831/linux-rocky8-zen3
-    module load cuda/11.7.1
-
 }
 
 set_paths() {
@@ -52,11 +50,11 @@ set_paths() {
 
 check_cuda_version() {
 
-    if grep -q "cuda@11.7.1" "${SPACK_ROOT}"/etc/spack/defaults/packages.yaml; then
+    if grep -q "cuda@11.4" "${SPACK_ROOT}"/etc/spack/defaults/packages.yaml; then
         echo "Ampere CUDA module found in spack."
     else
         echo "Ampere CUDA module not found in spack. Adding to packages.yaml."
-        CUDA_STR=$'  cuda:\n    externals:\n    - spec: "cuda@11.7.1"\n      prefix: /usr/local/software/spack/spack-modules/rocky8-a100-20230831/linux-rocky8-zen3/cuda/11.7.1/gcc/fgtvtwi5\n    buildable: False'
+        CUDA_STR=$'  cuda:\n    externals:\n    - spec: "cuda@11.4"\n      prefix: /usr/local/software/cuda/11.4\n    buildable: False'
         echo "${CUDA_STR}"  >> "${SPACK_ROOT}"/etc/spack/defaults/packages.yaml
     fi
 
@@ -91,8 +89,6 @@ install_spack_deps() {
     # Cleaning up everything to start with a new environment
     spack uninstall -ay arch=${ARCH}
     spack clean -ab
-
-    spack external find cuda@11.7.1
 
     echo "Installing Petsc..."
     # Spack's petsc doesn't like openmpi, but it works with mpich
