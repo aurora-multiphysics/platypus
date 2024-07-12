@@ -173,7 +173,7 @@ MFEMProblem::addMFEMSolver(const std::string & user_object_name,
   FEProblemBase::addUserObject(user_object_name, name, parameters);
   const MFEMSolverBase & mfem_solver = getUserObject<MFEMSolverBase>(name);
 
-  mfem_problem_builder->SetJacobianSolver(mfem_solver.getSolver());
+  mfem_problem->_jacobian_solver = mfem_solver.getSolver();
 }
 
 void

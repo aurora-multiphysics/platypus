@@ -61,7 +61,6 @@ public:
   void SetOutputs(platypus::Outputs & outputs);
   void SetSolverOptions(platypus::InputParameters & solver_options);
   void SetJacobianPreconditioner(std::shared_ptr<mfem::Solver> preconditioner);
-  void SetJacobianSolver(std::shared_ptr<mfem::Solver> solver);
 
   void AddFESpace(std::string fespace_name,
                   std::string fec_name,
