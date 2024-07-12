@@ -180,7 +180,6 @@ protected:
   int _order;
 
   platypus::Coefficients _coefficients;
-  platypus::InputParameters _solver_options;
   platypus::Outputs _outputs;
   platypus::InputParameters _exec_params;
 
