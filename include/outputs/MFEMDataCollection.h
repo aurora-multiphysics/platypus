@@ -3,7 +3,7 @@
 #include "mfem.hpp"
 
 /**
- * Class for output information saved in MFEM DataCollections
+ * Class for output information saved in MFEM DataCollections.
  */
 class MFEMDataCollection : public FileOutput
 {
