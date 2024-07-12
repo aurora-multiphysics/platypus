@@ -118,9 +118,7 @@ ProblemBuilder::InitializeOutputs()
 void
 ProblemBuilder::FinalizeProblem(bool build_operator)
 {
-  RegisterFESpaces();
   RegisterGridFunctions();
-  RegisterCoefficients();
 
   if (build_operator)
   {
