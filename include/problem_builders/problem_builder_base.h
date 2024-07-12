@@ -33,10 +33,6 @@ public:
   platypus::FESpaces _fespaces;
   platypus::GridFunctions _gridfunctions;
 
-  MPI_Comm _comm;
-  int _myid;
-  int _num_procs;
-
   /// Returns a pointer to the operator. See derived classes.
   [[nodiscard]] virtual mfem::Operator * GetOperator() const = 0;
 
@@ -54,7 +50,6 @@ public:
   // Virtual destructor required to prevent leaks.
   virtual ~ProblemBuilder() = default;
 
-  void SetMesh(std::shared_ptr<mfem::ParMesh> pmesh);
   void SetFESpaces(platypus::FESpaces & fespaces);
   void SetGridFunctions(platypus::GridFunctions & gridfunctions);
 
