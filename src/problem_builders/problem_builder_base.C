@@ -42,12 +42,6 @@ ProblemBuilder::SetBoundaryConditions(platypus::BCMap & bc_map)
 }
 
 void
-ProblemBuilder::SetJacobianPreconditioner(std::shared_ptr<mfem::Solver> preconditioner)
-{
-  GetProblem()->_jacobian_preconditioner = preconditioner;
-}
-
-void
 ProblemBuilder::AddFESpace(std::string fespace_name, std::string fec_name, int vdim, int ordering)
 {
   // logger.info("Adding {} FE Space to problem", fespace_name);
