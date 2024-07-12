@@ -27,7 +27,7 @@ MFEMHyprePCGSolver::MFEMHyprePCGSolver(const InputParameters & parameters)
 void
 MFEMHyprePCGSolver::constructSolver(const InputParameters & parameters)
 {
-  _solver = std::make_shared<mfem::HyprePCG>(getMFEMProblem().mesh().getMFEMParMesh().GetComm());
+  _solver = std::make_shared<mfem::HyprePCG>(getMFEMProblem().mesh().getMFEMParMesh()->GetComm());
 
   // Set solver options.
   _solver->SetTol(parameters.get<double>("tolerance"));
