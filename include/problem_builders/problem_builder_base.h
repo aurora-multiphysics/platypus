@@ -50,12 +50,6 @@ public:
   // Virtual destructor required to prevent leaks.
   virtual ~ProblemBuilder() = default;
 
-  void AddFESpace(std::string fespace_name,
-                  std::string fec_name,
-                  int vdim = 1,
-                  int ordering = mfem::Ordering::byNODES);
-  void AddGridFunction(std::string gridfunction_name, std::string fespace_name);
-
   virtual void RegisterGridFunctions() = 0;
 
   virtual void SetOperatorGridFunctions() = 0;
