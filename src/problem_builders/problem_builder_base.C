@@ -3,13 +3,6 @@
 namespace platypus
 {
 
-Problem::~Problem()
-{
-  // Ensure that all owned memory is properly freed!
-  _f.reset();
-  _ode_solver.reset();
-}
-
 void
 ProblemBuilder::ConstructNonlinearSolver()
 {

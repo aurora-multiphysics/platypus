@@ -10,13 +10,11 @@
 namespace platypus
 {
 
-/// Base problem class.
-class Problem
+/**
+ * Stores information required for simulation.
+ */
+struct Problem
 {
-public:
-  Problem() = default;
-  virtual ~Problem();
-
   std::shared_ptr<mfem::ParMesh> _pmesh{nullptr};
   platypus::BCMap _bc_map;
   platypus::Coefficients _coefficients;
