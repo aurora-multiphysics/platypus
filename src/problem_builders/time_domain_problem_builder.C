@@ -35,34 +35,32 @@ TimeDomainProblemBuilder::RegisterGridFunctions()
 void
 TimeDomainProblemBuilder::SetOperatorGridFunctions()
 {
-  GetProblem()->GetOperator()->SetGridFunctions();
+  GetOperator().SetGridFunctions();
 }
 
 void
 TimeDomainProblemBuilder::ConstructOperator()
 {
-  GetProblem()->_problem_operator.reset();
-  GetProblem()->_problem_operator =
-      std::make_unique<platypus::TimeDomainProblemOperator>(*GetProblem());
+
+  _problem_operator.reset();
+  _problem_operator = std::make_shared<platypus::TimeDomainProblemOperator>(*GetProblem());
 }
 
 void
 TimeDomainProblemBuilder::ConstructState()
 {
-  auto problem_operator = GetProblem()->GetOperator();
-
   // Vector of dofs.
-  GetProblem()->_f = std::make_unique<mfem::BlockVector>(problem_operator->_true_offsets);
-  *(GetProblem()->_f) = 0.0;                   // give initial value
-  problem_operator->Init(*(GetProblem()->_f)); // Set up initial conditions
-  problem_operator->SetTime(0.0);
+  GetProblem()->_f = std::make_unique<mfem::BlockVector>(GetOperator()._true_offsets);
+  *(GetProblem()->_f) = 0.0;               // give initial value
+  GetOperator().Init(*(GetProblem()->_f)); // Set up initial conditions
+  GetOperator().SetTime(0.0);
 }
 
 void
 TimeDomainProblemBuilder::ConstructTimestepper()
 {
   GetProblem()->_ode_solver = std::make_unique<mfem::BackwardEulerSolver>();
-  GetProblem()->_ode_solver->Init(*(GetProblem()->GetOperator()));
+  GetProblem()->_ode_solver->Init(GetOperator());
 }
 
 } // namespace platypus

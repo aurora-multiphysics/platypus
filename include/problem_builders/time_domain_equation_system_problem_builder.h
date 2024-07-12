@@ -7,22 +7,8 @@
 namespace platypus
 {
 /// Time-depent problems with an equation system.
-class TimeDomainEquationSystemProblem : public TimeDomainProblem, public EquationSystemInterface
+class TimeDomainEquationSystemProblem : public TimeDomainProblem
 {
-public:
-  TimeDomainEquationSystemProblem() = default;
-  ~TimeDomainEquationSystemProblem() override = default;
-
-  [[nodiscard]] platypus::TimeDomainEquationSystemProblemOperator * GetOperator() const override
-  {
-    return static_cast<platypus::TimeDomainEquationSystemProblemOperator *>(
-        TimeDomainProblem::GetOperator());
-  }
-
-  [[nodiscard]] TimeDependentEquationSystem * GetEquationSystem() const override
-  {
-    return GetOperator()->GetEquationSystem();
-  }
 };
 
 // Problem-builder for TimeDomainEquationSystemProblem.
@@ -44,10 +30,10 @@ public:
   void ConstructOperator() override
   {
     auto equation_system = std::make_unique<platypus::TimeDependentEquationSystem>();
-    auto problem_operator = std::make_unique<platypus::TimeDomainEquationSystemProblemOperator>(
+    auto problem_operator = std::make_shared<platypus::TimeDomainEquationSystemProblemOperator>(
         *GetProblem(), std::move(equation_system));
 
-    GetProblem()->_problem_operator = std::move(problem_operator);
+    _problem_operator = std::move(problem_operator);
   }
 
 protected:
@@ -56,9 +42,14 @@ protected:
     return ProblemBuilder::GetProblem<platypus::TimeDomainEquationSystemProblem>();
   }
 
+  [[nodiscard]] TimeDomainEquationSystemProblemOperator & GetOperator() const 
+  {
+    return static_cast<TimeDomainEquationSystemProblemOperator &>(*_problem_operator);
+  }
+
   [[nodiscard]] platypus::TimeDependentEquationSystem * GetEquationSystem() const override
   {
-    return GetProblem()->GetEquationSystem();
+    return GetOperator().GetEquationSystem();
   }
 };
 

@@ -8,18 +8,6 @@ namespace platypus
 /// Time-dependent problems with no equation system.
 class TimeDomainProblem : public Problem
 {
-public:
-  [[nodiscard]] platypus::TimeDomainProblemOperator * GetOperator() const override
-  {
-    if (!_problem_operator)
-    {
-      MFEM_ABORT("No operator has been added.");
-    }
-
-    return _problem_operator.get();
-  }
-
-  std::unique_ptr<platypus::TimeDomainProblemOperator> _problem_operator{nullptr};
 };
 
 /// Problem-builder for TimeDomainProblem.
@@ -52,6 +40,11 @@ protected:
   {
     return ProblemBuilder::GetProblem<platypus::TimeDomainProblem>();
   };
+
+  [[nodiscard]] platypus::TimeDomainProblemOperator & GetOperator() const
+  {
+    return static_cast<TimeDomainProblemOperator &>(*_problem_operator);
+  }
 };
 
 } // namespace platypus

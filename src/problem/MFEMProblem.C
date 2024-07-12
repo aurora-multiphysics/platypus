@@ -115,7 +115,8 @@ MFEMProblem::initialSetup()
 
     exec_params.SetParam("Problem",
                          static_cast<platypus::SteadyStateProblem *>(mfem_problem.get()));
-
+    exec_params.SetParam("ProblemOperator",
+                         static_cast<platypus::ProblemOperator *>(_mfem_operator.get()));
     executioner = std::make_unique<platypus::SteadyExecutioner>(exec_params);
   }
   else
@@ -164,6 +165,7 @@ MFEMProblem::setFormulation(const std::string & user_object_name,
   mfem_problem->_pmesh = std::make_shared<mfem::ParMesh>(mfem_par_mesh);
 
   mfem_problem_builder->ConstructOperator();
+  _mfem_operator = mfem_problem_builder->ReturnOperator();
 }
 
 void
