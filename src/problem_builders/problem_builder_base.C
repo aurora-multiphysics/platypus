@@ -11,20 +11,6 @@ Problem::~Problem()
 }
 
 void
-ProblemBuilder::SetFESpaces(platypus::FESpaces & fespaces)
-{
-  // logger.info("Setting FE Spaces");
-  GetProblem()->_fespaces = fespaces;
-}
-
-void
-ProblemBuilder::SetGridFunctions(platypus::GridFunctions & gridfunctions)
-{
-  // logger.info("Setting GridFunctions");
-  GetProblem()->_gridfunctions = gridfunctions;
-}
-
-void
 ProblemBuilder::AddFESpace(std::string fespace_name, std::string fec_name, int vdim, int ordering)
 {
   // logger.info("Adding {} FE Space to problem", fespace_name);
