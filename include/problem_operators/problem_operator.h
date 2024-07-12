@@ -2,11 +2,14 @@
 #include "../common/pfem_extras.hpp"
 #include "problem_builder_base.h"
 #include "problem_operator_interface.h"
+#include "problem_operator_base.h"
 
 namespace platypus
 {
 /// Steady-state problem operator with no equation system.
-class ProblemOperator : public mfem::Operator, public ProblemOperatorInterface
+class ProblemOperator : public mfem::Operator,
+                        public ProblemOperatorInterface,
+                        public ProblemOperatorBase
 {
 public:
   ProblemOperator(platypus::Problem & problem) : ProblemOperatorInterface(problem) {}
