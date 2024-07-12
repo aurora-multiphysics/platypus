@@ -13,9 +13,7 @@ class TimeDomainEquationSystemProblemBuilder : public TimeDomainProblemBuilder,
 {
 public:
   /// NB: set "_problem" member variable in parent class.
-  TimeDomainEquationSystemProblemBuilder() : TimeDomainProblemBuilder(new platypus::MFEMProblemData)
-  {
-  }
+  TimeDomainEquationSystemProblemBuilder() : TimeDomainProblemBuilder() {}
 
   ~TimeDomainEquationSystemProblemBuilder() override = default;
 
