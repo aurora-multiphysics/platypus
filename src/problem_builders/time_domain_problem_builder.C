@@ -41,7 +41,9 @@ TimeDomainProblemBuilder::SetOperatorGridFunctions()
 void
 TimeDomainProblemBuilder::ConstructOperator()
 {
-  GetProblem()->ConstructOperator();
+  GetProblem()->_problem_operator.reset();
+  GetProblem()->_problem_operator =
+      std::make_unique<platypus::TimeDomainProblemOperator>(*GetProblem());
 }
 
 void

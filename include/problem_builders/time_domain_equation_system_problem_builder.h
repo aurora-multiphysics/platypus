@@ -19,21 +19,6 @@ public:
         TimeDomainProblem::GetOperator());
   }
 
-  void
-  SetOperator(std::unique_ptr<platypus::TimeDomainEquationSystemProblemOperator> problem_operator)
-  {
-    TimeDomainProblem::SetOperator(std::move(problem_operator));
-  }
-
-  void ConstructOperator() override
-  {
-    auto equation_system = std::make_unique<platypus::TimeDependentEquationSystem>();
-    auto problem_operator = std::make_unique<platypus::TimeDomainEquationSystemProblemOperator>(
-        *this, std::move(equation_system));
-
-    SetOperator(std::move(problem_operator));
-  }
-
   [[nodiscard]] TimeDependentEquationSystem * GetEquationSystem() const override
   {
     return GetOperator()->GetEquationSystem();
@@ -55,6 +40,15 @@ public:
 
   /// NB: - note use of final. Ensure that the equation system is initialized.
   void InitializeKernels() final;
+
+  void ConstructOperator() override
+  {
+    auto equation_system = std::make_unique<platypus::TimeDependentEquationSystem>();
+    auto problem_operator = std::make_unique<platypus::TimeDomainEquationSystemProblemOperator>(
+        *GetProblem(), std::move(equation_system));
+
+    GetProblem()->_problem_operator = std::move(problem_operator);
+  }
 
 protected:
   [[nodiscard]] platypus::TimeDomainEquationSystemProblem * GetProblem() const override

@@ -19,20 +19,6 @@ public:
     return static_cast<EquationSystemProblemOperator *>(SteadyStateProblem::GetOperator());
   }
 
-  void SetOperator(std::unique_ptr<EquationSystemProblemOperator> problem_operator)
-  {
-    SteadyStateProblem::SetOperator(std::move(problem_operator));
-  }
-
-  void ConstructOperator() override
-  {
-    auto equation_system = std::make_unique<platypus::EquationSystem>();
-    auto problem_operator = std::make_unique<platypus::EquationSystemProblemOperator>(
-        *this, std::move(equation_system));
-
-    SetOperator(std::move(problem_operator));
-  }
-
   [[nodiscard]] platypus::EquationSystem * GetEquationSystem() const override
   {
     return GetOperator()->GetEquationSystem();
@@ -55,6 +41,15 @@ public:
   /// NB: use of final! This calls ProblemBuilder::InitializeKernels and also ensures that the
   /// equation system is initialized.
   void InitializeKernels() final;
+
+  void ConstructOperator() override
+  {
+    auto equation_system = std::make_unique<platypus::EquationSystem>();
+    auto problem_operator = std::make_unique<platypus::EquationSystemProblemOperator>(
+        *GetProblem(), std::move(equation_system));
+
+    GetProblem()->_problem_operator = std::move(problem_operator);
+  }
 
 protected:
   [[nodiscard]] platypus::SteadyStateEquationSystemProblem * GetProblem() const override

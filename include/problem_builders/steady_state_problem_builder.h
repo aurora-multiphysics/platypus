@@ -21,19 +21,6 @@ public:
     return _problem_operator.get();
   }
 
-  void SetOperator(std::unique_ptr<platypus::ProblemOperator> problem_operator)
-  {
-    _problem_operator.reset();
-    _problem_operator = std::move(problem_operator);
-  }
-
-  void ConstructOperator() override
-  {
-    _problem_operator.reset();
-    _problem_operator = std::make_unique<platypus::ProblemOperator>(*this);
-  }
-
-private:
   std::unique_ptr<platypus::ProblemOperator> _problem_operator{nullptr};
 };
 
