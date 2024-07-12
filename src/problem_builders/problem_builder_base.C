@@ -35,13 +35,6 @@ ProblemBuilder::SetGridFunctions(platypus::GridFunctions & gridfunctions)
 }
 
 void
-ProblemBuilder::SetBoundaryConditions(platypus::BCMap & bc_map)
-{
-  // logger.info("Setting Boundary Conditions");
-  GetProblem()->_bc_map = bc_map;
-}
-
-void
 ProblemBuilder::AddFESpace(std::string fespace_name, std::string fec_name, int vdim, int ordering)
 {
   // logger.info("Adding {} FE Space to problem", fespace_name);
