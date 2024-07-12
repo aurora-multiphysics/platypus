@@ -68,8 +68,6 @@ public:
                   int ordering = mfem::Ordering::byNODES);
   void AddGridFunction(std::string gridfunction_name, std::string fespace_name);
 
-  void AddBoundaryCondition(std::string bc_name, std::shared_ptr<platypus::BoundaryCondition> bc);
-
   virtual void RegisterFESpaces() = 0;
   virtual void RegisterGridFunctions() = 0;
   virtual void RegisterCoefficients() = 0;
