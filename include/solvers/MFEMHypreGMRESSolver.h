@@ -13,7 +13,6 @@ public:
 
   MFEMHypreGMRESSolver(const InputParameters & parameters);
 
-  /// Returns a shared pointer to the instance of the Solver derived-class.
   std::shared_ptr<mfem::Solver> getSolver() const override { return _solver; }
 
 protected:
