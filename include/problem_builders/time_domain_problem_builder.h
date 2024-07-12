@@ -8,7 +8,7 @@ namespace platypus
 class TimeDomainProblemBuilder : public ProblemBuilder
 {
 public:
-  TimeDomainProblemBuilder() : ProblemBuilder() {}
+  TimeDomainProblemBuilder() = default;
 
   ~TimeDomainProblemBuilder() override = default;
 

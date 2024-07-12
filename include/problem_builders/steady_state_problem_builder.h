@@ -7,7 +7,7 @@ namespace platypus
 class SteadyStateProblemBuilder : public ProblemBuilder
 {
 public:
-  SteadyStateProblemBuilder() : ProblemBuilder() {}
+  SteadyStateProblemBuilder() = default;
 
   ~SteadyStateProblemBuilder() override = default;
 

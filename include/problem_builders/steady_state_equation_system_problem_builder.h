@@ -12,8 +12,7 @@ class SteadyStateEquationSystemProblemBuilder : public SteadyStateProblemBuilder
                                                 public EquationSystemProblemBuilderInterface
 {
 public:
-  /// NB: set "_problem" member variable in parent class.
-  SteadyStateEquationSystemProblemBuilder() : SteadyStateProblemBuilder() {}
+  SteadyStateEquationSystemProblemBuilder() = default;
 
   ~SteadyStateEquationSystemProblemBuilder() override = default;
 

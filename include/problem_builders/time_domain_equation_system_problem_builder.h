@@ -12,8 +12,7 @@ class TimeDomainEquationSystemProblemBuilder : public TimeDomainProblemBuilder,
                                                public EquationSystemProblemBuilderInterface
 {
 public:
-  /// NB: set "_problem" member variable in parent class.
-  TimeDomainEquationSystemProblemBuilder() : TimeDomainProblemBuilder() {}
+  TimeDomainEquationSystemProblemBuilder() = default;
 
   ~TimeDomainEquationSystemProblemBuilder() override = default;
 
