@@ -1,4 +1,5 @@
 #include "MFEMProblem.h"
+#include "MFEMSolverBase.h"
 
 registerMooseObject("PlatypusApp", MFEMProblem);
 
@@ -51,19 +52,34 @@ MFEMProblem::outputStep(ExecFlagType type)
 }
 
 void
+MFEMProblem::addMFEMSolverIfMissing()
+{
+  if (mfem_problem->_jacobian_solver != nullptr)
+  {
+    return; // No missing solver.
+  }
+
+  // Construct HypreGMRES solver (with no preconditioner!)
+  InputParameters solver_params = _factory.getValidParams("MFEMHypreGMRESSolver");
+
+  addMFEMSolver("MFEMHypreGMRESSolver", "Solver", solver_params);
+
+  // Print warning.
+  mooseWarning("No [Solver] block found. Using HypreGMRES solver with default parameters.");
+}
+
+void
 MFEMProblem::initialSetup()
 {
   FEProblemBase::initialSetup();
   EquationSystems & es = FEProblemBase::es();
-  _solver_options.SetParam("Tolerance", float(es.parameters.get<Real>("linear solver tolerance")));
-  _solver_options.SetParam("AbsTolerance",
-                           float(es.parameters.get<Real>("linear solver absolute tolerance")));
-  _solver_options.SetParam("MaxIter",
-                           es.parameters.get<unsigned int>("linear solver maximum iterations"));
+
   _coefficients.AddGlobalCoefficientsFromSubdomains();
 
   mfem_problem_builder->SetCoefficients(_coefficients);
-  mfem_problem_builder->SetSolverOptions(_solver_options);
+
+  // Check for and add (if missing) a Jacobian solver.
+  addMFEMSolverIfMissing();
 
   // NB: set to false to avoid reconstructing problem operator.
   mfem_problem_builder->FinalizeProblem(false);
@@ -147,6 +163,17 @@ MFEMProblem::setFormulation(const std::string & user_object_name,
   mfem_problem_builder->ConstructOperator();
 
   mfem_problem = mfem_problem_builder->ReturnProblem();
+}
+
+void
+MFEMProblem::addMFEMSolver(const std::string & user_object_name,
+                           const std::string & name,
+                           InputParameters & parameters)
+{
+  FEProblemBase::addUserObject(user_object_name, name, parameters);
+  const MFEMSolverBase & mfem_solver = getUserObject<MFEMSolverBase>(name);
+
+  mfem_problem_builder->SetJacobianSolver(mfem_solver.getSolver());
 }
 
 void
