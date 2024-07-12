@@ -100,7 +100,7 @@ MFEMProblem::initialSetup()
     exec_params.SetParam("TimeStep", float(dt()));
     exec_params.SetParam("EndTime", float(_moose_executioner->endTime()));
     exec_params.SetParam("VisualisationSteps", getParam<int>("vis_steps"));
-    exec_params.SetParam("Problem", static_cast<platypus::TimeDomainProblem *>(mfem_problem.get()));
+    exec_params.SetParam("Problem", mfem_problem.get());
 
     executioner = std::make_unique<platypus::TransientExecutioner>(exec_params);
   }
@@ -113,8 +113,7 @@ MFEMProblem::initialSetup()
       mooseError("Specified formulation does not support Steady executioners");
     }
 
-    exec_params.SetParam("Problem",
-                         static_cast<platypus::SteadyStateProblem *>(mfem_problem.get()));
+    exec_params.SetParam("Problem", mfem_problem.get());
     exec_params.SetParam("ProblemOperator",
                          static_cast<platypus::ProblemOperator *>(_mfem_operator.get()));
     executioner = std::make_unique<platypus::SteadyExecutioner>(exec_params);

@@ -4,17 +4,11 @@
 
 namespace platypus
 {
-
-/// Time-dependent problems with no equation system.
-class TimeDomainProblem : public Problem
-{
-};
-
 /// Problem-builder for TimeDomainProblem.
 class TimeDomainProblemBuilder : public ProblemBuilder
 {
 public:
-  TimeDomainProblemBuilder() : ProblemBuilder(new platypus::TimeDomainProblem) {}
+  TimeDomainProblemBuilder() : ProblemBuilder(new platypus::Problem) {}
 
   ~TimeDomainProblemBuilder() override = default;
 
@@ -34,12 +28,7 @@ public:
 
 protected:
   /// NB: constructor called in derived classes.
-  TimeDomainProblemBuilder(platypus::TimeDomainProblem * problem) : ProblemBuilder(problem) {}
-
-  [[nodiscard]] platypus::TimeDomainProblem * GetProblem() const override
-  {
-    return ProblemBuilder::GetProblem<platypus::TimeDomainProblem>();
-  };
+  TimeDomainProblemBuilder(platypus::Problem * problem) : ProblemBuilder(problem) {}
 
   [[nodiscard]] platypus::TimeDomainProblemOperator & GetOperator() const
   {

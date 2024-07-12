@@ -7,21 +7,13 @@
 namespace platypus
 {
 
-/// Steady-state problems with an equation system.
-class SteadyStateEquationSystemProblem : public SteadyStateProblem
-{
-};
-
 /// Problem-builder for SteadyStateEquationSystemProblem.
 class SteadyStateEquationSystemProblemBuilder : public SteadyStateProblemBuilder,
                                                 public EquationSystemProblemBuilderInterface
 {
 public:
   /// NB: set "_problem" member variable in parent class.
-  SteadyStateEquationSystemProblemBuilder()
-    : SteadyStateProblemBuilder(new SteadyStateEquationSystemProblem)
-  {
-  }
+  SteadyStateEquationSystemProblemBuilder() : SteadyStateProblemBuilder(new platypus::Problem) {}
 
   ~SteadyStateEquationSystemProblemBuilder() override = default;
 
@@ -33,17 +25,12 @@ public:
   {
     auto equation_system = std::make_unique<platypus::EquationSystem>();
     auto problem_operator = std::make_shared<platypus::EquationSystemProblemOperator>(
-        *GetProblem(), std::move(equation_system));
+        *_problem, std::move(equation_system));
 
     _problem_operator = std::move(problem_operator);
   }
 
 protected:
-  [[nodiscard]] platypus::SteadyStateEquationSystemProblem * GetProblem() const override
-  {
-    return ProblemBuilder::GetProblem<platypus::SteadyStateEquationSystemProblem>();
-  }
-
   [[nodiscard]] platypus::EquationSystemProblemOperator & GetOperator() const
   {
     return static_cast<platypus::EquationSystemProblemOperator &>(*_problem_operator);

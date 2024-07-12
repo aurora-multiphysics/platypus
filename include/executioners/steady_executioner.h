@@ -17,7 +17,7 @@ public:
   void Execute() const override;
 
 private:
-  platypus::SteadyStateProblem * _problem{nullptr};
+  platypus::Problem * _problem{nullptr};
   platypus::ProblemOperator * _problem_operator{nullptr};
 };
 

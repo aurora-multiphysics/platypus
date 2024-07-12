@@ -28,7 +28,7 @@ private:
   mutable int _it;         // Time index
   int _vis_steps;          // Number of cyces between each output update
   mutable bool _last_step; // Flag to check if current step is final
-  platypus::TimeDomainProblem * _problem{nullptr};
+  platypus::Problem * _problem{nullptr};
 };
 
 } // namespace platypus

@@ -13,14 +13,13 @@ void
 SteadyStateProblemBuilder::ConstructOperator()
 {
   _problem_operator.reset();
-  _problem_operator = std::make_shared<platypus::ProblemOperator>(*GetProblem());
+  _problem_operator = std::make_shared<platypus::ProblemOperator>(*_problem);
 }
 
 void
 SteadyStateProblemBuilder::ConstructState()
 {
-  GetProblem()->_f =
-      std::make_unique<mfem::BlockVector>(GetOperator()._true_offsets); // Vector of dofs
-  GetOperator().Init(*(GetProblem()->_f));                              // Set up initial conditions
+  _problem->_f = std::make_unique<mfem::BlockVector>(GetOperator()._true_offsets); // Vector of dofs
+  GetOperator().Init(*(_problem->_f)); // Set up initial conditions
 }
 } // namespace platypus

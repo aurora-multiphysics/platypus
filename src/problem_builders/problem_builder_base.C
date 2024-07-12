@@ -13,14 +13,14 @@ Problem::~Problem()
 void
 ProblemBuilder::ConstructNonlinearSolver()
 {
-  auto nl_solver = std::make_shared<mfem::NewtonSolver>(GetProblem()->_pmesh->GetComm());
+  auto nl_solver = std::make_shared<mfem::NewtonSolver>(_problem->_pmesh->GetComm());
 
   // Defaults to one iteration, without further nonlinear iterations
   nl_solver->SetRelTol(0.0);
   nl_solver->SetAbsTol(0.0);
   nl_solver->SetMaxIter(1);
 
-  GetProblem()->_nonlinear_solver = nl_solver;
+  _problem->_nonlinear_solver = nl_solver;
 }
 
 void
@@ -31,7 +31,7 @@ ProblemBuilder::InitializeKernels()
 void
 ProblemBuilder::InitializeOutputs()
 {
-  GetProblem()->_outputs.Init(GetProblem()->_gridfunctions);
+  _problem->_outputs.Init(_problem->_gridfunctions);
 }
 
 void
