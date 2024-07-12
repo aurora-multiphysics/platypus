@@ -42,13 +42,6 @@ ProblemBuilder::SetBoundaryConditions(platypus::BCMap & bc_map)
 }
 
 void
-ProblemBuilder::SetOutputs(platypus::Outputs & outputs)
-{
-  // logger.info("Setting Outputs");
-  GetProblem()->_outputs = outputs;
-}
-
-void
 ProblemBuilder::SetJacobianPreconditioner(std::shared_ptr<mfem::Solver> preconditioner)
 {
   GetProblem()->_jacobian_preconditioner = preconditioner;
