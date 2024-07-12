@@ -159,10 +159,11 @@ MFEMProblem::setFormulation(const std::string & user_object_name,
 
   mfem_problem_builder = mfem_formulation->getProblemBuilder();
 
-  mfem_problem_builder->SetMesh(std::make_shared<mfem::ParMesh>(mfem_par_mesh));
-  mfem_problem_builder->ConstructOperator();
-
+  // NB: - is this dodgy???
   mfem_problem = mfem_problem_builder->ReturnProblem();
+  mfem_problem->_pmesh = std::make_shared<mfem::ParMesh>(mfem_par_mesh);
+
+  mfem_problem_builder->ConstructOperator();
 }
 
 void
