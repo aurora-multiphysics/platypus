@@ -49,13 +49,6 @@ ProblemBuilder::SetOutputs(platypus::Outputs & outputs)
 }
 
 void
-ProblemBuilder::SetSolverOptions(platypus::InputParameters & solver_options)
-{
-  // logger.info("Setting Solver Options");
-  GetProblem()->_solver_options = solver_options;
-}
-
-void
 ProblemBuilder::SetJacobianPreconditioner(std::shared_ptr<mfem::Solver> preconditioner)
 {
   GetProblem()->_jacobian_preconditioner = preconditioner;
