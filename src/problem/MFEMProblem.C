@@ -56,13 +56,16 @@ MFEMProblem::initialSetup()
 {
   FEProblemBase::initialSetup();
   EquationSystems & es = FEProblemBase::es();
-  
+
   _coefficients.AddGlobalCoefficientsFromSubdomains();
 
   mfem_problem_builder->SetCoefficients(_coefficients);
 
   // NB: set to false to avoid reconstructing problem operator.
   mfem_problem_builder->FinalizeProblem(false);
+
+  // Verify that the Jacobian solver has been set.
+  checkJacobianSolverSet();
 
   platypus::InputParameters exec_params;
 
@@ -282,6 +285,16 @@ MFEMProblem::addAuxKernel(const std::string & kernel_name,
   else
   {
     mooseError("Unrecognized auxkernel base class '", base_auxkernel, "' detected.");
+  }
+}
+
+void
+MFEMProblem::checkJacobianSolverSet() const
+{
+  bool is_set = (mfem_problem && mfem_problem->_jacobian_solver);
+  if (!is_set)
+  {
+    mooseError("The Jacobian solver has not been set.");
   }
 }
 
