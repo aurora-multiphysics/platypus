@@ -117,6 +117,13 @@ public:
                     InputParameters & parameters) override;
 
   /**
+   * Method called in AddMFEMSolverAction which will create the solver.
+   */
+  void addMFEMSolver(const std::string & user_object_name,
+                     const std::string & name,
+                     InputParameters & parameters);
+
+  /**
    * setMFEMVarData and setMOOSEVarData have very similar uses. They are both used to retrieve
    * data from one of the variable types (either Moose AuxVar or MFEM grid function), and
    * transfer it to the other. For example if you solve for temperature in MOOSE, you would use
