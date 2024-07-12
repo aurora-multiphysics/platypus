@@ -139,11 +139,6 @@ public:
    */
   InputParameters addMFEMFESpaceFromMOOSEVariable(InputParameters & moosevar_params);
 
-  /**
-   * Returns a const-reference to the problem data.
-   */
-  const platypus::Problem & getProblemData() const { return *mfem_problem; }
-
 protected:
   /**
    * Called internally by setMFEMVarData.
