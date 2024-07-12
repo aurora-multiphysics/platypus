@@ -74,9 +74,9 @@ MFEMProblem::initialSetup()
   FEProblemBase::initialSetup();
   EquationSystems & es = FEProblemBase::es();
 
+  // Set coefficients.
   _coefficients.AddGlobalCoefficientsFromSubdomains();
-
-  mfem_problem_builder->SetCoefficients(_coefficients);
+  mfem_problem->_coefficients = _coefficients;
 
   // Check for and add (if missing) a Jacobian solver.
   addMFEMSolverIfMissing();
