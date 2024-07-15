@@ -1,4 +1,4 @@
-HeaderFilterRegex: 'hephaestus/[ste]'
+HeaderFilterRegex: 'platypus/[is]'
 Checks:              '-*,readability-identifier-naming,readability-redundant-member-init,modernize-*,-modernize-use-trailing-return-type,-modernize-avoid-c-arrays'
 CheckOptions:
   - key:             readability-identifier-naming.AggressiveDependentMemberLookup

@@ -28,20 +28,29 @@ ALL_MODULES                 := no
 
 CHEMICAL_REACTIONS          := no
 CONTACT                     := no
+ELECTROMAGNETICS            := no
 EXTERNAL_PETSC_SOLVER       := no
 FLUID_PROPERTIES            := no
+FSI                         := no
 FUNCTIONAL_EXPANSION_TOOLS  := no
-HEAT_TRANSFER             	:= yes
+GEOCHEMISTRY                := no
+HEAT_TRANSFER               := yes
 LEVEL_SET                   := no
 MISC                        := no
+OPTIMIZATION                := no
 NAVIER_STOKES               := no
+PERIDYNAMICS                := no
 PHASE_FIELD                 := no
 POROUS_FLOW                 := no
+RAY_TRACING                 := no
 RDG                         := no
+REACTOR                     := no
 RICHARDS                    := no
+SCALAR_TRANSPORT            := no
 SOLID_MECHANICS             := yes
+SOLID_PROPERTIES            := no
 STOCHASTIC_TOOLS            := no
-TENSOR_MECHANICS            := no
+THERMAL_HYDRAULICS          := no
 XFEM                        := no
 
 include $(MOOSE_DIR)/modules/modules.mk
@@ -55,7 +64,7 @@ printer:
 
 # dep apps
 APPLICATION_DIR    := $(CURDIR)
-PLATYPUS_DIR         := $(CURDIR)
+PLATYPUS_DIR       := $(CURDIR)
 APPLICATION_NAME   := platypus
 BUILD_EXEC         := yes
 GEN_REVISION       := no
