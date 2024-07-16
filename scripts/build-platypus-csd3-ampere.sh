@@ -5,7 +5,7 @@
 #SBATCH --mail-type=none
 #SBATCH -p ampere
 #SBATCH -A ukaea-ap001-GPU
-#SBATCH --cpus-per-task=1
+#SBATCH --cpus-per-task=32
 #SBATCH --gres=gpu:1
 #SBATCH --output=platypus_gpu_build.%j.out
 #SBATCH --error=platypus_gpu_build.%j.err
@@ -144,6 +144,8 @@ install_mfem() {
     export F77=mpif77
     export FC=mpif90
 
+    SLU_DIR=$(spack find --format {prefix} superlu-dist)
+
     # Build MFEM
     cd "${BUILD_PATH}" || exit 1
     git clone https://github.com/mfem/mfem.git
@@ -167,7 +169,9 @@ install_mfem() {
         -DMFEM_USE_SUPERLU=YES \
         -DMFEM_USE_NETCDF=YES \
         -DMFEM_USE_GSLIB=YES \
-        -DGSLIB_DIR="${BUILD_PATH}/gslib/build"
+        -DGSLIB_DIR="${BUILD_PATH}/gslib/build" \
+        -DSuperLUDist_DIR="${SLU_DIR}" \
+        -DSuperLUDist_VERSION_OK=YES
 
     if [ $? -eq 2 ]; then
         echo "MFEM config failed"
