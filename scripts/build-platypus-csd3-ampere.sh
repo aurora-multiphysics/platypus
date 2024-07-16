@@ -143,8 +143,8 @@ install_mfem() {
     export F90=mpif90
     export F77=mpif77
     export FC=mpif90
-
-    SLU_DIR=$(spack find --format {prefix} superlu-dist)
+    SLU_DIR=$(spack find --format "{prefix}" superlu-dist)
+    export SLU_DIR
 
     # Build MFEM
     cd "${BUILD_PATH}" || exit 1
