@@ -3,6 +3,7 @@
 #include "time_domain_problem_operator.h"
 #include "problem_operator_interface.h"
 #include "equation_system_interface.h"
+#include "problem_operator_base.h"
 
 namespace platypus
 {
@@ -12,9 +13,9 @@ class TimeDomainEquationSystemProblemOperator : public TimeDomainProblemOperator
                                                 public EquationSystemInterface
 {
 public:
-  TimeDomainEquationSystemProblemOperator(platypus::Problem &) = delete;
+  TimeDomainEquationSystemProblemOperator(platypus::MFEMProblemData &) = delete;
   TimeDomainEquationSystemProblemOperator(
-      platypus::Problem & problem,
+      platypus::MFEMProblemData & problem,
       std::unique_ptr<platypus::TimeDependentEquationSystem> equation_system)
     : TimeDomainProblemOperator(problem), _equation_system{std::move(equation_system)}
   {

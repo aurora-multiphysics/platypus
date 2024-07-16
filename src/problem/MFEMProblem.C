@@ -1,4 +1,5 @@
 #include "MFEMProblem.h"
+#include "MFEMSolverBase.h"
 
 registerMooseObject("PlatypusApp", MFEMProblem);
 
@@ -51,22 +52,37 @@ MFEMProblem::outputStep(ExecFlagType type)
 }
 
 void
+MFEMProblem::addMFEMSolverIfMissing()
+{
+  if (mfem_problem->_jacobian_solver != nullptr)
+  {
+    return; // No missing solver.
+  }
+
+  // Construct HypreGMRES solver (with no preconditioner!)
+  InputParameters solver_params = _factory.getValidParams("MFEMHypreGMRESSolver");
+
+  addMFEMSolver("MFEMHypreGMRESSolver", "Solver", solver_params);
+
+  // Print warning.
+  mooseWarning("No [Solver] block found. Using HypreGMRES solver with default parameters.");
+}
+
+void
 MFEMProblem::initialSetup()
 {
   FEProblemBase::initialSetup();
   EquationSystems & es = FEProblemBase::es();
-  _solver_options.SetParam("Tolerance", float(es.parameters.get<Real>("linear solver tolerance")));
-  _solver_options.SetParam("AbsTolerance",
-                           float(es.parameters.get<Real>("linear solver absolute tolerance")));
-  _solver_options.SetParam("MaxIter",
-                           es.parameters.get<unsigned int>("linear solver maximum iterations"));
+
+  // Set coefficients.
   _coefficients.AddGlobalCoefficientsFromSubdomains();
+  mfem_problem->_coefficients = _coefficients;
 
-  mfem_problem_builder->SetCoefficients(_coefficients);
-  mfem_problem_builder->SetSolverOptions(_solver_options);
+  // Check for and add (if missing) a Jacobian solver.
+  addMFEMSolverIfMissing();
 
-  // NB: set to false to avoid reconstructing problem operator.
-  mfem_problem_builder->FinalizeProblem(false);
+  // Finalize construction (problem operator already created).
+  mfem_problem_builder->FinalizeProblem();
 
   platypus::InputParameters exec_params;
 
@@ -84,7 +100,7 @@ MFEMProblem::initialSetup()
     exec_params.SetParam("TimeStep", float(dt()));
     exec_params.SetParam("EndTime", float(_moose_executioner->endTime()));
     exec_params.SetParam("VisualisationSteps", getParam<int>("vis_steps"));
-    exec_params.SetParam("Problem", static_cast<platypus::TimeDomainProblem *>(mfem_problem.get()));
+    exec_params.SetParam("Problem", mfem_problem.get());
 
     executioner = std::make_unique<platypus::TransientExecutioner>(exec_params);
   }
@@ -97,9 +113,9 @@ MFEMProblem::initialSetup()
       mooseError("Specified formulation does not support Steady executioners");
     }
 
-    exec_params.SetParam("Problem",
-                         static_cast<platypus::SteadyStateProblem *>(mfem_problem.get()));
-
+    exec_params.SetParam("Problem", mfem_problem.get());
+    exec_params.SetParam("ProblemOperator",
+                         static_cast<platypus::ProblemOperator *>(_mfem_operator.get()));
     executioner = std::make_unique<platypus::SteadyExecutioner>(exec_params);
   }
   else
@@ -137,16 +153,27 @@ MFEMProblem::setFormulation(const std::string & user_object_name,
                             const std::string & name,
                             InputParameters & parameters)
 {
-  mfem::ParMesh & mfem_par_mesh = mesh().getMFEMParMesh();
   FEProblemBase::addUserObject(user_object_name, name, parameters);
   MFEMFormulation * mfem_formulation(&getUserObject<MFEMFormulation>(name));
 
   mfem_problem_builder = mfem_formulation->getProblemBuilder();
 
-  mfem_problem_builder->SetMesh(std::make_shared<mfem::ParMesh>(mfem_par_mesh));
-  mfem_problem_builder->ConstructOperator();
-
   mfem_problem = mfem_problem_builder->ReturnProblem();
+  mfem_problem->_pmesh = mesh().getMFEMParMesh();
+
+  mfem_problem_builder->ConstructOperator();
+  _mfem_operator = mfem_problem_builder->ReturnOperator();
+}
+
+void
+MFEMProblem::addMFEMSolver(const std::string & user_object_name,
+                           const std::string & name,
+                           InputParameters & parameters)
+{
+  FEProblemBase::addUserObject(user_object_name, name, parameters);
+  const MFEMSolverBase & mfem_solver = getUserObject<MFEMSolverBase>(name);
+
+  mfem_problem->_jacobian_solver = mfem_solver.getSolver();
 }
 
 void
@@ -156,7 +183,8 @@ MFEMProblem::addBoundaryCondition(const std::string & bc_name,
 {
   FEProblemBase::addUserObject(bc_name, name, parameters);
   MFEMBoundaryCondition * mfem_bc(&getUserObject<MFEMBoundaryCondition>(name));
-  mfem_problem_builder->AddBoundaryCondition(name, mfem_bc->getBC());
+
+  mfem_problem->_bc_map.Register(name, mfem_bc->getBC());
 }
 
 void

@@ -15,6 +15,7 @@
 #include "MFEMBilinearFormKernel.h"
 #include "MFEMLinearFormKernel.h"
 #include "MFEMFormulation.h"
+#include "problem_operator_base.h"
 #include "MFEMDataCollection.h"
 #include "MFEMFESpace.h"
 #include "Function.h"
@@ -117,6 +118,13 @@ public:
                     InputParameters & parameters) override;
 
   /**
+   * Method called in AddMFEMSolverAction which will create the solver.
+   */
+  void addMFEMSolver(const std::string & user_object_name,
+                     const std::string & name,
+                     InputParameters & parameters);
+
+  /**
    * setMFEMVarData and setMOOSEVarData have very similar uses. They are both used to retrieve
    * data from one of the variable types (either Moose AuxVar or MFEM grid function), and
    * transfer it to the other. For example if you solve for temperature in MOOSE, you would use
@@ -133,6 +141,12 @@ public:
   InputParameters addMFEMFESpaceFromMOOSEVariable(InputParameters & moosevar_params);
 
 protected:
+  /**
+   * Called internally. If there is no MFEM solver found, a default solver will
+   * be added with sensible options. A warning will be printed.
+   */
+  void addMFEMSolverIfMissing();
+
   /**
    * Called internally by setMFEMVarData.
    */
@@ -173,12 +187,13 @@ protected:
   int _order;
 
   platypus::Coefficients _coefficients;
-  platypus::InputParameters _solver_options;
   platypus::Outputs _outputs;
   platypus::InputParameters _exec_params;
 
   std::shared_ptr<platypus::ProblemBuilder> mfem_problem_builder{nullptr};
 
-  std::shared_ptr<platypus::Problem> mfem_problem{nullptr};
+  std::shared_ptr<platypus::MFEMProblemData> mfem_problem{nullptr};
+  std::shared_ptr<platypus::ProblemOperatorBase> _mfem_operator{nullptr};
+
   std::unique_ptr<platypus::Executioner> executioner{nullptr};
 };

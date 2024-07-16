@@ -31,8 +31,8 @@ MFEMFESpace::MFEMFESpace(const InputParameters & parameters)
 const std::shared_ptr<mfem::ParFiniteElementSpace>
 MFEMFESpace::buildFESpace()
 {
-  mfem::ParMesh & pmesh = getMFEMProblem().mesh().getMFEMParMesh();
   mfem::FiniteElementCollection & fec = *_fec.getFEC();
 
-  return std::make_shared<mfem::ParFiniteElementSpace>(&pmesh, &fec, _vdim, _ordering);
+  return std::make_shared<mfem::ParFiniteElementSpace>(
+      getMFEMProblem().mesh().getMFEMParMesh().get(), &fec, _vdim, _ordering);
 }

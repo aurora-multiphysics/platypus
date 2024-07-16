@@ -1,7 +1,6 @@
 #pragma once
 #include "../common/pfem_extras.hpp"
 #include "coefficients.h"
-#include "hephaestus_solvers.h"
 #include "inputs.h"
 
 namespace platypus

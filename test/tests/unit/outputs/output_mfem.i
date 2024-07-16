@@ -13,6 +13,10 @@
   type = CustomFormulation
 []
 
+[Solver]
+  type = MFEMHypreGMRESSolver
+[]
+
 [AuxVariables]
   [mfem_diffused]
     family = LAGRANGE

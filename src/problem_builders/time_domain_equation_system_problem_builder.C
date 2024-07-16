@@ -8,10 +8,18 @@ TimeDomainEquationSystemProblemBuilder::InitializeKernels()
 {
   ProblemBuilder::InitializeKernels();
 
-  GetEquationSystem()->Init(GetProblem()->_gridfunctions,
-                            GetProblem()->_fespaces,
-                            GetProblem()->_bc_map,
-                            GetProblem()->_coefficients);
+  GetEquationSystem()->Init(
+      _problem->_gridfunctions, _problem->_fespaces, _problem->_bc_map, _problem->_coefficients);
+}
+
+void
+TimeDomainEquationSystemProblemBuilder::ConstructOperator()
+{
+  auto equation_system = std::make_unique<platypus::TimeDependentEquationSystem>();
+  auto problem_operator = std::make_shared<platypus::TimeDomainEquationSystemProblemOperator>(
+      *_problem, std::move(equation_system));
+
+  _problem_operator = std::move(problem_operator);
 }
 
 } // namespace platypus

@@ -45,12 +45,15 @@ public:
   std::unique_ptr<MooseMesh> safeClone() const override;
 
   /**
-   * Accessors for the _mfem_mesh and _mfem_par_mesh objects. If the objects have
-   * not been build, the methods will call the appropriate protected methods to
-   * build them.
+   * Returns a shared pointer to the MFEMMesh. If the objects have not been built,
+   * the method will call the appropriate protected methods to build them.
    */
-  MFEMMesh & getMFEMMesh();
-  MFEMParMesh & getMFEMParMesh();
+  [[nodiscard]] std::shared_ptr<MFEMMesh> getMFEMMesh();
+
+  /**
+   * Returns a shared pointer to the MFEMParMesh.
+   */
+  [[nodiscard]] std::shared_ptr<MFEMParMesh> getMFEMParMesh();
 
   /**
    * Calls buildDummyMesh.

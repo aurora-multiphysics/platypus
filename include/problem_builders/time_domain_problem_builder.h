@@ -4,42 +4,11 @@
 
 namespace platypus
 {
-
-/// Time-dependent problems with no equation system.
-class TimeDomainProblem : public Problem
-{
-public:
-  [[nodiscard]] platypus::TimeDomainProblemOperator * GetOperator() const override
-  {
-    if (!_problem_operator)
-    {
-      MFEM_ABORT("No operator has been added.");
-    }
-
-    return _problem_operator.get();
-  }
-
-  void SetOperator(std::unique_ptr<platypus::TimeDomainProblemOperator> problem_operator)
-  {
-    _problem_operator.reset();
-    _problem_operator = std::move(problem_operator);
-  }
-
-  void ConstructOperator() override
-  {
-    _problem_operator.reset();
-    _problem_operator = std::make_unique<platypus::TimeDomainProblemOperator>(*this);
-  }
-
-private:
-  std::unique_ptr<platypus::TimeDomainProblemOperator> _problem_operator{nullptr};
-};
-
 /// Problem-builder for TimeDomainProblem.
 class TimeDomainProblemBuilder : public ProblemBuilder
 {
 public:
-  TimeDomainProblemBuilder() : ProblemBuilder(new platypus::TimeDomainProblem) {}
+  TimeDomainProblemBuilder() = default;
 
   ~TimeDomainProblemBuilder() override = default;
 
@@ -47,11 +16,7 @@ public:
   RegisterTimeDerivatives(std::vector<std::string> gridfunction_names,
                           platypus::GridFunctions & gridfunctions);
 
-  void RegisterFESpaces() override {}
-
   void RegisterGridFunctions() override;
-
-  void RegisterCoefficients() override {}
 
   void SetOperatorGridFunctions() override;
 
@@ -62,13 +27,10 @@ public:
   void ConstructTimestepper() override;
 
 protected:
-  /// NB: constructor called in derived classes.
-  TimeDomainProblemBuilder(platypus::TimeDomainProblem * problem) : ProblemBuilder(problem) {}
-
-  [[nodiscard]] platypus::TimeDomainProblem * GetProblem() const override
+  [[nodiscard]] platypus::TimeDomainProblemOperator & GetOperator() const
   {
-    return ProblemBuilder::GetProblem<platypus::TimeDomainProblem>();
-  };
+    return static_cast<TimeDomainProblemOperator &>(*_problem_operator);
+  }
 };
 
 } // namespace platypus

@@ -431,7 +431,7 @@ CoupledMFEMMesh::buildMFEMParMesh()
   int * partitioning_raw_ptr = partitioning ? partitioning.get() : nullptr;
 
   _mfem_par_mesh =
-      std::make_shared<MFEMParMesh>(MPI_COMM_WORLD, getMFEMMesh(), partitioning_raw_ptr);
+      std::make_shared<MFEMParMesh>(MPI_COMM_WORLD, *getMFEMMesh(), partitioning_raw_ptr);
 
   // If we have a higher-order mesh then we need to figure-out the mapping from the libMesh node ID
   // to the MFEM node ID since this will have changed.
