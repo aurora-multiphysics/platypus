@@ -253,13 +253,6 @@ install_platypus() {
     echo "Building platypus..."
     git clone https://github.com/aurora-multiphysics/platypus.git
     cd platypus || exit 1
-    git submodule update --init --recursive
-    cd contrib/hephaestus/ || exit 1
-    mkdir build
-    cd build || exit 1
-    cmake -G Ninja -DCMAKE_BUILD_TYPE=Release -DMFEM_DIR="${BUILD_PATH}/mfem/build" ..
-    ninja
-    cd "${BUILD_PATH}"/platypus || exit 1
     make -j"$compile_cores"
 
 }
