@@ -2,6 +2,7 @@
 #include <any>
 #include <fstream>
 #include <iostream>
+#include "../../../NVTX/c/include/nvtx3/nvtx3.hpp"
 #include <memory>
 #include <utility>
 

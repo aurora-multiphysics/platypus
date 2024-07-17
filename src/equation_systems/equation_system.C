@@ -9,6 +9,7 @@ bool
 EquationSystem::VectorContainsName(const std::vector<std::string> & the_vector,
                                    const std::string & name) const
 {
+  NVTX3_FUNC_RANGE();
 
   auto iter = std::find(the_vector.begin(), the_vector.end(), name);
 
@@ -18,6 +19,7 @@ EquationSystem::VectorContainsName(const std::vector<std::string> & the_vector,
 void
 EquationSystem::AddTrialVariableNameIfMissing(const std::string & trial_var_name)
 {
+  NVTX3_FUNC_RANGE();
   if (!VectorContainsName(_trial_var_names, trial_var_name))
   {
     _trial_var_names.push_back(trial_var_name);
@@ -27,6 +29,7 @@ EquationSystem::AddTrialVariableNameIfMissing(const std::string & trial_var_name
 void
 EquationSystem::AddTestVariableNameIfMissing(const std::string & test_var_name)
 {
+  NVTX3_FUNC_RANGE();
   if (!VectorContainsName(_test_var_names, test_var_name))
   {
     _test_var_names.push_back(test_var_name);
@@ -37,6 +40,7 @@ void
 EquationSystem::AddKernel(const std::string & test_var_name,
                           std::shared_ptr<ParBilinearFormKernel> blf_kernel)
 {
+  NVTX3_FUNC_RANGE();
   AddTestVariableNameIfMissing(test_var_name);
 
   if (!_blf_kernels_map.Has(test_var_name))
@@ -55,6 +59,7 @@ void
 EquationSystem::AddKernel(const std::string & test_var_name,
                           std::shared_ptr<ParLinearFormKernel> lf_kernel)
 {
+  NVTX3_FUNC_RANGE();
   AddTestVariableNameIfMissing(test_var_name);
 
   if (!_lf_kernels_map.Has(test_var_name))
@@ -71,6 +76,7 @@ void
 EquationSystem::AddKernel(const std::string & test_var_name,
                           std::shared_ptr<ParNonlinearFormKernel> nlf_kernel)
 {
+  NVTX3_FUNC_RANGE();
   AddTestVariableNameIfMissing(test_var_name);
 
   if (!_nlf_kernels_map.Has(test_var_name))
@@ -88,6 +94,7 @@ EquationSystem::AddKernel(const std::string & trial_var_name,
                           const std::string & test_var_name,
                           std::shared_ptr<ParMixedBilinearFormKernel> mblf_kernel)
 {
+  NVTX3_FUNC_RANGE();
   AddTestVariableNameIfMissing(test_var_name);
 
   // Register new mblf kernels map if not present for this test variable
@@ -116,6 +123,7 @@ EquationSystem::AddKernel(const std::string & trial_var_name,
 void
 EquationSystem::ApplyBoundaryConditions(platypus::BCMap & bc_map)
 {
+  NVTX3_FUNC_RANGE();
   _ess_tdof_lists.resize(_test_var_names.size());
   for (int i = 0; i < _test_var_names.size(); i++)
   {
@@ -134,6 +142,7 @@ EquationSystem::FormLinearSystem(mfem::OperatorHandle & op,
                                  mfem::BlockVector & trueX,
                                  mfem::BlockVector & trueRHS)
 {
+  NVTX3_FUNC_RANGE();
 
   // Allocate block operator
   _h_blocks.DeleteAll();
@@ -192,6 +201,7 @@ EquationSystem::FormLinearSystem(mfem::OperatorHandle & op,
 void
 EquationSystem::BuildJacobian(mfem::BlockVector & trueX, mfem::BlockVector & trueRHS)
 {
+  NVTX3_FUNC_RANGE();
   height = trueX.Size();
   width = trueRHS.Size();
   FormLinearSystem(_jacobian, trueX, trueRHS);
@@ -200,12 +210,14 @@ EquationSystem::BuildJacobian(mfem::BlockVector & trueX, mfem::BlockVector & tru
 void
 EquationSystem::Mult(const mfem::Vector & x, mfem::Vector & residual) const
 {
+  NVTX3_FUNC_RANGE();
   _jacobian->Mult(x, residual);
 }
 
 mfem::Operator &
 EquationSystem::GetGradient(const mfem::Vector & u) const
 {
+  NVTX3_FUNC_RANGE();
   return *_jacobian;
 }
 
@@ -213,6 +225,7 @@ void
 EquationSystem::RecoverFEMSolution(mfem::BlockVector & trueX,
                                    platypus::GridFunctions & gridfunctions)
 {
+  NVTX3_FUNC_RANGE();
   for (int i = 0; i < _test_var_names.size(); i++)
   {
     auto & test_var_name = _test_var_names.at(i);
@@ -227,6 +240,7 @@ EquationSystem::Init(platypus::GridFunctions & gridfunctions,
                      platypus::BCMap & bc_map,
                      platypus::Coefficients & coefficients)
 {
+  NVTX3_FUNC_RANGE();
 
   // Add optional kernels to the EquationSystem
   AddKernels();
@@ -287,6 +301,7 @@ EquationSystem::Init(platypus::GridFunctions & gridfunctions,
 void
 EquationSystem::BuildLinearForms(platypus::BCMap & bc_map)
 {
+  NVTX3_FUNC_RANGE();
   // Register linear forms
   for (int i = 0; i < _test_var_names.size(); i++)
   {
@@ -319,6 +334,7 @@ EquationSystem::BuildLinearForms(platypus::BCMap & bc_map)
 void
 EquationSystem::BuildBilinearForms()
 {
+  NVTX3_FUNC_RANGE();
   // Register bilinear forms
   for (int i = 0; i < _test_var_names.size(); i++)
   {
@@ -344,6 +360,7 @@ EquationSystem::BuildBilinearForms()
 void
 EquationSystem::BuildMixedBilinearForms()
 {
+  NVTX3_FUNC_RANGE();
   // Register mixed linear forms. Note that not all combinations may
   // have a kernel
 
@@ -385,6 +402,7 @@ EquationSystem::BuildMixedBilinearForms()
 void
 EquationSystem::BuildEquationSystem(platypus::BCMap & bc_map)
 {
+  NVTX3_FUNC_RANGE();
   BuildLinearForms(bc_map);
   BuildBilinearForms();
   BuildMixedBilinearForms();
@@ -395,6 +413,7 @@ TimeDependentEquationSystem::TimeDependentEquationSystem() : _dt_coef(1.0) {}
 void
 TimeDependentEquationSystem::AddTrialVariableNameIfMissing(const std::string & var_name)
 {
+  NVTX3_FUNC_RANGE();
   EquationSystem::AddTrialVariableNameIfMissing(var_name);
   std::string var_time_derivative_name = GetTimeDerivativeName(var_name);
   if (std::find(_trial_var_time_derivative_names.begin(),
@@ -408,6 +427,7 @@ TimeDependentEquationSystem::AddTrialVariableNameIfMissing(const std::string & v
 void
 TimeDependentEquationSystem::SetTimeStep(double dt)
 {
+  NVTX3_FUNC_RANGE();
   if (fabs(dt - _dt_coef.constant) > 1.0e-12 * dt)
   {
     _dt_coef.constant = dt;
@@ -423,6 +443,7 @@ TimeDependentEquationSystem::SetTimeStep(double dt)
 void
 TimeDependentEquationSystem::UpdateEquationSystem(platypus::BCMap & bc_map)
 {
+  NVTX3_FUNC_RANGE();
   BuildLinearForms(bc_map);
   BuildBilinearForms();
   BuildMixedBilinearForms();
