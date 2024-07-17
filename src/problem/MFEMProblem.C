@@ -12,6 +12,7 @@ MFEMProblem::validParams()
       "Number of timesteps between successive write outs of data collections to file.");
   params.addParam<bool>(
       "use_glvis", false, "Attempt to open GLVis ports to display variables during simulation");
+  params.addParam<std::string>("device", "cpu", "Run app on the chosen device.");
 
   return params;
 }
@@ -23,6 +24,8 @@ MFEMProblem::MFEMProblem(const InputParameters & params)
     _outputs(),
     _exec_params()
 {
+  _device.Configure(getParam<std::string>("device"));
+  _device.Print(std::cout);
 }
 
 MFEMProblem::~MFEMProblem() {}

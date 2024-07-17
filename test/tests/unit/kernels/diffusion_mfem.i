@@ -7,6 +7,7 @@
 [Problem]
   type = MFEMProblem
   use_glvis = true
+  device = "cpu"
 []
 
 [Formulation]
