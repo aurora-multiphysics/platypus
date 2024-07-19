@@ -25,6 +25,14 @@ RUN git checkout $build_git_sha
 WORKDIR /$WORKDIR/platypus
 RUN make -j$compile_cores coverage=$coverage
 
-# Test Platypus
-WORKDIR /$WORKDIR/platypus
+# Test Platypus regression tests
+WORKDIR /$WORKDIR/platypus 
+RUN make test linkcoverage=$coverage
+
+# Build Platypus unit tests
+WORKDIR /$WORKDIR/platypus/unit
+RUN make -j$compile_cores coverage=$coverage
+
+# Test Platypus unit tests
+WORKDIR /$WORKDIR/platypus/unit
 RUN make test linkcoverage=$coverage
