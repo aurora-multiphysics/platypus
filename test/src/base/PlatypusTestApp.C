@@ -23,7 +23,7 @@ PlatypusTestApp::~PlatypusTestApp() {}
 void
 PlatypusTestApp::registerAll(Factory & f, ActionFactory & af, Syntax & s, bool use_test_objs)
 {
-  PlatypusApp::registerAll(f, af, s);
+  ModulesApp::registerAllObjects<PlatypusApp>(f, af, s);
   if (use_test_objs)
   {
     Registry::registerObjectsTo(f, {"PlatypusTestApp"});
