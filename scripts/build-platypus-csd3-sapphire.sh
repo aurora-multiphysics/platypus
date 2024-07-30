@@ -25,13 +25,6 @@ function load_modules() {
     module load python/3.8
     module load ninja
 
-    module load py-pyaml
-    module load py-jinja2
-    module load py-packaging
-    module load py-setuptools
-    module load py-deepdiff
-    module load py-xmltodict
-
     STACK_SRC=$(mktemp -d /tmp/moose_stack_src.XXXXXX)
     export STACK_SRC
 
@@ -61,7 +54,7 @@ function load_modules() {
 
     export PATH=${BUILD_PATH}:${PATH}
 
-    cd "{$WORKDIR}" || exit
+    cd "${WORKDIR}" || exit
 
     #Need to set some compiler flags via config file"
     echo "-std=c++17" >> icpx.cfg

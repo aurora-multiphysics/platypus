@@ -125,6 +125,11 @@ install_spack_deps() {
     spack install py-setuptools
     spack load py-setuptools arch=${ARCH}
 
+    spack install py-deepdiff
+    spack load py-deepdiff arch=${ARCH}
+
+    spack install py-xmltodict
+    spack load py-xmltodict arch=${ARCH}
 }
 
 install_gslib() {
@@ -150,8 +155,7 @@ install_mfem() {
     cd "${BUILD_PATH}" || exit 1
     git clone https://github.com/mfem/mfem.git
     cd mfem || exit 1
-    # This is just until MFEM merges Edward's changes. Without this, GPU build crashes!
-    git checkout EdwardPalmer99/add-missing-header-to-exodus-writer-fix
+    git checkout master
     mkdir build
     cd build || exit 1
     echo "Building MFEM"
@@ -254,7 +258,7 @@ install_platypus() {
     git clone https://github.com/aurora-multiphysics/platypus.git
     cd platypus || exit 1
     make -j"$compile_cores"
-
+    ./run_tests -j"$compile_cores"
 }
 
 load_modules
