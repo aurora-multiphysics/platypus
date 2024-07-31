@@ -37,6 +37,8 @@ jobs:
 
   push-platypus-image-to-docker-hub:
     name: DockerPublishPlatypus
+    needs: push-platypus-deps-image-to-docker-hub
+    if: ${{ !cancelled() }}
     runs-on: ubuntu-latest
     steps:
       - name: Check out the repo
