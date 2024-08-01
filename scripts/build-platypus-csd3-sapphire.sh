@@ -54,7 +54,7 @@ function load_modules() {
 
     export PATH=${BUILD_PATH}:${PATH}
 
-    cd "$WORKDIR}" || exit
+    cd "${WORKDIR}" || exit
 
     #Need to set some compiler flags via config file"
     echo "-std=c++17" >> icpx.cfg
