@@ -113,7 +113,7 @@ RUN export PETSC_DIR=/$WORKDIR/petsc
 WORKDIR /$WORKDIR
 RUN git clone https://github.com/Heinrich-BR/mfem.git
 WORKDIR /$WORKDIR/mfem 
-RUN git checkout SubmeshBoundary && mkdir build
+RUN git checkout master && mkdir build
 WORKDIR /$WORKDIR/mfem/build
 RUN cmake .. \
     -DCMAKE_BUILD_TYPE=Release \
