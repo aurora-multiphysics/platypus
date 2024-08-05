@@ -26,11 +26,20 @@ MFEMProblem::MFEMProblem(const InputParameters & params)
     _exec_params()
 {
   NVTX3_FUNC_RANGE();
-  _device.Configure(getParam<std::string>("device"));
-  _device.Print(std::cout);
+  std::cout << "THIS IS THE MFEMPROBLEM CONSTRUCTOR " << std::endl;
+
+
 }
 
-MFEMProblem::~MFEMProblem() {}
+MFEMProblem::~MFEMProblem() {
+
+  NVTX3_FUNC_RANGE();
+  std::cout << "THIS IS THE MFEMPROBLEM DESTRUCTOR" << std::endl;
+  std::cout << "POINTERS AT DELETION TIME = " << std::endl;
+  
+  mfem::mm.PrintPtrs(std::cout);
+
+}
 
 void
 MFEMProblem::outputStep(ExecFlagType type)
@@ -106,7 +115,7 @@ MFEMProblem::initialSetup()
 
     exec_params.SetParam("Problem",
                          static_cast<platypus::SteadyStateProblem *>(mfem_problem.get()));
-
+    std::cout << "Making executioner now!" << std::endl;
     executioner = std::make_unique<platypus::SteadyExecutioner>(exec_params);
   }
   else
@@ -139,6 +148,8 @@ MFEMProblem::externalSolve()
     transient_mfem_exec->_t_step = dt();
   }
   executioner->Solve();
+  std::cout << "POINTERS AFTER EXTERNAL SOLVE = " << std::endl;
+  mfem::mm.PrintPtrs(std::cout);
 }
 
 void

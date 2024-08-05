@@ -1,9 +1,31 @@
 #include "equation_system.h"
 
+
+
 namespace platypus
 {
+EquationSystem::EquationSystem() {
+  NVTX3_FUNC_RANGE();
+  std::cout << "THIS IS THE EQUATIONSYSTEM CONSTRUCTOR " << std::endl;
+  //_device.Configure(getParam<std::string>("device"));
+  _device.Configure("cpu");
+  _device.Print(std::cout);
 
-EquationSystem::~EquationSystem() { _h_blocks.DeleteAll(); }
+  
+}
+
+EquationSystem::~EquationSystem() { 
+  NVTX3_FUNC_RANGE();
+  std::cout << "THIS IS THE EQUATIONSYSTEM DESTRUCTOR " << std::endl;
+  std::cout << "POINTERS AT DELETION TIME = " << std::endl;
+  mfem::mm.PrintPtrs(std::cout);
+
+
+  _h_blocks.DeleteAll();
+  std::cout << "AFTER? = " << std::endl;
+  mfem::mm.PrintPtrs(std::cout);
+
+}
 
 bool
 EquationSystem::VectorContainsName(const std::vector<std::string> & the_vector,
@@ -196,6 +218,10 @@ EquationSystem::FormLinearSystem(mfem::OperatorHandle & op,
 
   // Create monolithic matrix
   op.Reset(mfem::HypreParMatrixFromBlocks(_h_blocks));
+
+  std::cout << "POINTERS AFTER FORMING LINEAR SYSTEM = " << std::endl;
+  mfem::mm.PrintPtrs(std::cout);
+
 }
 
 void
@@ -241,9 +267,14 @@ EquationSystem::Init(platypus::GridFunctions & gridfunctions,
                      platypus::Coefficients & coefficients)
 {
   NVTX3_FUNC_RANGE();
+  std::cout << "POINTERS BEFORE ADDKERNELS = " << std::endl;
+  mfem::mm.PrintPtrs(std::cout);
 
   // Add optional kernels to the EquationSystem
   AddKernels();
+
+  std::cout << "POINTERS AFTER ADDKERNELS = " << std::endl;
+  mfem::mm.PrintPtrs(std::cout);
 
   for (auto & test_var_name : _test_var_names)
   {
@@ -403,9 +434,25 @@ void
 EquationSystem::BuildEquationSystem(platypus::BCMap & bc_map)
 {
   NVTX3_FUNC_RANGE();
+
+  std::cout << "POINTERS BEFORE BUILDING EQUATION SYSTEM = " << std::endl;
+  mfem::mm.PrintPtrs(std::cout);
   BuildLinearForms(bc_map);
+  std::cout << "POINTERS ATFER LINEAR FORMS = " << std::endl;
+  mfem::mm.PrintPtrs(std::cout);
+
   BuildBilinearForms();
+  std::cout << "POINTERS ATFER BILINEAR FORMS = " << std::endl;
+  mfem::mm.PrintPtrs(std::cout);
+
+  std::cout << "ALIASES ATFER BILINEAR FORMS = " << std::endl;
+  mfem::mm.PrintAliases(std::cout);
+
+
   BuildMixedBilinearForms();
+  std::cout << "POINTERS AFTER BUILDING EQUATION SYSTEM = " << std::endl;
+  mfem::mm.PrintPtrs(std::cout);
+
 }
 
 TimeDependentEquationSystem::TimeDependentEquationSystem() : _dt_coef(1.0) {}

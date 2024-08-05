@@ -19,7 +19,7 @@ public:
   using ParNonlinearFormKernel = platypus::Kernel<mfem::ParNonlinearForm>;
   using ParMixedBilinearFormKernel = platypus::Kernel<mfem::ParMixedBilinearForm>;
 
-  EquationSystem() = default;
+  EquationSystem();
   ~EquationSystem() override;
 
   // Test variables are associated with LinearForms,
@@ -32,6 +32,8 @@ public:
   // system
   std::vector<std::string> _test_var_names;
   std::vector<mfem::ParFiniteElementSpace *> _test_pfespaces;
+
+  mfem::Device _device;
 
   // Components of weak form. // Named according to test variable
   platypus::NamedFieldsMap<mfem::ParBilinearForm> _blfs;
