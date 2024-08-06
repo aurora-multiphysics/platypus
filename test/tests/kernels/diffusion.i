@@ -6,7 +6,7 @@
 
 [Problem]
   type = MFEMProblem
-  device = "cpu"
+  device = "cuda"
 []
 
 [Formulation]

@@ -5,6 +5,7 @@ namespace platypus
 void
 ProblemOperatorInterface::SetGridFunctions()
 {
+  NVTX3_FUNC_RANGE();
   _trial_variables = _problem._gridfunctions.Get(_trial_var_names);
 
   // Set operator size and block structure
@@ -31,6 +32,7 @@ ProblemOperatorInterface::SetGridFunctions()
 void
 ProblemOperatorInterface::Init(mfem::Vector & X)
 {
+  NVTX3_FUNC_RANGE();
   for (size_t i = 0; i < _trial_variables.size(); ++i)
   {
     mfem::ParGridFunction * trial_var = _trial_variables.at(i);

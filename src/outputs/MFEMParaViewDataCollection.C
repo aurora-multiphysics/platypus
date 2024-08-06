@@ -5,6 +5,7 @@ registerMooseObject("PlatypusApp", MFEMParaViewDataCollection);
 InputParameters
 MFEMParaViewDataCollection::validParams()
 {
+  NVTX3_FUNC_RANGE();
   InputParameters params = MFEMDataCollection::validParams();
   params.addClassDescription("Output for controlling MFEMParaViewDataCollection inherited data.");
   params.addParam<unsigned int>("refinements",
@@ -33,11 +34,13 @@ MFEMParaViewDataCollection::MFEMParaViewDataCollection(const InputParameters & p
     _refinements(getParam<unsigned int>("refinements")),
     _vtk_format(parameters.get<MooseEnum>("vtk_format").getEnum<mfem::VTKFormat>())
 {
+  NVTX3_FUNC_RANGE();
 }
 
 std::shared_ptr<mfem::DataCollection>
 MFEMParaViewDataCollection::createDataCollection(const std::string & collection_name) const
 {
+  NVTX3_FUNC_RANGE();
   auto pv_dc = std::make_shared<mfem::ParaViewDataCollection>(_file_base.c_str() + collection_name);
 
   pv_dc->SetPrecision(9);

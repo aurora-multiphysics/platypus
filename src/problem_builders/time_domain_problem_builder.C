@@ -7,6 +7,7 @@ std::vector<mfem::ParGridFunction *>
 TimeDomainProblemBuilder::RegisterTimeDerivatives(std::vector<std::string> gridfunction_names,
                                                   platypus::GridFunctions & gridfunctions)
 {
+  NVTX3_FUNC_RANGE(); 
   std::vector<mfem::ParGridFunction *> time_derivatives;
 
   for (auto & gridfunction_name : gridfunction_names)
@@ -24,6 +25,7 @@ TimeDomainProblemBuilder::RegisterTimeDerivatives(std::vector<std::string> gridf
 void
 TimeDomainProblemBuilder::RegisterGridFunctions()
 {
+  NVTX3_FUNC_RANGE(); 
   std::vector<std::string> gridfunction_names;
   for (auto const & [name, gf] : GetProblem()->_gridfunctions)
   {
@@ -35,18 +37,21 @@ TimeDomainProblemBuilder::RegisterGridFunctions()
 void
 TimeDomainProblemBuilder::SetOperatorGridFunctions()
 {
+  NVTX3_FUNC_RANGE(); 
   GetProblem()->GetOperator()->SetGridFunctions();
 }
 
 void
 TimeDomainProblemBuilder::ConstructOperator()
 {
+  NVTX3_FUNC_RANGE(); 
   GetProblem()->ConstructOperator();
 }
 
 void
 TimeDomainProblemBuilder::ConstructState()
 {
+  NVTX3_FUNC_RANGE(); 
   auto problem_operator = GetProblem()->GetOperator();
 
   // Vector of dofs.
@@ -59,6 +64,7 @@ TimeDomainProblemBuilder::ConstructState()
 void
 TimeDomainProblemBuilder::ConstructTimestepper()
 {
+  NVTX3_FUNC_RANGE(); 
   GetProblem()->_ode_solver = std::make_unique<mfem::BackwardEulerSolver>();
   GetProblem()->_ode_solver->Init(*(GetProblem()->GetOperator()));
 }

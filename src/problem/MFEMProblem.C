@@ -5,6 +5,7 @@ registerMooseObject("PlatypusApp", MFEMProblem);
 InputParameters
 MFEMProblem::validParams()
 {
+  NVTX3_FUNC_RANGE(); 
   InputParameters params = ExternalProblem::validParams();
   params.addParam<int>(
       "vis_steps",
@@ -24,6 +25,7 @@ MFEMProblem::MFEMProblem(const InputParameters & params)
     _outputs(),
     _exec_params()
 {
+  NVTX3_FUNC_RANGE(); 
 }
 
 MFEMProblem::~MFEMProblem() {}
@@ -31,6 +33,7 @@ MFEMProblem::~MFEMProblem() {}
 void
 MFEMProblem::outputStep(ExecFlagType type)
 {
+  NVTX3_FUNC_RANGE(); 
   // Needed to ensure outputs from successive runs when using MultiApps are stored in
   // directories with iterated names
   if (type == EXEC_INITIAL)
@@ -54,6 +57,7 @@ MFEMProblem::outputStep(ExecFlagType type)
 void
 MFEMProblem::initialSetup()
 {
+  NVTX3_FUNC_RANGE(); 
   FEProblemBase::initialSetup();
   EquationSystems & es = FEProblemBase::es();
   _solver_options.SetParam("Tolerance", float(es.parameters.get<Real>("linear solver tolerance")));
@@ -114,12 +118,14 @@ MFEMProblem::initialSetup()
 void
 MFEMProblem::init()
 {
+  NVTX3_FUNC_RANGE(); 
   FEProblemBase::init();
 }
 
 void
 MFEMProblem::externalSolve()
 {
+  NVTX3_FUNC_RANGE(); 
   if (!_solve)
   {
     return;
@@ -138,6 +144,7 @@ MFEMProblem::setFormulation(const std::string & user_object_name,
                             const std::string & name,
                             InputParameters & parameters)
 {
+  NVTX3_FUNC_RANGE(); 
   mfem::ParMesh & mfem_par_mesh = mesh().getMFEMParMesh();
   FEProblemBase::addUserObject(user_object_name, name, parameters);
   MFEMFormulation * mfem_formulation(&getUserObject<MFEMFormulation>(name));
@@ -156,6 +163,7 @@ MFEMProblem::addBoundaryCondition(const std::string & bc_name,
                                   const std::string & name,
                                   InputParameters & parameters)
 {
+  NVTX3_FUNC_RANGE(); 
   FEProblemBase::addUserObject(bc_name, name, parameters);
   MFEMBoundaryCondition * mfem_bc(&getUserObject<MFEMBoundaryCondition>(name));
   mfem_problem_builder->AddBoundaryCondition(name, mfem_bc->getBC());
@@ -166,6 +174,7 @@ MFEMProblem::addMaterial(const std::string & kernel_name,
                          const std::string & name,
                          InputParameters & parameters)
 {
+  NVTX3_FUNC_RANGE(); 
   FEProblemBase::addUserObject(kernel_name, name, parameters);
   MFEMMaterial & mfem_material(getUserObject<MFEMMaterial>(name));
 
@@ -183,6 +192,7 @@ MFEMProblem::addCoefficient(const std::string & user_object_name,
                             const std::string & name,
                             InputParameters & parameters)
 {
+  NVTX3_FUNC_RANGE(); 
   FEProblemBase::addUserObject(user_object_name, name, parameters);
   MFEMCoefficient * mfem_coef(&getUserObject<MFEMCoefficient>(name));
   _coefficients._scalars.Register(name, mfem_coef->getCoefficient());
@@ -193,6 +203,7 @@ MFEMProblem::addVectorCoefficient(const std::string & user_object_name,
                                   const std::string & name,
                                   InputParameters & parameters)
 {
+  NVTX3_FUNC_RANGE(); 
   FEProblemBase::addUserObject(user_object_name, name, parameters);
   MFEMVectorCoefficient * mfem_vec_coef(&getUserObject<MFEMVectorCoefficient>(name));
   _coefficients._vectors.Register(name, mfem_vec_coef->getVectorCoefficient());
@@ -203,6 +214,7 @@ MFEMProblem::addFESpace(const std::string & user_object_name,
                         const std::string & name,
                         InputParameters & parameters)
 {
+  NVTX3_FUNC_RANGE(); 
   FEProblemBase::addUserObject(user_object_name, name, parameters);
   MFEMFESpace & mfem_fespace(getUserObject<MFEMFESpace>(name));
 
@@ -216,6 +228,7 @@ MFEMProblem::addVariable(const std::string & var_type,
                          const std::string & var_name,
                          InputParameters & parameters)
 {
+  NVTX3_FUNC_RANGE(); 
   if (var_type == "MFEMVariable")
   {
     // Add MFEM variable directly.
@@ -241,6 +254,7 @@ MFEMProblem::addAuxVariable(const std::string & var_type,
                             const std::string & var_name,
                             InputParameters & parameters)
 {
+  NVTX3_FUNC_RANGE(); 
   if (var_type == "MFEMVariable")
   {
     // Add MFEM variable directly.
@@ -266,6 +280,7 @@ MFEMProblem::addKernel(const std::string & kernel_name,
                        const std::string & name,
                        InputParameters & parameters)
 {
+  NVTX3_FUNC_RANGE(); 
   FEProblemBase::addUserObject(kernel_name, name, parameters);
   const UserObject * kernel = &(getUserObjectBase(name));
 
@@ -289,6 +304,7 @@ MFEMProblem::addKernel(const std::string & kernel_name,
 InputParameters
 MFEMProblem::addMFEMFESpaceFromMOOSEVariable(InputParameters & parameters)
 {
+  NVTX3_FUNC_RANGE(); 
   InputParameters fespace_params = _factory.getValidParams("MFEMFESpace");
   InputParameters mfem_variable_params = _factory.getValidParams("MFEMVariable");
 
@@ -345,12 +361,14 @@ MFEMProblem::addMFEMFESpaceFromMOOSEVariable(InputParameters & parameters)
 std::vector<VariableName>
 MFEMProblem::getAuxVariableNames()
 {
+  NVTX3_FUNC_RANGE(); 
   return systemBaseAuxiliary().getVariableNames();
 }
 
 MFEMMesh &
 MFEMProblem::mesh()
 {
+  NVTX3_FUNC_RANGE(); 
   mooseAssert(ExternalProblem::mesh().type() == "MFEMMesh",
               "Please choose the MFEMMesh mesh type for an MFEMProblem\n");
   return (MFEMMesh &)_mesh;

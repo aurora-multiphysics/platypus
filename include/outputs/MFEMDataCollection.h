@@ -1,6 +1,7 @@
 #pragma once
 #include "FileOutput.h"
 #include "mfem.hpp"
+#include "../../NVTX/c/include/nvtx3/nvtx3.hpp"
 
 /**
  * Class for output information saved in MFEM DataCollections

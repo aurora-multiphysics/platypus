@@ -1,4 +1,5 @@
 #include "ElementIntegralPostprocessor.h"
+#include "../../NVTX/c/include/nvtx3/nvtx3.hpp"
 
 /**
  * Computes the L2-Norm difference between two solution vector fields.

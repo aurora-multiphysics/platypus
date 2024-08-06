@@ -5,6 +5,7 @@ namespace platypus
 
 Problem::~Problem()
 {
+  NVTX3_FUNC_RANGE(); 
   // Ensure that all owned memory is properly freed!
   _f.reset();
   _ode_solver.reset();
@@ -13,6 +14,7 @@ Problem::~Problem()
 void
 ProblemBuilder::SetMesh(std::shared_ptr<mfem::ParMesh> pmesh)
 {
+  NVTX3_FUNC_RANGE(); 
   GetProblem()->_pmesh = pmesh;
   GetProblem()->_comm = pmesh->GetComm();
   MPI_Comm_size(pmesh->GetComm(), &(GetProblem()->_num_procs));
@@ -22,55 +24,63 @@ ProblemBuilder::SetMesh(std::shared_ptr<mfem::ParMesh> pmesh)
 void
 ProblemBuilder::SetFESpaces(platypus::FESpaces & fespaces)
 {
+  NVTX3_FUNC_RANGE(); 
   GetProblem()->_fespaces = fespaces;
 }
 
 void
 ProblemBuilder::SetGridFunctions(platypus::GridFunctions & gridfunctions)
 {
+  NVTX3_FUNC_RANGE(); 
   GetProblem()->_gridfunctions = gridfunctions;
 }
 
 void
 ProblemBuilder::SetBoundaryConditions(platypus::BCMap & bc_map)
 {
+  NVTX3_FUNC_RANGE(); 
   GetProblem()->_bc_map = bc_map;
 }
 
 void
 ProblemBuilder::SetOutputs(platypus::Outputs & outputs)
 {
+  NVTX3_FUNC_RANGE(); 
   GetProblem()->_outputs = outputs;
 }
 
 void
 ProblemBuilder::SetSolverOptions(platypus::InputParameters & solver_options)
 {
+  NVTX3_FUNC_RANGE(); 
   GetProblem()->_solver_options = solver_options;
 }
 
 void
 ProblemBuilder::SetJacobianPreconditioner(std::shared_ptr<mfem::Solver> preconditioner)
 {
+  NVTX3_FUNC_RANGE(); 
   GetProblem()->_jacobian_preconditioner = preconditioner;
 }
 
 void
 ProblemBuilder::SetJacobianSolver(std::shared_ptr<mfem::Solver> jacobian_solver)
 {
+  NVTX3_FUNC_RANGE(); 
   GetProblem()->_jacobian_solver = jacobian_solver;
 }
 
 void
 ProblemBuilder::SetCoefficients(platypus::Coefficients & coefficients)
 {
+  NVTX3_FUNC_RANGE(); 
   GetProblem()->_coefficients = coefficients;
 }
 
 void
 ProblemBuilder::SetDevice(const std::string & dev)
 {
-
+  NVTX3_FUNC_RANGE(); 
   GetProblem()->_device.Configure(dev);
   GetProblem()->_device.Print(std::cout);
 }
@@ -78,6 +88,7 @@ ProblemBuilder::SetDevice(const std::string & dev)
 void
 ProblemBuilder::AddFESpace(std::string fespace_name, std::string fec_name, int vdim, int ordering)
 {
+  NVTX3_FUNC_RANGE(); 
   if (GetProblem()->_fespaces.Has(fespace_name))
   {
     const std::string error_message = "A fespace with the name " + fespace_name +
@@ -108,6 +119,7 @@ ProblemBuilder::AddFESpace(std::string fespace_name, std::string fec_name, int v
 void
 ProblemBuilder::AddGridFunction(std::string gridfunction_name, std::string fespace_name)
 {
+  NVTX3_FUNC_RANGE(); 
   if (GetProblem()->_gridfunctions.Has(gridfunction_name))
   {
     const std::string error_message = "A gridfunction with the name " + gridfunction_name +
@@ -135,6 +147,7 @@ void
 ProblemBuilder::AddBoundaryCondition(std::string bc_name,
                                      std::shared_ptr<platypus::BoundaryCondition> bc)
 {
+  NVTX3_FUNC_RANGE(); 
   if (GetProblem()->_bc_map.Has(bc_name))
   {
     const std::string error_message = "A boundary condition with the name " + bc_name +
@@ -147,6 +160,7 @@ ProblemBuilder::AddBoundaryCondition(std::string bc_name,
 void
 ProblemBuilder::ConstructJacobianPreconditioner()
 {
+  NVTX3_FUNC_RANGE(); 
   auto precond = std::make_shared<mfem::HypreBoomerAMG>();
   precond->SetPrintLevel(2); // GetGlobalPrintLevel());
 
@@ -156,12 +170,14 @@ ProblemBuilder::ConstructJacobianPreconditioner()
 void
 ProblemBuilder::ConstructJacobianSolver()
 {
+  NVTX3_FUNC_RANGE(); 
   ConstructJacobianSolverWithOptions(SolverType::HYPRE_GMRES);
 }
 
 void
 ProblemBuilder::ConstructJacobianSolverWithOptions(SolverType type, SolverParams default_params)
 {
+  NVTX3_FUNC_RANGE(); 
   const auto & solver_options = GetProblem()->_solver_options;
 
   const auto tolerance =
@@ -254,6 +270,7 @@ ProblemBuilder::ConstructJacobianSolverWithOptions(SolverType type, SolverParams
 void
 ProblemBuilder::ConstructNonlinearSolver()
 {
+  NVTX3_FUNC_RANGE(); 
   auto nl_solver = std::make_shared<mfem::NewtonSolver>(GetProblem()->_comm);
 
   // Defaults to one iteration, without further nonlinear iterations
@@ -267,17 +284,20 @@ ProblemBuilder::ConstructNonlinearSolver()
 void
 ProblemBuilder::InitializeKernels()
 {
+  NVTX3_FUNC_RANGE(); 
 }
 
 void
 ProblemBuilder::InitializeOutputs()
 {
+  NVTX3_FUNC_RANGE(); 
   GetProblem()->_outputs.Init(GetProblem()->_gridfunctions);
 }
 
 void
 ProblemBuilder::FinalizeProblem(bool build_operator)
 {
+  NVTX3_FUNC_RANGE(); 
   RegisterFESpaces();
   RegisterGridFunctions();
   RegisterCoefficients();

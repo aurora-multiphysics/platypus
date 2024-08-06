@@ -8,6 +8,7 @@
 #include "boundary_conditions.h"
 #include "coefficients.h"
 #include "outputs.h"
+#include "../../../NVTX/c/include/nvtx3/nvtx3.hpp"
 
 namespace platypus
 {

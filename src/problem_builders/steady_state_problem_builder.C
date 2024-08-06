@@ -6,18 +6,21 @@ namespace platypus
 void
 SteadyStateProblemBuilder::SetOperatorGridFunctions()
 {
+  NVTX3_FUNC_RANGE(); 
   GetProblem()->GetOperator()->SetGridFunctions();
 }
 
 void
 SteadyStateProblemBuilder::ConstructOperator()
 {
+  NVTX3_FUNC_RANGE(); 
   GetProblem()->ConstructOperator();
 }
 
 void
 SteadyStateProblemBuilder::ConstructState()
 {
+  NVTX3_FUNC_RANGE(); 
   auto problem_operator = GetProblem()->GetOperator();
 
   GetProblem()->_f =

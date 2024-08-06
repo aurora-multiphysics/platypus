@@ -6,6 +6,7 @@ namespace platypus
 void
 TimeDomainEquationSystemProblemOperator::SetGridFunctions()
 {
+  NVTX3_FUNC_RANGE();
   _trial_var_names = GetEquationSystem()->_trial_var_names;
   _trial_variable_time_derivatives =
       _problem._gridfunctions.Get(GetEquationSystem()->_trial_var_time_derivative_names);
@@ -16,6 +17,7 @@ TimeDomainEquationSystemProblemOperator::SetGridFunctions()
 void
 TimeDomainEquationSystemProblemOperator::Init(mfem::Vector & X)
 {
+  NVTX3_FUNC_RANGE();
   TimeDomainProblemOperator::Init(X);
 
   // Define material property coefficients
@@ -32,6 +34,7 @@ TimeDomainEquationSystemProblemOperator::ImplicitSolve(const double dt,
                                                        const mfem::Vector & X,
                                                        mfem::Vector & dX_dt)
 {
+  NVTX3_FUNC_RANGE();
   dX_dt = 0.0;
   for (unsigned int ind = 0; ind < _trial_variables.size(); ++ind)
   {
@@ -53,6 +56,7 @@ TimeDomainEquationSystemProblemOperator::ImplicitSolve(const double dt,
 void
 TimeDomainEquationSystemProblemOperator::BuildEquationSystemOperator(double dt)
 {
+  NVTX3_FUNC_RANGE();
   GetEquationSystem()->SetTimeStep(dt);
   GetEquationSystem()->UpdateEquationSystem(_problem._bc_map);
   GetEquationSystem()->BuildJacobian(_true_x, _true_rhs);

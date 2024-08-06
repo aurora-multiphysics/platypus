@@ -5,6 +5,7 @@ registerMooseObject("MooseApp", ElementVectorL2Difference);
 InputParameters
 ElementVectorL2Difference::validParams()
 {
+  NVTX3_FUNC_RANGE();
   InputParameters params = ElementIntegralPostprocessor::validParams();
 
   params.addRequiredCoupledVar("variable", "The name of the vector variable.");
@@ -21,18 +22,21 @@ ElementVectorL2Difference::ElementVectorL2Difference(const InputParameters & par
     _vector_variable(coupledVectorValue("variable")),
     _other_vector_variable(coupledVectorValue("other_variable"))
 {
+  NVTX3_FUNC_RANGE();
   checkVectorVariables();
 }
 
 Real
 ElementVectorL2Difference::getValue() const
 {
+  NVTX3_FUNC_RANGE();
   return std::sqrt(ElementIntegralPostprocessor::getValue());
 }
 
 Real
 ElementVectorL2Difference::computeQpIntegral()
 {
+  NVTX3_FUNC_RANGE();
   RealVectorValue solution_value(0.0, 0.0, 0.0);
   RealVectorValue other_value(0.0, 0.0, 0.0);
 
@@ -50,6 +54,7 @@ ElementVectorL2Difference::computeQpIntegral()
 void
 ElementVectorL2Difference::checkVectorVariables() const
 {
+  NVTX3_FUNC_RANGE();
   auto & coupled_vector_variables = getCoupledVectorMooseVars();
 
   if (coupled_vector_variables.size() != 2)
