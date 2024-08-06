@@ -111,9 +111,9 @@ RUN export PETSC_DIR=/$WORKDIR/petsc
 
 # Build MFEM and common miniapp
 WORKDIR /$WORKDIR
-RUN git clone https://github.com/Heinrich-BR/mfem.git
+RUN git clone https://github.com/mfem/mfem.git
 WORKDIR /$WORKDIR/mfem 
-RUN git checkout SubmeshBoundary && mkdir build
+RUN git checkout master && mkdir build
 WORKDIR /$WORKDIR/mfem/build
 RUN cmake .. \
     -DCMAKE_BUILD_TYPE=Release \

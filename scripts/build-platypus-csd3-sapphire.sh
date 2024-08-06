@@ -227,9 +227,9 @@ function build_gslib() {
 
 function build_mfem() {
     cd "$WORKDIR" || exit
-    git clone https://github.com/Heinrich-BR/mfem.git
+    git clone https://github.com/mfem/mfem.git
     cd mfem || exit
-    git checkout SubmeshBoundary
+    git checkout master
     sed -i "s | list | # list|g" "$WORKDIR"/mfem/config/cmake/modules/FindNetCDF.cmake
     mkdir build
     cd build || exit
