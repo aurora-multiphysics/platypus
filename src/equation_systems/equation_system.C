@@ -150,18 +150,22 @@ EquationSystem::FormLinearSystem(mfem::OperatorHandle & op,
   // Form diagonal blocks.
   for (int i = 0; i < _test_var_names.size(); i++)
   {
+    std::cout << "In the loop!" << std::endl;
     auto & test_var_name = _test_var_names.at(i);
     auto blf = _blfs.Get(test_var_name);
     auto lf = _lfs.Get(test_var_name);
     mfem::Vector aux_x, aux_rhs;
-    _h_blocks(i, i) = new mfem::HypreParMatrix;
+    _h_blocks(i, i) = new mfem::OperatorPtr;
     blf->FormLinearSystem(
         _ess_tdof_lists.at(i), *(_xs.at(i)), *lf, *_h_blocks(i, i), aux_x, aux_rhs);
+
     trueX.GetBlock(i) = aux_x;
     trueRHS.GetBlock(i) = aux_rhs;
   }
+  std::cout << "Out of the loop!" << std::endl;
 
   // Form off-diagonal blocks
+  std::cout << "Into off-diagonal!" << std::endl;
   for (int i = 0; i < _test_var_names.size(); i++)
   {
     auto test_var_name = _test_var_names.at(i);
@@ -174,8 +178,9 @@ EquationSystem::FormLinearSystem(mfem::OperatorHandle & op,
       aux_lf = 0.0;
       if (_mblfs.Has(test_var_name) && _mblfs.Get(test_var_name)->Has(trial_var_name))
       {
+        std::cout << "We have off-diagonal!" << std::endl;
         auto mblf = _mblfs.Get(test_var_name)->Get(trial_var_name);
-        _h_blocks(i, j) = new mfem::HypreParMatrix;
+        _h_blocks(i, j) = new mfem::OperatorPtr;
         mblf->FormRectangularLinearSystem(_ess_tdof_lists.at(j),
                                           _ess_tdof_lists.at(i),
                                           *(_xs.at(j)),
@@ -187,6 +192,7 @@ EquationSystem::FormLinearSystem(mfem::OperatorHandle & op,
       }
     }
   }
+  std::cout << "Out of off-diagonal!" << std::endl;
   // Sync memory
   for (int i = 0; i < _test_var_names.size(); i++)
   {
@@ -195,7 +201,10 @@ EquationSystem::FormLinearSystem(mfem::OperatorHandle & op,
   }
 
   // Create monolithic matrix
-  op.Reset(mfem::HypreParMatrixFromBlocks(_h_blocks));
+  std::cout << "Creating Monolithic Matrix!" << std::endl;
+  op = *_h_blocks(0,0);
+  //op.Reset(_h_blocks(0,0));
+  std::cout << "Done!" << std::endl;
 }
 
 void
@@ -339,7 +348,9 @@ EquationSystem::BuildBilinearForms()
   for (int i = 0; i < _test_var_names.size(); i++)
   {
     auto test_var_name = _test_var_names.at(i);
+    nvtxRangePush("Register BilinearForm");
     _blfs.Register(test_var_name, std::make_shared<mfem::ParBilinearForm>(_test_pfespaces.at(i)));
+    nvtxRangePop();
 
     // Apply kernels
     auto blf = _blfs.Get(test_var_name);
@@ -349,11 +360,16 @@ EquationSystem::BuildBilinearForms()
 
       for (auto & blf_kernel : blf_kernels)
       {
+        nvtxRangePush("Apply Kernel");
         blf_kernel->Apply(blf);
+        nvtxRangePop();
       }
     }
+    blf->SetAssemblyLevel(mfem::AssemblyLevel::FULL);
     // Assemble
+    nvtxRangePush("Assemble BilinearForm");
     blf->Assemble();
+    nvtxRangePop();
   }
 }
 
