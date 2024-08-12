@@ -3,6 +3,7 @@
 #include "inputs.h"
 #include "named_fields_map.h"
 #include "MFEMKernel.h"
+#include "equation_system_data.h"
 
 namespace platypus
 {
@@ -20,8 +21,23 @@ public:
   using MFEMMixedBilinearFormKernel = MFEMKernel<mfem::BilinearFormIntegrator>;
 
   EquationSystemAssembler() = default;
-  ~EquationSystemAssembler() override;
+  ~EquationSystemAssembler() = default;
 
+
+  [[nodiscard]] EquationSystemData * getData()
+  {
+    if (!_equation_system_data)
+    {
+      MFEM_ABORT("platypus::EquationSystemData instance is NULL.");
+    }
+
+    return _equation_system_data.get();
+
+  };
+
+private:
+
+  std::shared_ptr<EquationSystemData> _equation_system_data{nullptr};
 
 };
 
