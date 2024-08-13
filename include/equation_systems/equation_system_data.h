@@ -15,6 +15,8 @@ struct EquationSystemData
 {
 
   friend class EquationSystemAssembler;
+  friend class DiagonalEquationSystemAssembler;
+  friend class DenseEquationSystemAssembler;
 
 private:
 
@@ -35,11 +37,11 @@ private:
   std::vector<mfem::ParFiniteElementSpace *> _test_pfespaces;
 
   // Components of weak form. // Named according to test variable
-  //platypus::NamedFieldsMap<mfem::ParBilinearForm> _blfs;
+  platypus::NamedFieldsMap<mfem::ParBilinearForm> _blfs;
   platypus::NamedFieldsMap<mfem::ParLinearForm> _lfs;
   //platypus::NamedFieldsMap<mfem::ParNonlinearForm> _nlfs;
-  //platypus::NamedFieldsMap<platypus::NamedFieldsMap<mfem::ParMixedBilinearForm>>
-  //    _mblfs; // named according to trial variable
+  platypus::NamedFieldsMap<platypus::NamedFieldsMap<mfem::ParMixedBilinearForm>>
+      _mblfs; // named according to trial variable
 
   // Assembly level for the equation system. May be LEGACY, FULL, ELEMENT, or PARTIAL
   mfem::AssemblyLevel _assembly_level;
@@ -51,7 +53,7 @@ private:
   std::vector<std::unique_ptr<mfem::ParGridFunction>> _bc_gridfunc;
 
   // Array for mixed systems. Can only be non-block-diagonal when @_assembly_level is LEGACY
-  //mfem::Array2D<mfem::HypreParMatrix * const> _h_blocks;
+  mfem::Array2D<const mfem::HypreParMatrix *> _h_blocks;
 
   // Arrays to store kernels to act on each component of weak form. Named
   // according to test variable

@@ -20,12 +20,10 @@ public:
   using MFEMNonlinearFormKernel = MFEMKernel<mfem::NonlinearFormIntegrator>;
   using MFEMMixedBilinearFormKernel = MFEMKernel<mfem::BilinearFormIntegrator>;
 
-  EquationSystemAssembler(mfem::AssemblyLevel assembly_level);
+  EquationSystemAssembler(std::shared_ptr<EquationSystemData> data);
   ~EquationSystemAssembler() = default;
 
   void MakeData();
-
-  bool VectorContainsName(const std::vector<std::string> & the_vector, const std::string & name) const;
 
   void AddTrialVariableNameIfMissing(const std::string & trial_var_name);
   void AddTestVariableNameIfMissing(const std::string & test_var_name);
@@ -36,6 +34,20 @@ public:
   void AddKernel(const std::string & trial_var_name, const std::string & test_var_name, std::shared_ptr<MFEMMixedBilinearFormKernel> mblf_kernel);
 
   void ApplyBoundaryConditions(platypus::BCMap & bc_map);
+
+  void Init(platypus::GridFunctions & gridfunctions,
+            const platypus::FESpaces & fespaces,
+            platypus::BCMap & bc_map,
+            platypus::Coefficients & coefficients,
+            mfem::AssemblyLevel assembly_level);
+  virtual void BuildLinearForms(platypus::BCMap & bc_map);
+  virtual void BuildBilinearForms();
+  virtual void BuildMixedBilinearForms();
+
+
+  virtual bool AssemblyIsSupported() = 0;
+  virtual void FormSystem(mfem::OperatorHandle & op, mfem::BlockVector & trueX, mfem::BlockVector & trueRHS) = 0;
+  virtual void BuildEquationSystem(platypus::BCMap & bc_map) = 0;
 
 
   [[nodiscard]] EquationSystemData * getData()
@@ -51,43 +63,39 @@ public:
 
 private:
 
-  std::shared_ptr<platypus::EquationSystemData> _equation_system_data{nullptr};
+  std::shared_ptr<EquationSystemData> _equation_system_data{nullptr};
+
+protected:
+
+  bool VectorContainsName(const std::vector<std::string> & the_vector, const std::string & name) const;
 
 };
 
-class BlockDiagonalEquationSystemAssembler : EquationSystemAssembler
+class DiagonalEquationSystemAssembler : EquationSystemAssembler
 {
 public:
 
-  BlockDiagonalEquationSystemAssembler(mfem::AssemblyLevel assembly_level) override;
-  ~BlockDiagonalEquationSystemAssembler() override = default;
+  DiagonalEquationSystemAssembler() = default;
+  ~DiagonalEquationSystemAssembler() = default;
+
+  bool AssemblyIsSupported() override;
+  void FormSystem(mfem::OperatorHandle & op, mfem::BlockVector & trueX, mfem::BlockVector & trueRHS) override;
+  void BuildEquationSystem(platypus::BCMap & bc_map) override;
 
 };
 
-class NonBlockDiagonalEquationSystemAssembler : EquationSystemAssembler
-{
-  NonBlockDiagonalEquationSystemAssembler() override;
-  ~NonBlockDiagonalEquationSystemAssembler() override = default;
-};
-
-
-// Can be derived from Block-Diagonal or Non-Block-Diagonal assemblers
-template<class T>
-class TimeDependentEquationSystemAssembler : public T
+class DenseEquationSystemAssembler : EquationSystemAssembler
 {
 public:
-  TimeDependentEquationSystemAssembler();
-  ~TimeDependentEquationSystemAssembler() override = default;
 
-  static std::string GetTimeDerivativeName(std::string name)
-  {
-    return std::string("d") + name + std::string("_dt");
-  }
+  DenseEquationSystemAssembler() = default;
+  ~DenseEquationSystemAssembler() = default;
 
-  void AddTrialVariableNameIfMissing(const std::string & trial_var_name) override;
+  bool AssemblyIsSupported() override;
+  void FormSystem(mfem::OperatorHandle & op, mfem::BlockVector & trueX, mfem::BlockVector & trueRHS) override;
+  void BuildEquationSystem(platypus::BCMap & bc_map) override;
 
-  virtual void SetTimeStep(double dt);
-  virtual void UpdateEquationSystem(platypus::BCMap & bc_map);
 };
+
 
 } // namespace platypus
