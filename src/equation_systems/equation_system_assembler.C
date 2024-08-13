@@ -3,11 +3,14 @@
 namespace platypus
 {
 
-EquationSystemAssembler::EquationSystemAssembler(std::shared_ptr<EquationSystemData> data) : _equation_system_data{data} {}
+EquationSystemAssembler::EquationSystemAssembler(std::shared_ptr<EquationSystemData> data)
+  : _equation_system_data{data}
+{
+}
 
 bool
 EquationSystemAssembler::VectorContainsName(const std::vector<std::string> & the_vector,
-                                   const std::string & name) const
+                                            const std::string & name) const
 {
 
   auto iter = std::find(the_vector.begin(), the_vector.end(), name);
@@ -35,7 +38,7 @@ EquationSystemAssembler::AddTestVariableNameIfMissing(const std::string & test_v
 
 void
 EquationSystemAssembler::AddKernel(const std::string & test_var_name,
-                          std::shared_ptr<MFEMBilinearFormKernel> blf_kernel)
+                                   std::shared_ptr<MFEMBilinearFormKernel> blf_kernel)
 {
   AddTestVariableNameIfMissing(test_var_name);
 
@@ -53,7 +56,7 @@ EquationSystemAssembler::AddKernel(const std::string & test_var_name,
 
 void
 EquationSystemAssembler::AddKernel(const std::string & test_var_name,
-                          std::shared_ptr<MFEMLinearFormKernel> lf_kernel)
+                                   std::shared_ptr<MFEMLinearFormKernel> lf_kernel)
 {
   AddTestVariableNameIfMissing(test_var_name);
 
@@ -69,7 +72,7 @@ EquationSystemAssembler::AddKernel(const std::string & test_var_name,
 
 void
 EquationSystemAssembler::AddKernel(const std::string & test_var_name,
-                          std::shared_ptr<MFEMNonlinearFormKernel> nlf_kernel)
+                                   std::shared_ptr<MFEMNonlinearFormKernel> nlf_kernel)
 {
   AddTestVariableNameIfMissing(test_var_name);
 
@@ -85,11 +88,12 @@ EquationSystemAssembler::AddKernel(const std::string & test_var_name,
 
 void
 EquationSystemAssembler::AddKernel(const std::string & trial_var_name,
-                          const std::string & test_var_name,
-                          std::shared_ptr<MFEMMixedBilinearFormKernel> mblf_kernel)
+                                   const std::string & test_var_name,
+                                   std::shared_ptr<MFEMMixedBilinearFormKernel> mblf_kernel)
 {
   if (getData()->_assembly_level != mfem::AssemblyLevel::LEGACY)
-    mooseError("Mixed Bilinear Form Kernels are currently only compatible with the LEGACY assembly level.");
+    mooseError("Mixed Bilinear Form Kernels are currently only compatible with the LEGACY assembly "
+               "level.");
 
   AddTestVariableNameIfMissing(test_var_name);
 
@@ -108,10 +112,13 @@ EquationSystemAssembler::AddKernel(const std::string & trial_var_name,
   {
     auto kernels = std::make_shared<std::vector<std::shared_ptr<MFEMMixedBilinearFormKernel>>>();
 
-    getData()->_mblf_kernels_map_map.Get(test_var_name)->Register(trial_var_name, std::move(kernels));
+    getData()
+        ->_mblf_kernels_map_map.Get(test_var_name)
+        ->Register(trial_var_name, std::move(kernels));
   }
 
-  getData()->_mblf_kernels_map_map.GetRef(test_var_name)
+  getData()
+      ->_mblf_kernels_map_map.GetRef(test_var_name)
       .Get(trial_var_name)
       ->push_back(std::move(mblf_kernel));
 }
@@ -126,10 +133,13 @@ EquationSystemAssembler::ApplyBoundaryConditions(platypus::BCMap & bc_map)
     // Set default value of gridfunction used in essential BC. Values
     // overwritten in applyEssentialBCs
     *(getData()->_bc_gridfunc.at(i)) = 0.0;
-    bc_map.ApplyEssentialBCs(
-        test_var_name, getData()->_ess_tdof_lists.at(i), *(getData()->_bc_gridfunc.at(i)), getData()->_test_pfespaces.at(i)->GetParMesh());
-    bc_map.ApplyIntegratedBCs(
-        test_var_name, getData()->_lfs.GetRef(test_var_name), getData()->_test_pfespaces.at(i)->GetParMesh());
+    bc_map.ApplyEssentialBCs(test_var_name,
+                             getData()->_ess_tdof_lists.at(i),
+                             *(getData()->_bc_gridfunc.at(i)),
+                             getData()->_test_pfespaces.at(i)->GetParMesh());
+    bc_map.ApplyIntegratedBCs(test_var_name,
+                              getData()->_lfs.GetRef(test_var_name),
+                              getData()->_test_pfespaces.at(i)->GetParMesh());
   }
 }
 
@@ -167,7 +177,8 @@ EquationSystemAssembler::BuildLinearForms(platypus::BCMap & bc_map)
   for (int i = 0; i < getData()->_test_var_names.size(); i++)
   {
     auto test_var_name = getData()->_test_var_names.at(i);
-    getData()->_lfs.Register(test_var_name, std::make_shared<mfem::ParLinearForm>(getData()->_test_pfespaces.at(i)));
+    getData()->_lfs.Register(
+        test_var_name, std::make_shared<mfem::ParLinearForm>(getData()->_test_pfespaces.at(i)));
     getData()->_lfs.GetRef(test_var_name) = 0.0;
   }
   // Apply boundary conditions
@@ -197,7 +208,8 @@ EquationSystemAssembler::BuildBilinearForms()
   for (int i = 0; i < getData()->_test_var_names.size(); i++)
   {
     auto test_var_name = getData()->_test_var_names.at(i);
-    getData()->_blfs.Register(test_var_name, std::make_shared<mfem::ParBilinearForm>(getData()->_test_pfespaces.at(i)));
+    getData()->_blfs.Register(
+        test_var_name, std::make_shared<mfem::ParBilinearForm>(getData()->_test_pfespaces.at(i)));
 
     // Apply kernels
     auto blf = getData()->_blfs.Get(test_var_name);
@@ -237,7 +249,8 @@ EquationSystemAssembler::BuildMixedBilinearForms()
       if (getData()->_mblf_kernels_map_map.Has(test_var_name) &&
           getData()->_mblf_kernels_map_map.Get(test_var_name)->Has(trial_var_name))
       {
-        auto mblf_kernels = getData()->_mblf_kernels_map_map.GetRef(test_var_name).GetRef(trial_var_name);
+        auto mblf_kernels =
+            getData()->_mblf_kernels_map_map.GetRef(test_var_name).GetRef(trial_var_name);
         auto mblf = std::make_shared<mfem::ParMixedBilinearForm>(getData()->_test_pfespaces.at(j),
                                                                  getData()->_test_pfespaces.at(i));
         // Apply all mixed kernels with this test/trial pair
@@ -258,16 +271,18 @@ EquationSystemAssembler::BuildMixedBilinearForms()
   }
 }
 
-
-bool DiagonalEquationSystemAssembler::AssemblyIsSupported()
+bool
+DiagonalEquationSystemAssembler::AssemblyIsSupported()
 {
   bool support = true;
   return support;
 }
 
-void DiagonalEquationSystemAssembler::FormSystem(mfem::OperatorHandle & op, mfem::BlockVector & trueX, mfem::BlockVector & trueRHS)
+void
+DiagonalEquationSystemAssembler::FormSystem(mfem::OperatorHandle & op,
+                                            mfem::BlockVector & trueX,
+                                            mfem::BlockVector & trueRHS)
 {
-
 }
 
 void
@@ -277,8 +292,8 @@ DiagonalEquationSystemAssembler::BuildEquationSystem(platypus::BCMap & bc_map)
   BuildBilinearForms();
 }
 
-
-bool DenseEquationSystemAssembler::AssemblyIsSupported()
+bool
+DenseEquationSystemAssembler::AssemblyIsSupported()
 {
   bool support = true;
   if (getData()->_assembly_level != mfem::AssemblyLevel::LEGACY)
@@ -287,13 +302,15 @@ bool DenseEquationSystemAssembler::AssemblyIsSupported()
   return support;
 }
 
-void DenseEquationSystemAssembler::FormSystem(mfem::OperatorHandle & op,
-                                              mfem::BlockVector & trueX,
-                                              mfem::BlockVector & trueRHS)
+void
+DenseEquationSystemAssembler::FormSystem(mfem::OperatorHandle & op,
+                                         mfem::BlockVector & trueX,
+                                         mfem::BlockVector & trueRHS)
 {
   // Allocate block operator
   getData()->_h_blocks.DeleteAll();
-  getData()->_h_blocks.SetSize(getData()->_test_var_names.size(), getData()->_test_var_names.size());
+  getData()->_h_blocks.SetSize(getData()->_test_var_names.size(),
+                               getData()->_test_var_names.size());
   // Form diagonal blocks.
   for (int i = 0; i < getData()->_test_var_names.size(); i++)
   {
@@ -302,8 +319,12 @@ void DenseEquationSystemAssembler::FormSystem(mfem::OperatorHandle & op,
     auto lf = getData()->_lfs.Get(test_var_name);
     mfem::Vector aux_x, aux_rhs;
     mfem::HypreParMatrix aux_a;
-    blf->FormLinearSystem(
-        getData()->_ess_tdof_lists.at(i), *(getData()->_bc_gridfunc.at(i)), *lf, aux_a, aux_x, aux_rhs);
+    blf->FormLinearSystem(getData()->_ess_tdof_lists.at(i),
+                          *(getData()->_bc_gridfunc.at(i)),
+                          *lf,
+                          aux_a,
+                          aux_x,
+                          aux_rhs);
 
     getData()->_h_blocks(i, i) = new const mfem::HypreParMatrix(aux_a);
     trueX.GetBlock(i) = aux_x;
@@ -321,7 +342,8 @@ void DenseEquationSystemAssembler::FormSystem(mfem::OperatorHandle & op,
       mfem::Vector aux_x, aux_rhs;
       mfem::ParLinearForm aux_lf(getData()->_test_pfespaces.at(i));
       aux_lf = 0.0;
-      if (getData()->_mblfs.Has(test_var_name) && getData()->_mblfs.Get(test_var_name)->Has(trial_var_name))
+      if (getData()->_mblfs.Has(test_var_name) &&
+          getData()->_mblfs.Get(test_var_name)->Has(trial_var_name))
       {
         auto mblf = getData()->_mblfs.Get(test_var_name)->Get(trial_var_name);
         mfem::HypreParMatrix aux_a;
@@ -355,8 +377,5 @@ DenseEquationSystemAssembler::BuildEquationSystem(platypus::BCMap & bc_map)
   BuildBilinearForms();
   BuildMixedBilinearForms();
 }
-
-
-
 
 } // namespace platypus

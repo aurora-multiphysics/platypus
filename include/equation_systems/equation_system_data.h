@@ -19,7 +19,6 @@ struct EquationSystemData
   friend class DenseEquationSystemAssembler;
 
 private:
-
   using MFEMBilinearFormKernel = MFEMKernel<mfem::BilinearFormIntegrator>;
   using MFEMLinearFormKernel = MFEMKernel<mfem::LinearFormIntegrator>;
   using MFEMNonlinearFormKernel = MFEMKernel<mfem::NonlinearFormIntegrator>;
@@ -39,7 +38,7 @@ private:
   // Components of weak form. // Named according to test variable
   platypus::NamedFieldsMap<mfem::ParBilinearForm> _blfs;
   platypus::NamedFieldsMap<mfem::ParLinearForm> _lfs;
-  //platypus::NamedFieldsMap<mfem::ParNonlinearForm> _nlfs;
+  // platypus::NamedFieldsMap<mfem::ParNonlinearForm> _nlfs;
   platypus::NamedFieldsMap<platypus::NamedFieldsMap<mfem::ParMixedBilinearForm>>
       _mblfs; // named according to trial variable
 
@@ -47,7 +46,6 @@ private:
   mfem::AssemblyLevel _assembly_level;
 
   std::vector<mfem::Array<int>> _ess_tdof_lists;
-
 
   // gridfunctions for setting Dirichlet BCs
   std::vector<std::unique_ptr<mfem::ParGridFunction>> _bc_gridfunc;
@@ -67,13 +65,11 @@ private:
       platypus::NamedFieldsMap<std::vector<std::shared_ptr<MFEMMixedBilinearFormKernel>>>>
       _mblf_kernels_map_map;
 
-  //mutable mfem::OperatorHandle _jacobian;
+  // mutable mfem::OperatorHandle _jacobian;
 
   // Variables for time-dependent equation systems
   mfem::ConstantCoefficient _dt_coef; // Coefficient for timestep scaling
   std::vector<std::string> _trial_var_time_derivative_names;
-
 };
-
 
 } // namespace platypus
