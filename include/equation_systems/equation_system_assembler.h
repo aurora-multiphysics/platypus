@@ -4,6 +4,7 @@
 #include "named_fields_map.h"
 #include "MFEMKernel.h"
 #include "equation_system_data.h"
+#include "equation_system_modifier.h"
 
 namespace platypus
 {
@@ -12,7 +13,7 @@ namespace platypus
 Class to store weak form components (bilinear and linear forms, and optionally
 mixed and nonlinear forms) and build methods
 */
-class EquationSystemAssembler
+class EquationSystemAssembler : public EquationSystemModifier
 {
 public:
   using MFEMBilinearFormKernel = MFEMKernel<mfem::BilinearFormIntegrator>;
@@ -23,11 +24,7 @@ public:
   EquationSystemAssembler(std::shared_ptr<EquationSystemData> data);
   ~EquationSystemAssembler() = default;
 
-  void MakeData();
-
-  void AddTrialVariableNameIfMissing(const std::string & trial_var_name);
-  void AddTestVariableNameIfMissing(const std::string & test_var_name);
-
+  // Add Kernels
   void AddKernel(const std::string & test_var_name,
                  std::shared_ptr<MFEMBilinearFormKernel> blf_kernel);
   void AddKernel(const std::string & test_var_name,
@@ -45,34 +42,17 @@ public:
             platypus::BCMap & bc_map,
             platypus::Coefficients & coefficients,
             mfem::AssemblyLevel assembly_level);
-  virtual void BuildLinearForms(platypus::BCMap & bc_map);
-  virtual void BuildBilinearForms();
-  virtual void BuildMixedBilinearForms();
 
   virtual bool AssemblyIsSupported() = 0;
-  virtual void
-  FormSystem(mfem::OperatorHandle & op, mfem::BlockVector & trueX, mfem::BlockVector & trueRHS) = 0;
-  virtual void BuildEquationSystem(platypus::BCMap & bc_map) = 0;
+  virtual void FormSystem(mfem::OperatorHandle & op, mfem::BlockVector & trueX, mfem::BlockVector & trueRHS) = 0;
 
-  [[nodiscard]] EquationSystemData * getData()
-  {
-    if (!_equation_system_data)
-    {
-      MFEM_ABORT("platypus::EquationSystemData instance is NULL.");
-    }
+  // Build linear system, with essential boundary conditions accounted for
+  virtual void BuildJacobian(mfem::BlockVector & trueX, mfem::BlockVector & trueRHS);
 
-    return _equation_system_data.get();
-  };
 
-private:
-  std::shared_ptr<EquationSystemData> _equation_system_data{nullptr};
-
-protected:
-  bool VectorContainsName(const std::vector<std::string> & the_vector,
-                          const std::string & name) const;
 };
 
-class DiagonalEquationSystemAssembler : EquationSystemAssembler
+class DiagonalEquationSystemAssembler : public EquationSystemAssembler
 {
 public:
   DiagonalEquationSystemAssembler() = default;
@@ -85,7 +65,7 @@ public:
   void BuildEquationSystem(platypus::BCMap & bc_map) override;
 };
 
-class DenseEquationSystemAssembler : EquationSystemAssembler
+class DenseEquationSystemAssembler : public EquationSystemAssembler
 {
 public:
   DenseEquationSystemAssembler() = default;

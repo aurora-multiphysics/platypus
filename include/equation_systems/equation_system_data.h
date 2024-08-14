@@ -14,9 +14,12 @@ mixed and nonlinear forms)
 struct EquationSystemData
 {
 
+  friend class EquationSystemModifier;
   friend class EquationSystemAssembler;
   friend class DiagonalEquationSystemAssembler;
   friend class DenseEquationSystemAssembler;
+  friend class EquationSystemUpdater;
+  friend class EquationSystemOperator;
 
 private:
   using MFEMBilinearFormKernel = MFEMKernel<mfem::BilinearFormIntegrator>;
@@ -65,7 +68,9 @@ private:
       platypus::NamedFieldsMap<std::vector<std::shared_ptr<MFEMMixedBilinearFormKernel>>>>
       _mblf_kernels_map_map;
 
-  // mutable mfem::OperatorHandle _jacobian;
+  mutable mfem::OperatorHandle _jacobian;
+  int _jacobian_height;
+  int _jacobian_width;
 
   // Variables for time-dependent equation systems
   mfem::ConstantCoefficient _dt_coef; // Coefficient for timestep scaling
