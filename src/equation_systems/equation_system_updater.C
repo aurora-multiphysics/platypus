@@ -3,10 +3,11 @@
 namespace platypus
 {
 
-EquationSystemUpdater::EquationSystemUpdater(std::shared_ptr<EquationSystemData> data) : EquationSystemModifier(data)
+EquationSystemUpdater::EquationSystemUpdater(std::shared_ptr<EquationSystemData> data)
+  : EquationSystemModifier(data)
 {
-    mfem::ConstantCoefficient dt(1.0);
-    getData()->_dt_coef = dt;
+  mfem::ConstantCoefficient dt(1.0);
+  getData()->_dt_coef = dt;
 }
 
 void
@@ -27,8 +28,7 @@ EquationSystemUpdater::SetTimeStep(double dt)
 void
 EquationSystemUpdater::UpdateEquationSystem(platypus::BCMap & bc_map)
 {
-    BuildEquationSystem(bc_map);
+  BuildEquationSystem(bc_map);
 }
-
 
 } // namespace platypus

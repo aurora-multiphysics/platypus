@@ -44,12 +44,11 @@ public:
             mfem::AssemblyLevel assembly_level);
 
   virtual bool AssemblyIsSupported() = 0;
-  virtual void FormSystem(mfem::OperatorHandle & op, mfem::BlockVector & trueX, mfem::BlockVector & trueRHS) = 0;
+  virtual void
+  FormSystem(mfem::OperatorHandle & op, mfem::BlockVector & trueX, mfem::BlockVector & trueRHS) = 0;
 
   // Build linear system, with essential boundary conditions accounted for
   virtual void BuildJacobian(mfem::BlockVector & trueX, mfem::BlockVector & trueRHS);
-
-
 };
 
 class DiagonalEquationSystemAssembler : public EquationSystemAssembler

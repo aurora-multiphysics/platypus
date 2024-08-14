@@ -10,13 +10,13 @@ namespace platypus
 {
 
 /*
-Class to use in time-dependent systems. It updates the data in EquationSystemData for the next timestep.
+Class to use in time-dependent systems. It updates the data in EquationSystemData for the next
+timestep.
 */
 
 class EquationSystemUpdater : public EquationSystemModifier
 {
 public:
-
   EquationSystemUpdater(std::shared_ptr<EquationSystemData> data);
   ~EquationSystemUpdater() = default;
 
@@ -27,8 +27,6 @@ public:
   {
     return std::string("d") + name + std::string("_dt");
   }
-
 };
-
 
 } // namespace platypus

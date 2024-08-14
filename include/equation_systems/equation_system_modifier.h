@@ -20,7 +20,7 @@ public:
   ~EquationSystemModifier() = default;
 
   bool VectorContainsName(const std::vector<std::string> & the_vector,
-                                   const std::string & name) const;
+                          const std::string & name) const;
   void AddTrialVariableNameIfMissing(const std::string & trial_var_name);
   void AddTestVariableNameIfMissing(const std::string & test_var_name);
   void ApplyBoundaryConditions(platypus::BCMap & bc_map);
@@ -40,11 +40,8 @@ public:
     return _equation_system_data.get();
   }
 
-  protected:
-
+protected:
   std::shared_ptr<EquationSystemData> _equation_system_data{nullptr};
-
 };
 
 } // namespace platypus
-

@@ -5,7 +5,7 @@ namespace platypus
 
 bool
 EquationSystemModifier::VectorContainsName(const std::vector<std::string> & the_vector,
-                                   const std::string & name) const
+                                           const std::string & name) const
 {
 
   auto iter = std::find(the_vector.begin(), the_vector.end(), name);
@@ -58,7 +58,8 @@ EquationSystemModifier::BuildLinearForms(platypus::BCMap & bc_map)
   for (int i = 0; i < getData()->_test_var_names.size(); i++)
   {
     auto test_var_name = getData()->_test_var_names.at(i);
-    getData()->_lfs.Register(test_var_name, std::make_shared<mfem::ParLinearForm>(getData()->_test_pfespaces.at(i)));
+    getData()->_lfs.Register(
+        test_var_name, std::make_shared<mfem::ParLinearForm>(getData()->_test_pfespaces.at(i)));
     getData()->_lfs.GetRef(test_var_name) = 0.0;
   }
   // Apply boundary conditions
@@ -88,7 +89,8 @@ EquationSystemModifier::BuildBilinearForms()
   for (int i = 0; i < getData()->_test_var_names.size(); i++)
   {
     auto test_var_name = getData()->_test_var_names.at(i);
-    getData()->_blfs.Register(test_var_name, std::make_shared<mfem::ParBilinearForm>(getData()->_test_pfespaces.at(i)));
+    getData()->_blfs.Register(
+        test_var_name, std::make_shared<mfem::ParBilinearForm>(getData()->_test_pfespaces.at(i)));
 
     // Apply kernels
     auto blf = getData()->_blfs.Get(test_var_name);
@@ -126,7 +128,8 @@ EquationSystemModifier::BuildMixedBilinearForms()
       if (getData()->_mblf_kernels_map_map.Has(test_var_name) &&
           getData()->_mblf_kernels_map_map.Get(test_var_name)->Has(trial_var_name))
       {
-        auto mblf_kernels = getData()->_mblf_kernels_map_map.GetRef(test_var_name).GetRef(trial_var_name);
+        auto mblf_kernels =
+            getData()->_mblf_kernels_map_map.GetRef(test_var_name).GetRef(trial_var_name);
         auto mblf = std::make_shared<mfem::ParMixedBilinearForm>(getData()->_test_pfespaces.at(j),
                                                                  getData()->_test_pfespaces.at(i));
         // Apply all mixed kernels with this test/trial pair

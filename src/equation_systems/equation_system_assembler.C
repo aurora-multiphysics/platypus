@@ -117,7 +117,6 @@ EquationSystemAssembler::Init(platypus::GridFunctions & gridfunctions,
   }
 }
 
-
 void
 EquationSystemAssembler::BuildJacobian(mfem::BlockVector & trueX, mfem::BlockVector & trueRHS)
 {
@@ -125,7 +124,6 @@ EquationSystemAssembler::BuildJacobian(mfem::BlockVector & trueX, mfem::BlockVec
   getData()->_jacobian_width = trueRHS.Size();
   FormSystem(getData()->_jacobian, trueX, trueRHS);
 }
-
 
 // DiagonalEquationSystemAssembler //////////////////////////
 
@@ -149,7 +147,6 @@ DiagonalEquationSystemAssembler::BuildEquationSystem(platypus::BCMap & bc_map)
   BuildLinearForms(bc_map);
   BuildBilinearForms();
 }
-
 
 // DenseEquationSystemAssembler //////////////////////////
 

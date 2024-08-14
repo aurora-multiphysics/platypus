@@ -16,14 +16,14 @@ class EquationSystemOperator : public mfem::Operator
 {
 
 public:
-
   EquationSystemOperator() = default;
   ~EquationSystemOperator() = default;
 
   void Init(std::shared_ptr<EquationSystemData> data);
   void Mult(const mfem::Vector & u, mfem::Vector & residual);
   mfem::Operator & GetGradient(const mfem::Vector & u);
-  virtual void RecoverFEMSolution(mfem::BlockVector & trueX, platypus::GridFunctions & gridfunctions);
+  virtual void RecoverFEMSolution(mfem::BlockVector & trueX,
+                                  platypus::GridFunctions & gridfunctions);
 
   [[nodiscard]] EquationSystemData * getData()
   {
@@ -35,11 +35,8 @@ public:
     return _equation_system_data.get();
   }
 
-  protected:
-
+protected:
   std::shared_ptr<EquationSystemData> _equation_system_data{nullptr};
-
 };
 
 } // namespace platypus
-

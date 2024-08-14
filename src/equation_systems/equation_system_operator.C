@@ -3,7 +3,8 @@
 namespace platypus
 {
 
-void EquationSystemOperator::Init(std::shared_ptr<EquationSystemData> data)
+void
+EquationSystemOperator::Init(std::shared_ptr<EquationSystemData> data)
 {
   _equation_system_data = data;
   height = getData()->_jacobian_height;
@@ -24,7 +25,7 @@ EquationSystemOperator::GetGradient(const mfem::Vector & u)
 
 void
 EquationSystemOperator::RecoverFEMSolution(mfem::BlockVector & trueX,
-                                   platypus::GridFunctions & gridfunctions)
+                                           platypus::GridFunctions & gridfunctions)
 {
   for (int i = 0; i < getData()->_test_var_names.size(); i++)
   {
