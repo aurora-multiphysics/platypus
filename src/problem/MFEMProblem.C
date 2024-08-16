@@ -55,9 +55,8 @@ void
 MFEMProblem::initialSetup()
 {
   FEProblemBase::initialSetup();
-  _coefficients.AddGlobalCoefficientsFromSubdomains();
-
-  mfem_problem_builder->SetCoefficients(_coefficients);
+  getCoefficients().AddGlobalCoefficientsFromSubdomains();
+  mfem_problem->_coefficients = getCoefficients();
 
   // NB: set to false to avoid reconstructing problem operator.
   mfem_problem_builder->FinalizeProblem(false);
@@ -127,6 +126,22 @@ MFEMProblem::externalSolve()
 }
 
 void
+MFEMProblem::setMesh(std::shared_ptr<mfem::ParMesh> pmesh)
+{
+  mfem_problem->_pmesh = pmesh;
+  mfem_problem->_comm = pmesh->GetComm();
+  MPI_Comm_size(pmesh->GetComm(), &(mfem_problem->_num_procs));
+  MPI_Comm_rank(pmesh->GetComm(), &(mfem_problem->_myid));
+}
+
+void
+MFEMProblem::setDevice(const std::string & dev)
+{
+  mfem_problem->_device.Configure(dev);
+  mfem_problem->_device.Print(std::cout);
+}
+
+void
 MFEMProblem::setFormulation(const std::string & user_object_name,
                             const std::string & name,
                             InputParameters & parameters)
@@ -136,12 +151,10 @@ MFEMProblem::setFormulation(const std::string & user_object_name,
   MFEMFormulation * mfem_formulation(&getUserObject<MFEMFormulation>(name));
 
   mfem_problem_builder = mfem_formulation->getProblemBuilder();
-
-  mfem_problem_builder->SetDevice(getParam<std::string>("device"));
-  mfem_problem_builder->SetMesh(std::make_shared<mfem::ParMesh>(mfem_par_mesh));
-  mfem_problem_builder->ConstructOperator();
-
   mfem_problem = mfem_problem_builder->ReturnProblem();
+  setDevice(getParam<std::string>("device"));
+  setMesh(std::make_shared<mfem::ParMesh>(mfem_par_mesh));
+  mfem_problem_builder->ConstructOperator();
 }
 
 void
@@ -189,7 +202,7 @@ MFEMProblem::addMaterial(const std::string & kernel_name,
     int block = std::stoi(mfem_material.blocks[bid]);
     platypus::Subdomain mfem_subdomain(name, block);
     mfem_material.storeCoefficients(mfem_subdomain);
-    _coefficients._subdomains.push_back(mfem_subdomain);
+    getCoefficients()._subdomains.push_back(mfem_subdomain);
   }
 }
 
@@ -200,7 +213,7 @@ MFEMProblem::addCoefficient(const std::string & user_object_name,
 {
   FEProblemBase::addUserObject(user_object_name, name, parameters);
   MFEMCoefficient * mfem_coef(&getUserObject<MFEMCoefficient>(name));
-  _coefficients._scalars.Register(name, mfem_coef->getCoefficient());
+  getCoefficients()._scalars.Register(name, mfem_coef->getCoefficient());
 }
 
 void
@@ -210,7 +223,7 @@ MFEMProblem::addVectorCoefficient(const std::string & user_object_name,
 {
   FEProblemBase::addUserObject(user_object_name, name, parameters);
   MFEMVectorCoefficient * mfem_vec_coef(&getUserObject<MFEMVectorCoefficient>(name));
-  _coefficients._vectors.Register(name, mfem_vec_coef->getVectorCoefficient());
+  getCoefficients()._vectors.Register(name, mfem_vec_coef->getVectorCoefficient());
 }
 
 void

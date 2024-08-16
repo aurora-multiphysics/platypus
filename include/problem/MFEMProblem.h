@@ -80,6 +80,11 @@ public:
   void addFESpace(const std::string & user_object_name,
                   const std::string & name,
                   InputParameters & parameters);
+
+  void setMesh(std::shared_ptr<mfem::ParMesh> pmesh);
+
+  void setDevice(const std::string & dev);
+
   /**
    * Override of ExternalProblem::addUserObject. Uses ExternalProblem::addUserObject to set the
    * Moose user objects, and contains additional code to create MFEM specific user objects.
@@ -138,7 +143,7 @@ public:
   std::string _formulation_name;
   int _order;
 
-  platypus::Coefficients _coefficients;
+  platypus::Coefficients & getCoefficients() { return _coefficients; }
 
 protected:
   /**
@@ -164,6 +169,7 @@ protected:
     }
   }
 
+  platypus::Coefficients _coefficients;
   platypus::InputParameters _solver_options;
   platypus::Outputs _outputs;
   platypus::InputParameters _exec_params;

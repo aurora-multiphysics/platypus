@@ -39,12 +39,14 @@ associateSyntaxInner(Syntax & syntax, ActionFactory & /*action_factory*/)
   addTaskDependency("add_mfem_coefficients", "add_variable");
   addTaskDependency("add_mfem_coefficients", "add_aux_variable");
   addTaskDependency("add_mfem_coefficients", "add_ic");
+  addTaskDependency("add_mfem_coefficients", "add_mfem_formulation");
 
   // add vector coefficients
   registerMooseObjectTask("add_mfem_vector_coefficients", MFEMVectorCoefficient, false);
   registerSyntaxTask(
       "AddVectorCoefficientAction", "VectorCoefficients/*", "add_mfem_vector_coefficients");
   addTaskDependency("add_material", "add_mfem_vector_coefficients");
+  addTaskDependency("add_mfem_vector_coefficients", "add_mfem_formulation");
 
   // add FESpaces
   registerMooseObjectTask("add_mfem_fespaces", MFEMFESpace, false);

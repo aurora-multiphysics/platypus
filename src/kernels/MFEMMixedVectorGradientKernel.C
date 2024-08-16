@@ -18,7 +18,7 @@ MFEMMixedVectorGradientKernel::validParams()
 MFEMMixedVectorGradientKernel::MFEMMixedVectorGradientKernel(const InputParameters & parameters)
   : MFEMKernel(parameters),
     _coef_name(getParam<std::string>("coefficient")),
-    _coef(getMFEMProblem()._coefficients._scalars.Get(_coef_name))
+    _coef(getMFEMProblem().getCoefficients()._scalars.Get(_coef_name))
 {
 }
 
