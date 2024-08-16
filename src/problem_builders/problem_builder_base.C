@@ -129,9 +129,7 @@ ProblemBuilder::InitializeOutputs()
 void
 ProblemBuilder::FinalizeProblem(bool build_operator)
 {
-  RegisterFESpaces();
   RegisterGridFunctions();
-  RegisterCoefficients();
 
   if (build_operator)
   {
@@ -144,7 +142,6 @@ ProblemBuilder::FinalizeProblem(bool build_operator)
   ConstructNonlinearSolver();
 
   ConstructState();
-  ConstructTimestepper();
   InitializeOutputs();
 }
 

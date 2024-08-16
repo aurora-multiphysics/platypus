@@ -58,8 +58,13 @@ MFEMProblem::initialSetup()
   getCoefficients().AddGlobalCoefficientsFromSubdomains();
   mfem_problem->_coefficients = getCoefficients();
 
-  // NB: set to false to avoid reconstructing problem operator.
-  mfem_problem_builder->FinalizeProblem(false);
+  mfem_problem_builder->RegisterGridFunctions();
+  mfem_problem_builder->InitializeKernels();
+  mfem_problem_builder->SetOperatorGridFunctions();
+  mfem_problem_builder->ConstructNonlinearSolver();
+  mfem_problem_builder->ConstructState();
+  mfem_problem_builder->ConstructTimestepper();
+  mfem_problem_builder->InitializeOutputs();
 
   platypus::InputParameters exec_params;
 
@@ -314,6 +319,25 @@ MFEMProblem::addKernel(const std::string & kernel_name,
   else
   {
     mooseError("Unsupported kernel of type '", kernel_name, "' and name '", name, "' detected.");
+  }
+}
+
+void
+MFEMProblem::addTimeIntegrator(const std::string & type,
+                               const std::string & name,
+                               InputParameters & parameters)
+{
+  FEProblemBase::addTimeIntegrator(type, name, parameters);
+  auto mfem_transient_problem =
+      std::dynamic_pointer_cast<platypus::TimeDomainProblem>(mfem_problem);
+  if (mfem_transient_problem)
+  {
+    mfem_transient_problem->_ode_solver = std::make_unique<mfem::BackwardEulerSolver>();
+    mfem_transient_problem->_ode_solver->Init(*(mfem_transient_problem->GetOperator()));
+  }
+  else
+  {
+    mooseError("Can only add a time integrator to a transient problem.");
   }
 }
 

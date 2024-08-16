@@ -27,6 +27,7 @@ associateSyntaxInner(Syntax & syntax, ActionFactory & /*action_factory*/)
   registerMooseObjectTask("add_mfem_formulation", MFEMFormulation, true);
   registerSyntaxTask("AddFormulationAction", "Formulation", "add_mfem_formulation");
   addTaskDependency("add_mfem_formulation", "init_mesh");
+  addTaskDependency("setup_time_integrator", "add_mfem_formulation");
   addTaskDependency("add_variable", "add_mfem_formulation");
   addTaskDependency("add_aux_variable", "add_mfem_formulation");
   addTaskDependency("add_elemental_field_variable", "add_mfem_formulation");
