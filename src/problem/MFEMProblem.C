@@ -154,7 +154,7 @@ MFEMProblem::setFormulation(const std::string & user_object_name,
   mfem_problem = mfem_problem_builder->ReturnProblem();
   setDevice(getParam<std::string>("device"));
   setMesh(std::make_shared<mfem::ParMesh>(mfem_par_mesh));
-  mfem_problem_builder->ConstructOperator();
+  mfem_problem->ConstructOperator();
 }
 
 void
@@ -186,7 +186,7 @@ MFEMProblem::addBoundaryCondition(const std::string & bc_name,
 {
   FEProblemBase::addUserObject(bc_name, name, parameters);
   MFEMBoundaryCondition * mfem_bc(&getUserObject<MFEMBoundaryCondition>(name));
-  mfem_problem_builder->AddBoundaryCondition(name, mfem_bc->getBC());
+  mfem_problem->_bc_map.Register(name, std::move(mfem_bc->getBC()));
 }
 
 void
