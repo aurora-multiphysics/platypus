@@ -56,8 +56,6 @@ public:
 
   void ConstructState() override;
 
-  void ConstructTimestepper() override {}
-
 protected:
   // NB: constructor for derived classes.
   SteadyStateProblemBuilder(platypus::SteadyStateProblem * problem) : ProblemBuilder(problem) {}

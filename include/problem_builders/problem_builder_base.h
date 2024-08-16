@@ -75,7 +75,6 @@ public:
   virtual void ConstructNonlinearSolver();
   virtual void ConstructOperator() = 0;
   virtual void ConstructState() = 0;
-  virtual void ConstructTimestepper() = 0;
 
   virtual void InitializeKernels();
 

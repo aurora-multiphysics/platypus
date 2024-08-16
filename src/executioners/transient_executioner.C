@@ -14,6 +14,7 @@ TransientExecutioner::TransientExecutioner(const platypus::InputParameters & par
     _last_step(false),
     _problem(params.GetParam<platypus::TimeDomainProblem *>("Problem"))
 {
+  _problem->_ode_solver->Init(*(_problem->GetOperator()));
 }
 
 void

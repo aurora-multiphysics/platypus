@@ -63,7 +63,6 @@ MFEMProblem::initialSetup()
   mfem_problem_builder->SetOperatorGridFunctions();
   mfem_problem_builder->ConstructNonlinearSolver();
   mfem_problem_builder->ConstructState();
-  mfem_problem_builder->ConstructTimestepper();
   mfem_problem_builder->InitializeOutputs();
 
   platypus::InputParameters exec_params;
@@ -333,7 +332,6 @@ MFEMProblem::addTimeIntegrator(const std::string & type,
   if (mfem_transient_problem)
   {
     mfem_transient_problem->_ode_solver = std::make_unique<mfem::BackwardEulerSolver>();
-    mfem_transient_problem->_ode_solver->Init(*(mfem_transient_problem->GetOperator()));
   }
   else
   {
