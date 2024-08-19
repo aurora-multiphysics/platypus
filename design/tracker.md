@@ -23,7 +23,8 @@
 ### Issue Description
 
 - Currently support for only lowest order ND1 and RT FEs;
-- These must be run on second order `TET14`, `HEX27`, `TRI6` and `QUAD9` elements, with the exception of first order ND1 FEs, which can be run on `TET10` and `HEX20` meshes, and that, in 2d, the user can also use `TRI7` and `QUAD8` elements since the implementation does not use the node at the centroid.
+- These must be run on second order `TET14`, `HEX27`, `TRI6` and `QUAD9` elements, with the exception of first order ND1 FEs, which can be run on `TET10` and `HEX20` meshes, and that, in 2d, the user can also use `TRI7` and `QUAD8` elements since the implementation does not use the node at the centroid;
+- The current strategy of hardcoding the basis functions on the reference element and then matching DoFs across different entities of the same dimension (e.g. different edges or different faces) seems to fail for ND1 on `TET14` elements as face DoFs do not map to the edges in each face.
 
 ### Affected Problems
 
