@@ -7,6 +7,11 @@
 namespace platypus
 {
 
+using MFEMBilinearFormKernel = MFEMKernel<mfem::BilinearFormIntegrator>;
+using MFEMLinearFormKernel = MFEMKernel<mfem::LinearFormIntegrator>;
+using MFEMNonlinearFormKernel = MFEMKernel<mfem::NonlinearFormIntegrator>;
+using MFEMMixedBilinearFormKernel = MFEMKernel<mfem::BilinearFormIntegrator>;
+
 /*
 Class to store weak form components (bilinear and linear forms, and optionally
 mixed and nonlinear forms)
@@ -14,18 +19,18 @@ mixed and nonlinear forms)
 struct EquationSystemData
 {
 
-  friend class EquationSystemModifier;
-  friend class EquationSystemAssembler;
-  friend class DiagonalEquationSystemAssembler;
-  friend class DenseEquationSystemAssembler;
-  friend class EquationSystemUpdater;
+  friend class EquationSystemOperatorBase;
   friend class EquationSystemOperator;
+  friend class TimeDependentEquationSystemOperator;
+  friend class EquationSystemProblemOperator;
+  friend class TimeDomainEquationSystemProblemOperator;
 
-private:
-  using MFEMBilinearFormKernel = MFEMKernel<mfem::BilinearFormIntegrator>;
-  using MFEMLinearFormKernel = MFEMKernel<mfem::LinearFormIntegrator>;
-  using MFEMNonlinearFormKernel = MFEMKernel<mfem::NonlinearFormIntegrator>;
-  using MFEMMixedBilinearFormKernel = MFEMKernel<mfem::BilinearFormIntegrator>;
+protected:
+  enum MatrixType
+  {
+    DIAGONAL,
+    DENSE
+  };
 
   // Test variables are associated with LinearForms,
   // whereas trial variables are associated with gridfunctions.
@@ -47,6 +52,7 @@ private:
 
   // Assembly level for the equation system. May be LEGACY, FULL, ELEMENT, or PARTIAL
   mfem::AssemblyLevel _assembly_level;
+  enum MatrixType _matrix_type;
 
   std::vector<mfem::Array<int>> _ess_tdof_lists;
 
@@ -69,9 +75,17 @@ private:
       _mblf_kernels_map_map;
 
   mutable mfem::OperatorHandle _jacobian;
-  int _jacobian_height;
-  int _jacobian_width;
+};
 
+struct TimeDependentEquationSystemData : public EquationSystemData
+{
+  friend class EquationSystemOperatorBase;
+  friend class EquationSystemOperator;
+  friend class TimeDependentEquationSystemOperator;
+  friend class EquationSystemProblemOperator;
+  friend class TimeDomainEquationSystemProblemOperator;
+
+protected:
   // Variables for time-dependent equation systems
   mfem::ConstantCoefficient _dt_coef; // Coefficient for timestep scaling
   std::vector<std::string> _trial_var_time_derivative_names;

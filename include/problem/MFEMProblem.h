@@ -40,6 +40,8 @@ public:
 
   virtual void syncSolutions(Direction direction) override{};
 
+  void setAssemblyLevel();
+
   /**
    * Overwritten mesh() method from base MooseMesh to retrieve the correct mesh type, in this case
    * MFEMMesh.

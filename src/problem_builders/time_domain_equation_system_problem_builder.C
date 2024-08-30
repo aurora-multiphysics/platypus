@@ -11,7 +11,8 @@ TimeDomainEquationSystemProblemBuilder::InitializeKernels()
   GetEquationSystem()->Init(GetProblem()->_gridfunctions,
                             GetProblem()->_fespaces,
                             GetProblem()->_bc_map,
-                            GetProblem()->_coefficients);
+                            GetProblem()->_coefficients,
+                            GetProblem()->_assembly_level);
 }
 
 } // namespace platypus

@@ -9,14 +9,19 @@
 namespace platypus
 {
 
-// Static operator
+// Time dependent operator
 
-class EquationSystemOperator : public EquationSystemOperatorBase
+class TimeDependentEquationSystemOperator : public EquationSystemOperatorBase
 {
 
 public:
+
   // Constructor
-  EquationSystemOperator(std::shared_ptr<EquationSystemData> data) : _equation_system_data{data} {}
+  TimeDependentEquationSystemOperator(std::shared_ptr<TimeDependentEquationSystemData> data)  : _equation_system_data{data}
+  {
+    mfem::ConstantCoefficient dt(1.0);
+    DataWrite()->_dt_coef = dt;
+  }
 
   void AddTrialVariableNameIfMissing(const std::string & trial_var_name) override;
   void AddTestVariableNameIfMissing(const std::string & test_var_name) override;
@@ -50,34 +55,45 @@ public:
   void Mult(const mfem::Vector & u, mfem::Vector & residual) const override;
   mfem::Operator & GetGradient(const mfem::Vector & u) override;
   void RecoverFEMSolution(mfem::BlockVector & trueX,
-                          platypus::GridFunctions & gridfunctions) override;
+                                  platypus::GridFunctions & gridfunctions) override;
 
   // Form system methods
-  void FormSystem(mfem::OperatorHandle & op,
+  void
+  FormSystem(mfem::OperatorHandle & op, mfem::BlockVector & trueX, mfem::BlockVector & trueRHS) override;
+  void
+  FormDenseSystem(mfem::OperatorHandle & op,
                   mfem::BlockVector & trueX,
                   mfem::BlockVector & trueRHS) override;
-  void FormDenseSystem(mfem::OperatorHandle & op,
-                       mfem::BlockVector & trueX,
-                       mfem::BlockVector & trueRHS) override;
-  void FormDiagonalSystem(mfem::OperatorHandle & op,
-                          mfem::BlockVector & trueX,
-                          mfem::BlockVector & trueRHS) override;
+  void
+  FormDiagonalSystem(mfem::OperatorHandle & op,
+                     mfem::BlockVector & trueX,
+                     mfem::BlockVector & trueRHS) override;
 
   // Build linear system, with essential boundary conditions accounted for
   void BuildJacobian(mfem::BlockVector & trueX, mfem::BlockVector & trueRHS) override;
 
+
+
+  void SetTimeStep(double dt);
+  void UpdateEquationSystem(platypus::BCMap & bc_map);
+
+  static std::string GetTimeDerivativeName(std::string name)
+  {
+    return std::string("d") + name + std::string("_dt");
+  }
+
   // Data retrieval for writing to @_equation_system_data
-  std::shared_ptr<EquationSystemData> DataWrite()
+  std::shared_ptr<TimeDependentEquationSystemData> DataWrite()
   {
     if (!_equation_system_data)
     {
-      MFEM_ABORT("platypus::EquationSystemData instance is NULL.");
+      MFEM_ABORT("platypus::TimeDependentEquationSystemData instance is NULL.");
     }
     return _equation_system_data;
   }
 
   // Data retrieval for reading @_equation_system_data
-  std::shared_ptr<EquationSystemData> DataRead() const
+  std::shared_ptr<TimeDependentEquationSystemData> DataRead() const
   {
     if (!_equation_system_data)
     {
@@ -86,8 +102,12 @@ public:
     return _equation_system_data;
   }
 
+
 private:
-  std::shared_ptr<EquationSystemData> _equation_system_data{nullptr};
+
+  std::shared_ptr<TimeDependentEquationSystemData> _equation_system_data{nullptr};
+
 };
+
 
 } // namespace platypus
