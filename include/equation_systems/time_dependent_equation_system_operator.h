@@ -53,7 +53,7 @@ public:
 
   // Operator methods
   void Mult(const mfem::Vector & u, mfem::Vector & residual) const override;
-  mfem::Operator & GetGradient(const mfem::Vector & u) override;
+  mfem::Operator & GetGradient(const mfem::Vector & u) const override;
   void RecoverFEMSolution(mfem::BlockVector & trueX,
                                   platypus::GridFunctions & gridfunctions) override;
 

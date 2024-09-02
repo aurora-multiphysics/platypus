@@ -55,7 +55,7 @@ public:
 
   // Operator methods
   virtual void Mult(const mfem::Vector & u, mfem::Vector & residual) const = 0;
-  virtual mfem::Operator & GetGradient(const mfem::Vector & u) = 0;
+  virtual mfem::Operator & GetGradient(const mfem::Vector & u) const = 0;
   virtual void RecoverFEMSolution(mfem::BlockVector & trueX,
                                   platypus::GridFunctions & gridfunctions) = 0;
 

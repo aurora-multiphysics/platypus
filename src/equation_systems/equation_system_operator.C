@@ -269,7 +269,7 @@ EquationSystemOperator::Mult(const mfem::Vector & x, mfem::Vector & residual) co
 }
 
 mfem::Operator &
-EquationSystemOperator::GetGradient(const mfem::Vector & u)
+EquationSystemOperator::GetGradient(const mfem::Vector & u) const
 {
   return *(DataRead()->_jacobian);
 }

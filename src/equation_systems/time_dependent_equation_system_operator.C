@@ -278,7 +278,7 @@ TimeDependentEquationSystemOperator::Mult(const mfem::Vector & x, mfem::Vector &
 }
 
 mfem::Operator &
-TimeDependentEquationSystemOperator::GetGradient(const mfem::Vector & u)
+TimeDependentEquationSystemOperator::GetGradient(const mfem::Vector & u) const
 {
   return *(DataRead()->_jacobian);
 }
