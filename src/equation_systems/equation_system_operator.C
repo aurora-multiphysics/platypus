@@ -234,6 +234,10 @@ EquationSystemOperator::Init(platypus::GridFunctions & gridfunctions,
                              platypus::Coefficients & coefficients,
                              mfem::AssemblyLevel assembly_level)
 {
+
+  /////// THIS IS JUST HERE WHILE FormDiagonalSystem HAS NOT BEEN WRITTEN /////////////////
+  DataWrite()->_matrix_type = EquationSystemData::MatrixType::DENSE;
+
   for (auto & test_var_name : DataRead()->_test_var_names)
   {
     DataRead()->_assembly_level = assembly_level;

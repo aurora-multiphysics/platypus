@@ -45,7 +45,6 @@ TimeDomainEquationSystemProblemOperator::ImplicitSolve(const double dt,
 
   _problem._nonlinear_solver->SetSolver(*_problem._jacobian_solver);
   _problem._nonlinear_solver->SetOperator(*GetEquationSystem());
-  GetEquationSystem()->GetGradient(x);
   _problem._nonlinear_solver->Mult(_true_rhs, _true_x);
 
   GetEquationSystem()->RecoverFEMSolution(_true_x, _problem._gridfunctions);

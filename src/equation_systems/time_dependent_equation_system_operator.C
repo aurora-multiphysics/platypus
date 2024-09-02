@@ -243,6 +243,10 @@ TimeDependentEquationSystemOperator::Init(platypus::GridFunctions & gridfunction
                               platypus::Coefficients & coefficients,
                               mfem::AssemblyLevel assembly_level)
 {
+  
+  /////// THIS IS JUST HERE WHILE FormDiagonalSystem HAS NOT BEEN WRITTEN /////////////////
+  DataWrite()->_matrix_type = EquationSystemData::MatrixType::DENSE;
+
   for (auto & test_var_name : DataRead()->_test_var_names)
   {
     DataRead()->_assembly_level = assembly_level;
@@ -261,6 +265,7 @@ TimeDependentEquationSystemOperator::Init(platypus::GridFunctions & gridfunction
     DataWrite()->_bc_gridfunc.emplace_back(
         std::make_unique<mfem::ParGridFunction>(gridfunctions.Get(test_var_name)->ParFESpace()));
   }
+
 }
 
 void
@@ -310,9 +315,6 @@ TimeDependentEquationSystemOperator::FormSystem(mfem::OperatorHandle & op,
                                             mfem::BlockVector & trueX,
                                             mfem::BlockVector & trueRHS)
 {
-
-  // THIS IS JUST HERE WHILE FormDiagonalSystem HAS NOT BEEN WRITTEN
-  DataWrite()->_matrix_type = EquationSystemData::MatrixType::DENSE;
 
   switch(DataRead()->_matrix_type)
   {

@@ -67,6 +67,7 @@ MFEMProblem::initialSetup()
 
   mfem_problem_builder->SetCoefficients(_coefficients);
   mfem_problem_builder->SetSolverOptions(_solver_options);
+  setAssemblyLevel();
 
   // NB: set to false to avoid reconstructing problem operator.
   mfem_problem_builder->FinalizeProblem(false);
@@ -137,6 +138,7 @@ MFEMProblem::setAssemblyLevel()
     mfem_problem->_assembly_level = mfem::AssemblyLevel::ELEMENT;
   else
     MFEM_ABORT("Assembly level not recognised.");
+
 }
 
 void
