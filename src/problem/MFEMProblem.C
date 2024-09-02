@@ -138,7 +138,6 @@ MFEMProblem::setAssemblyLevel()
     mfem_problem->_assembly_level = mfem::AssemblyLevel::ELEMENT;
   else
     MFEM_ABORT("Assembly level not recognised.");
-
 }
 
 void

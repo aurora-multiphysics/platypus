@@ -4,7 +4,8 @@ namespace platypus
 {
 
 void
-TimeDependentEquationSystemOperator::AddTrialVariableNameIfMissing(const std::string & trial_var_name)
+TimeDependentEquationSystemOperator::AddTrialVariableNameIfMissing(
+    const std::string & trial_var_name)
 {
   if (!VectorContainsName(DataRead()->_trial_var_names, trial_var_name))
   {
@@ -18,7 +19,6 @@ TimeDependentEquationSystemOperator::AddTrialVariableNameIfMissing(const std::st
   {
     DataWrite()->_trial_var_time_derivative_names.push_back(var_time_derivative_name);
   }
-
 }
 
 void
@@ -151,7 +151,7 @@ TimeDependentEquationSystemOperator::BuildMixedBilinearForms()
 
 void
 TimeDependentEquationSystemOperator::AddKernel(const std::string & test_var_name,
-                                   std::shared_ptr<MFEMBilinearFormKernel> blf_kernel)
+                                               std::shared_ptr<MFEMBilinearFormKernel> blf_kernel)
 {
   AddTestVariableNameIfMissing(test_var_name);
 
@@ -169,7 +169,7 @@ TimeDependentEquationSystemOperator::AddKernel(const std::string & test_var_name
 
 void
 TimeDependentEquationSystemOperator::AddKernel(const std::string & test_var_name,
-                                   std::shared_ptr<MFEMLinearFormKernel> lf_kernel)
+                                               std::shared_ptr<MFEMLinearFormKernel> lf_kernel)
 {
   AddTestVariableNameIfMissing(test_var_name);
 
@@ -185,7 +185,7 @@ TimeDependentEquationSystemOperator::AddKernel(const std::string & test_var_name
 
 void
 TimeDependentEquationSystemOperator::AddKernel(const std::string & test_var_name,
-                                   std::shared_ptr<MFEMNonlinearFormKernel> nlf_kernel)
+                                               std::shared_ptr<MFEMNonlinearFormKernel> nlf_kernel)
 {
   AddTestVariableNameIfMissing(test_var_name);
 
@@ -200,9 +200,10 @@ TimeDependentEquationSystemOperator::AddKernel(const std::string & test_var_name
 }
 
 void
-TimeDependentEquationSystemOperator::AddKernel(const std::string & trial_var_name,
-                                   const std::string & test_var_name,
-                                   std::shared_ptr<MFEMMixedBilinearFormKernel> mblf_kernel)
+TimeDependentEquationSystemOperator::AddKernel(
+    const std::string & trial_var_name,
+    const std::string & test_var_name,
+    std::shared_ptr<MFEMMixedBilinearFormKernel> mblf_kernel)
 {
   if (DataRead()->_assembly_level != mfem::AssemblyLevel::LEGACY)
     mooseError("Mixed Bilinear Form Kernels are currently only compatible with the LEGACY assembly "
@@ -238,12 +239,12 @@ TimeDependentEquationSystemOperator::AddKernel(const std::string & trial_var_nam
 
 void
 TimeDependentEquationSystemOperator::Init(platypus::GridFunctions & gridfunctions,
-                              const platypus::FESpaces & fespaces,
-                              platypus::BCMap & bc_map,
-                              platypus::Coefficients & coefficients,
-                              mfem::AssemblyLevel assembly_level)
+                                          const platypus::FESpaces & fespaces,
+                                          platypus::BCMap & bc_map,
+                                          platypus::Coefficients & coefficients,
+                                          mfem::AssemblyLevel assembly_level)
 {
-  
+
   /////// THIS IS JUST HERE WHILE FormDiagonalSystem HAS NOT BEEN WRITTEN /////////////////
   DataWrite()->_matrix_type = EquationSystemData::MatrixType::DENSE;
 
@@ -265,11 +266,11 @@ TimeDependentEquationSystemOperator::Init(platypus::GridFunctions & gridfunction
     DataWrite()->_bc_gridfunc.emplace_back(
         std::make_unique<mfem::ParGridFunction>(gridfunctions.Get(test_var_name)->ParFESpace()));
   }
-
 }
 
 void
-TimeDependentEquationSystemOperator::BuildJacobian(mfem::BlockVector & trueX, mfem::BlockVector & trueRHS)
+TimeDependentEquationSystemOperator::BuildJacobian(mfem::BlockVector & trueX,
+                                                   mfem::BlockVector & trueRHS)
 {
   height = trueX.Size();
   width = trueRHS.Size();
@@ -290,7 +291,7 @@ TimeDependentEquationSystemOperator::GetGradient(const mfem::Vector & u) const
 
 void
 TimeDependentEquationSystemOperator::RecoverFEMSolution(mfem::BlockVector & trueX,
-                                           platypus::GridFunctions & gridfunctions)
+                                                        platypus::GridFunctions & gridfunctions)
 {
   for (int i = 0; i < DataRead()->_test_var_names.size(); i++)
   {
@@ -304,39 +305,40 @@ bool
 TimeDependentEquationSystemOperator::AssemblyIsSupported()
 {
   bool support = true;
-  if (DataRead()->_matrix_type == EquationSystemData::MatrixType::DENSE && !(DataRead()->_assembly_level == mfem::AssemblyLevel::LEGACY))
+  if (DataRead()->_matrix_type == EquationSystemData::MatrixType::DENSE &&
+      !(DataRead()->_assembly_level == mfem::AssemblyLevel::LEGACY))
     support = false;
-  
+
   return support;
 }
 
 void
 TimeDependentEquationSystemOperator::FormSystem(mfem::OperatorHandle & op,
-                                            mfem::BlockVector & trueX,
-                                            mfem::BlockVector & trueRHS)
+                                                mfem::BlockVector & trueX,
+                                                mfem::BlockVector & trueRHS)
 {
 
-  switch(DataRead()->_matrix_type)
+  switch (DataRead()->_matrix_type)
   {
-    case EquationSystemData::MatrixType::DENSE :
-      FormDenseSystem(op,trueX,trueRHS);
+    case EquationSystemData::MatrixType::DENSE:
+      FormDenseSystem(op, trueX, trueRHS);
       break;
 
-    case EquationSystemData::MatrixType::DIAGONAL :
-      FormDiagonalSystem(op,trueX,trueRHS);
+    case EquationSystemData::MatrixType::DIAGONAL:
+      FormDiagonalSystem(op, trueX, trueRHS);
       break;
   }
 }
 
 void
 TimeDependentEquationSystemOperator::FormDenseSystem(mfem::OperatorHandle & op,
-                                            mfem::BlockVector & trueX,
-                                            mfem::BlockVector & trueRHS)
+                                                     mfem::BlockVector & trueX,
+                                                     mfem::BlockVector & trueRHS)
 {
   // Allocate block operator
   DataWrite()->_h_blocks.DeleteAll();
   DataWrite()->_h_blocks.SetSize(DataRead()->_test_var_names.size(),
-                               DataRead()->_test_var_names.size());
+                                 DataRead()->_test_var_names.size());
   // Form diagonal blocks.
   for (int i = 0; i < DataRead()->_test_var_names.size(); i++)
   {
@@ -395,13 +397,12 @@ TimeDependentEquationSystemOperator::FormDenseSystem(mfem::OperatorHandle & op,
 
   // Create monolithic matrix
   op.Reset(mfem::HypreParMatrixFromBlocks(DataRead()->_h_blocks));
-
 }
 
 void
 TimeDependentEquationSystemOperator::FormDiagonalSystem(mfem::OperatorHandle & op,
-                                            mfem::BlockVector & trueX,
-                                            mfem::BlockVector & trueRHS)
+                                                        mfem::BlockVector & trueX,
+                                                        mfem::BlockVector & trueRHS)
 {
   MFEM_ABORT("EquationSystemOperator::FormDiagonalSystem has not yet been implemented!");
 }
@@ -435,6 +436,5 @@ TimeDependentEquationSystemOperator::UpdateEquationSystem(platypus::BCMap & bc_m
 {
   BuildEquationSystem(bc_map);
 }
-
 
 } // namespace platypus

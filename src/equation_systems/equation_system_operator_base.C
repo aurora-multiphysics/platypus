@@ -6,7 +6,7 @@ namespace platypus
 // Base methods
 bool
 EquationSystemOperatorBase::VectorContainsName(const std::vector<std::string> & the_vector,
-                                           const std::string & name) const
+                                               const std::string & name) const
 {
 
   auto iter = std::find(the_vector.begin(), the_vector.end(), name);

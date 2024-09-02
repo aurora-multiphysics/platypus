@@ -15,9 +15,9 @@ class TimeDependentEquationSystemOperator : public EquationSystemOperatorBase
 {
 
 public:
-
   // Constructor
-  TimeDependentEquationSystemOperator(std::shared_ptr<TimeDependentEquationSystemData> data)  : _equation_system_data{data}
+  TimeDependentEquationSystemOperator(std::shared_ptr<TimeDependentEquationSystemData> data)
+    : _equation_system_data{data}
   {
     mfem::ConstantCoefficient dt(1.0);
     DataWrite()->_dt_coef = dt;
@@ -55,24 +55,21 @@ public:
   void Mult(const mfem::Vector & u, mfem::Vector & residual) const override;
   mfem::Operator & GetGradient(const mfem::Vector & u) const override;
   void RecoverFEMSolution(mfem::BlockVector & trueX,
-                                  platypus::GridFunctions & gridfunctions) override;
+                          platypus::GridFunctions & gridfunctions) override;
 
   // Form system methods
-  void
-  FormSystem(mfem::OperatorHandle & op, mfem::BlockVector & trueX, mfem::BlockVector & trueRHS) override;
-  void
-  FormDenseSystem(mfem::OperatorHandle & op,
+  void FormSystem(mfem::OperatorHandle & op,
                   mfem::BlockVector & trueX,
                   mfem::BlockVector & trueRHS) override;
-  void
-  FormDiagonalSystem(mfem::OperatorHandle & op,
-                     mfem::BlockVector & trueX,
-                     mfem::BlockVector & trueRHS) override;
+  void FormDenseSystem(mfem::OperatorHandle & op,
+                       mfem::BlockVector & trueX,
+                       mfem::BlockVector & trueRHS) override;
+  void FormDiagonalSystem(mfem::OperatorHandle & op,
+                          mfem::BlockVector & trueX,
+                          mfem::BlockVector & trueRHS) override;
 
   // Build linear system, with essential boundary conditions accounted for
   void BuildJacobian(mfem::BlockVector & trueX, mfem::BlockVector & trueRHS) override;
-
-
 
   void SetTimeStep(double dt);
   void UpdateEquationSystem(platypus::BCMap & bc_map);
@@ -102,12 +99,8 @@ public:
     return _equation_system_data;
   }
 
-
 private:
-
   std::shared_ptr<TimeDependentEquationSystemData> _equation_system_data{nullptr};
-
 };
-
 
 } // namespace platypus
