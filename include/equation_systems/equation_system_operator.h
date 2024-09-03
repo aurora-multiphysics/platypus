@@ -21,7 +21,6 @@ public:
   void AddTrialVariableNameIfMissing(const std::string & trial_var_name) override;
   void AddTestVariableNameIfMissing(const std::string & test_var_name) override;
   void ApplyBoundaryConditions(platypus::BCMap & bc_map) override;
-  bool AssemblyIsSupported() override;
 
   // Forms methods
   void BuildLinearForms(platypus::BCMap & bc_map) override;
@@ -62,6 +61,10 @@ public:
   void FormDiagonalSystem(mfem::OperatorHandle & op,
                           mfem::BlockVector & trueX,
                           mfem::BlockVector & trueRHS) override;
+  
+  // Makes the shared pointer and creates the correct structure for the block operator which will hold
+  // individual operators for each of the test variables
+  void MakeBlockOperator() override;
 
   // Build linear system, with essential boundary conditions accounted for
   void BuildJacobian(mfem::BlockVector & trueX, mfem::BlockVector & trueRHS) override;

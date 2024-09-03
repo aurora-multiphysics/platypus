@@ -25,7 +25,7 @@ void
 EquationSystemOperator::ApplyBoundaryConditions(platypus::BCMap & bc_map)
 {
   DataWrite()->_ess_tdof_lists.resize(DataRead()->_test_var_names.size());
-  for (int i = 0; i < DataRead()->_test_var_names.size(); i++)
+  for (int i = 0; i < DataRead()->_test_var_names.size(); ++i)
   {
     auto test_var_name = DataRead()->_test_var_names.at(i);
     // Set default value of gridfunction used in essential BC. Values
@@ -45,7 +45,7 @@ void
 EquationSystemOperator::BuildLinearForms(platypus::BCMap & bc_map)
 {
   // Register linear forms
-  for (int i = 0; i < DataRead()->_test_var_names.size(); i++)
+  for (int i = 0; i < DataRead()->_test_var_names.size(); ++i)
   {
     auto test_var_name = DataRead()->_test_var_names.at(i);
     DataWrite()->_lfs.Register(
@@ -76,7 +76,7 @@ void
 EquationSystemOperator::BuildBilinearForms()
 {
   // Register bilinear forms
-  for (int i = 0; i < DataRead()->_test_var_names.size(); i++)
+  for (int i = 0; i < DataRead()->_test_var_names.size(); ++i)
   {
     auto test_var_name = DataRead()->_test_var_names.at(i);
     DataWrite()->_blfs.Register(
@@ -105,11 +105,11 @@ EquationSystemOperator::BuildMixedBilinearForms()
   // have a kernel
 
   // Create mblf for each test/trial pair
-  for (int i = 0; i < DataRead()->_test_var_names.size(); i++)
+  for (int i = 0; i < DataRead()->_test_var_names.size(); ++i)
   {
     auto test_var_name = DataRead()->_test_var_names.at(i);
     auto test_mblfs = std::make_shared<platypus::NamedFieldsMap<mfem::ParMixedBilinearForm>>();
-    for (int j = 0; j < DataRead()->_test_var_names.size(); j++)
+    for (int j = 0; j < DataRead()->_test_var_names.size(); ++j)
     {
       auto trial_var_name = DataRead()->_test_var_names.at(j);
 
@@ -198,6 +198,9 @@ EquationSystemOperator::AddKernel(const std::string & trial_var_name,
   if (DataRead()->_assembly_level != mfem::AssemblyLevel::LEGACY)
     mooseError("Mixed Bilinear Form Kernels are currently only compatible with the LEGACY assembly "
                "level.");
+  
+  // Given we are adding a mixed blf kernel, our block matrix is no longer diagonal
+  DataWrite()->_matrix_type = EquationSystemData::MatrixType::DENSE;
 
   AddTestVariableNameIfMissing(test_var_name);
 
@@ -235,14 +238,12 @@ EquationSystemOperator::Init(platypus::GridFunctions & gridfunctions,
                              mfem::AssemblyLevel assembly_level)
 {
 
-  /////// THIS IS JUST HERE WHILE FormDiagonalSystem HAS NOT BEEN WRITTEN /////////////////
-  DataWrite()->_matrix_type = EquationSystemData::MatrixType::DENSE;
-
+  // At first we assume the matrix is diagonal. If we later add a mixed blf kernel, @_matrix_type is set to dense.
+  DataWrite()->_matrix_type = EquationSystemData::MatrixType::DIAGONAL;
+  DataWrite()->_assembly_level = assembly_level;
+  
   for (auto & test_var_name : DataRead()->_test_var_names)
   {
-    DataRead()->_assembly_level = assembly_level;
-    if (!AssemblyIsSupported())
-      mooseError("Assembly type chosen is not supported for this system");
 
     if (!gridfunctions.Has(test_var_name))
     {
@@ -282,7 +283,7 @@ void
 EquationSystemOperator::RecoverFEMSolution(mfem::BlockVector & trueX,
                                            platypus::GridFunctions & gridfunctions)
 {
-  for (int i = 0; i < DataRead()->_test_var_names.size(); i++)
+  for (int i = 0; i < DataRead()->_test_var_names.size(); ++i)
   {
     auto & test_var_name = DataRead()->_test_var_names.at(i);
     trueX.GetBlock(i).SyncAliasMemory(trueX);
@@ -290,22 +291,12 @@ EquationSystemOperator::RecoverFEMSolution(mfem::BlockVector & trueX,
   }
 }
 
-bool
-EquationSystemOperator::AssemblyIsSupported()
-{
-  bool support = true;
-  if (DataRead()->_matrix_type == EquationSystemData::MatrixType::DENSE &&
-      !(DataRead()->_assembly_level == mfem::AssemblyLevel::LEGACY))
-    support = false;
-
-  return support;
-}
-
 void
 EquationSystemOperator::FormSystem(mfem::OperatorHandle & op,
                                    mfem::BlockVector & trueX,
                                    mfem::BlockVector & trueRHS)
 {
+
   switch (DataRead()->_matrix_type)
   {
     case EquationSystemData::MatrixType::DENSE:
@@ -328,7 +319,7 @@ EquationSystemOperator::FormDenseSystem(mfem::OperatorHandle & op,
   DataWrite()->_h_blocks.SetSize(DataRead()->_test_var_names.size(),
                                  DataRead()->_test_var_names.size());
   // Form diagonal blocks.
-  for (int i = 0; i < DataRead()->_test_var_names.size(); i++)
+  for (int i = 0; i < DataRead()->_test_var_names.size(); ++i)
   {
     auto & test_var_name = DataRead()->_test_var_names.at(i);
     auto blf = DataRead()->_blfs.Get(test_var_name);
@@ -348,10 +339,10 @@ EquationSystemOperator::FormDenseSystem(mfem::OperatorHandle & op,
   }
 
   // Form off-diagonal blocks
-  for (int i = 0; i < DataRead()->_test_var_names.size(); i++)
+  for (int i = 0; i < DataRead()->_test_var_names.size(); ++i)
   {
     auto test_var_name = DataRead()->_test_var_names.at(i);
-    for (int j = 0; j < DataRead()->_test_var_names.size(); j++)
+    for (int j = 0; j < DataRead()->_test_var_names.size(); ++j)
     {
       auto trial_var_name = DataRead()->_test_var_names.at(j);
 
@@ -376,7 +367,7 @@ EquationSystemOperator::FormDenseSystem(mfem::OperatorHandle & op,
     }
   }
   // Sync memory
-  for (int i = 0; i < DataRead()->_test_var_names.size(); i++)
+  for (int i = 0; i < DataRead()->_test_var_names.size(); ++i)
   {
     trueX.GetBlock(0).SyncAliasMemory(trueX);
     trueRHS.GetBlock(0).SyncAliasMemory(trueRHS);
@@ -391,7 +382,44 @@ EquationSystemOperator::FormDiagonalSystem(mfem::OperatorHandle & op,
                                            mfem::BlockVector & trueX,
                                            mfem::BlockVector & trueRHS)
 {
-  MFEM_ABORT("EquationSystemOperator::FormDiagonalSystem has not yet been implemented!");
+
+  MakeBlockOperator();
+ 
+  for (int i = 0; i < DataRead()->_test_var_names.size(); ++i)
+  {
+    auto & test_var_name = DataRead()->_test_var_names.at(i);
+
+    auto blf = DataRead()->_blfs.Get(test_var_name);
+    auto lf = DataRead()->_lfs.Get(test_var_name);
+    blf->SetAssemblyLevel(DataRead()->_assembly_level);
+
+    mfem::Vector aux_x, aux_rhs;
+    mfem::OperatorPtr * aux_a;
+    blf->FormLinearSystem(DataRead()->_ess_tdof_lists.at(i),
+                          *(DataRead()->_bc_gridfunc.at(i)),
+                          *lf,
+                          *aux_a,
+                          aux_x,
+                          aux_rhs);
+    
+    DataWrite()->_h_block_op->SetBlock(i,i,aux_a->Ptr());
+    
+  }
+
+  op.Reset(DataWrite()->_h_block_op.get());
+
+}
+
+void EquationSystemOperator::MakeBlockOperator()
+{
+    mfem::Array<int> block_offsets(DataRead()->_test_var_names.size() + 1);
+
+    for (int i = 0; i < DataRead()->_test_var_names.size(); ++i)
+      block_offsets[i+1] = DataRead()->_blfs.Get(DataRead()->_test_var_names.at(i))->FESpace()->GetTrueVSize();
+  
+  block_offsets.PartialSum();
+  DataWrite()->_h_block_op = std::make_shared<mfem::BlockOperator>(block_offsets);
+
 }
 
 void

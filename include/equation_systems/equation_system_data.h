@@ -59,8 +59,12 @@ protected:
   // gridfunctions for setting Dirichlet BCs
   std::vector<std::unique_ptr<mfem::ParGridFunction>> _bc_gridfunc;
 
-  // Array for mixed systems. Can only be non-block-diagonal when @_assembly_level is LEGACY
+  // Array for dense systems. Only used when @_assembly_level is LEGACY
   mfem::Array2D<const mfem::HypreParMatrix *> _h_blocks;
+
+  // Array for diagonal systems
+  std::shared_ptr<mfem::BlockOperator> _h_block_op;
+
 
   // Arrays to store kernels to act on each component of weak form. Named
   // according to test variable

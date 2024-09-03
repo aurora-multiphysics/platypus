@@ -27,7 +27,6 @@ public:
   virtual void AddTrialVariableNameIfMissing(const std::string & trial_var_name) = 0;
   virtual void AddTestVariableNameIfMissing(const std::string & test_var_name) = 0;
   virtual void ApplyBoundaryConditions(platypus::BCMap & bc_map) = 0;
-  virtual bool AssemblyIsSupported() = 0;
 
   // Forms methods
   virtual void BuildLinearForms(platypus::BCMap & bc_map) = 0;
@@ -67,6 +66,8 @@ public:
   virtual void FormDiagonalSystem(mfem::OperatorHandle & op,
                                   mfem::BlockVector & trueX,
                                   mfem::BlockVector & trueRHS) = 0;
+  
+  virtual void MakeBlockOperator() = 0;
 
   // Build linear system, with essential boundary conditions accounted for
   virtual void BuildJacobian(mfem::BlockVector & trueX, mfem::BlockVector & trueRHS) = 0;
