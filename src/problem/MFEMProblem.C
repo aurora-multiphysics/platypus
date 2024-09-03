@@ -13,6 +13,8 @@ MFEMProblem::validParams()
   params.addParam<bool>(
       "use_glvis", false, "Attempt to open GLVis ports to display variables during simulation");
   params.addParam<std::string>("device", "cpu", "Run app on the chosen device.");
+  params.addParam<std::string>(
+      "assembly_level", "legacy", "Matrix assembly level. Options: Legacy, Full, Partial, Element");
 
   return params;
 }
@@ -65,6 +67,7 @@ MFEMProblem::initialSetup()
 
   mfem_problem_builder->SetCoefficients(_coefficients);
   mfem_problem_builder->SetSolverOptions(_solver_options);
+  setAssemblyLevel();
 
   // NB: set to false to avoid reconstructing problem operator.
   mfem_problem_builder->FinalizeProblem(false);
@@ -115,6 +118,26 @@ void
 MFEMProblem::init()
 {
   FEProblemBase::init();
+}
+
+void
+MFEMProblem::setAssemblyLevel()
+{
+  // Convert to lowercase string
+  std::string assembly = "";
+  for (auto c : getParam<std::string>("assembly_level"))
+    assembly += tolower(c);
+
+  if (assembly == "legacy")
+    mfem_problem->_assembly_level = mfem::AssemblyLevel::LEGACY;
+  else if (assembly == "full")
+    mfem_problem->_assembly_level = mfem::AssemblyLevel::FULL;
+  else if (assembly == "partial")
+    mfem_problem->_assembly_level = mfem::AssemblyLevel::PARTIAL;
+  else if (assembly == "element")
+    mfem_problem->_assembly_level = mfem::AssemblyLevel::ELEMENT;
+  else
+    MFEM_ABORT("Assembly level not recognised.");
 }
 
 void

@@ -32,6 +32,7 @@ public:
   platypus::FECollections _fecs;
   platypus::FESpaces _fespaces;
   platypus::GridFunctions _gridfunctions;
+  mfem::AssemblyLevel _assembly_level;
 
   mfem::Device _device;
   MPI_Comm _comm;
@@ -176,7 +177,7 @@ public:
 
 protected:
   /// Implemented in derived classes. Returns a pointer to the problem operator's equation system.
-  [[nodiscard]] virtual platypus::EquationSystem * GetEquationSystem() const = 0;
+  [[nodiscard]] virtual platypus::EquationSystemOperatorBase * GetEquationSystem() const = 0;
 };
 
 } // namespace platypus

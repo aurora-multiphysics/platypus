@@ -15,7 +15,7 @@ public:
   TimeDomainEquationSystemProblemOperator(platypus::Problem &) = delete;
   TimeDomainEquationSystemProblemOperator(
       platypus::Problem & problem,
-      std::unique_ptr<platypus::TimeDependentEquationSystem> equation_system)
+      std::unique_ptr<platypus::TimeDependentEquationSystemOperator> equation_system)
     : TimeDomainProblemOperator(problem), _equation_system{std::move(equation_system)}
   {
   }
@@ -25,7 +25,7 @@ public:
 
   void ImplicitSolve(const double dt, const mfem::Vector & X, mfem::Vector & dX_dt) override;
 
-  [[nodiscard]] platypus::TimeDependentEquationSystem * GetEquationSystem() const override
+  [[nodiscard]] platypus::TimeDependentEquationSystemOperator * GetEquationSystem() const override
   {
     if (!_equation_system)
     {
@@ -40,7 +40,7 @@ protected:
 
 private:
   std::vector<mfem::ParGridFunction *> _trial_variable_time_derivatives;
-  std::unique_ptr<platypus::TimeDependentEquationSystem> _equation_system{nullptr};
+  std::unique_ptr<platypus::TimeDependentEquationSystemOperator> _equation_system{nullptr};
 };
 
 } // namespace platypus

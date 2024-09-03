@@ -27,14 +27,15 @@ public:
 
   void ConstructOperator() override
   {
-    auto equation_system = std::make_unique<platypus::TimeDependentEquationSystem>();
+    auto equation_system = std::make_unique<platypus::TimeDependentEquationSystemOperator>(
+        std::make_shared<TimeDependentEquationSystemData>());
     auto problem_operator = std::make_unique<platypus::TimeDomainEquationSystemProblemOperator>(
         *this, std::move(equation_system));
 
     SetOperator(std::move(problem_operator));
   }
 
-  [[nodiscard]] TimeDependentEquationSystem * GetEquationSystem() const override
+  [[nodiscard]] TimeDependentEquationSystemOperator * GetEquationSystem() const override
   {
     return GetOperator()->GetEquationSystem();
   }
@@ -62,7 +63,7 @@ protected:
     return ProblemBuilder::GetProblem<platypus::TimeDomainEquationSystemProblem>();
   }
 
-  [[nodiscard]] platypus::TimeDependentEquationSystem * GetEquationSystem() const override
+  [[nodiscard]] platypus::TimeDependentEquationSystemOperator * GetEquationSystem() const override
   {
     return GetProblem()->GetEquationSystem();
   }

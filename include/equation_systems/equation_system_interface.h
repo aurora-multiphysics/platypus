@@ -17,6 +17,7 @@ public:
   virtual ~EquationSystemInterface() = default;
 
   /// Returns a pointer to the operator's equation system.
-  [[nodiscard]] virtual platypus::EquationSystem * GetEquationSystem() const = 0;
+  [[nodiscard]] virtual platypus::EquationSystemOperatorBase * GetEquationSystem() const = 0;
 };
+
 }

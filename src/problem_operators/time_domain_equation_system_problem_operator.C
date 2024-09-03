@@ -6,9 +6,9 @@ namespace platypus
 void
 TimeDomainEquationSystemProblemOperator::SetGridFunctions()
 {
-  _trial_var_names = GetEquationSystem()->_trial_var_names;
-  _trial_variable_time_derivatives =
-      _problem._gridfunctions.Get(GetEquationSystem()->_trial_var_time_derivative_names);
+  _trial_var_names = GetEquationSystem()->DataRead()->_trial_var_names;
+  _trial_variable_time_derivatives = _problem._gridfunctions.Get(
+      GetEquationSystem()->DataRead()->_trial_var_time_derivative_names);
 
   TimeDomainProblemOperator::SetGridFunctions();
 }
