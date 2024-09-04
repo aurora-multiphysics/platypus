@@ -5,7 +5,7 @@ namespace platypus
 void
 EquationSystemProblemOperator::SetGridFunctions()
 {
-  _trial_var_names = GetEquationSystem()->DataRead()->_trial_var_names;
+  _trial_var_names = GetEquationSystem()->GetData()->_trial_var_names;
   ProblemOperator::SetGridFunctions();
 }
 

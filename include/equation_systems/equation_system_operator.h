@@ -18,75 +18,14 @@ public:
   // Constructor
   EquationSystemOperator(std::shared_ptr<EquationSystemData> data) : _equation_system_data{data} {}
 
-  void AddTrialVariableNameIfMissing(const std::string & trial_var_name) override;
-  void AddTestVariableNameIfMissing(const std::string & test_var_name) override;
-  void ApplyBoundaryConditions(platypus::BCMap & bc_map) override;
-
-  // Forms methods
-  void BuildLinearForms(platypus::BCMap & bc_map) override;
-  void BuildBilinearForms() override;
-  void BuildMixedBilinearForms() override;
-  void BuildEquationSystem(platypus::BCMap & bc_map) override;
-
-  // Add Kernel methods
-  void AddKernel(const std::string & test_var_name,
-                 std::shared_ptr<MFEMBilinearFormKernel> blf_kernel) override;
-  void AddKernel(const std::string & test_var_name,
-                 std::shared_ptr<MFEMLinearFormKernel> lf_kernel) override;
-  void AddKernel(const std::string & test_var_name,
-                 std::shared_ptr<MFEMNonlinearFormKernel> nlf_kernel) override;
-  void AddKernel(const std::string & trial_var_name,
-                 const std::string & test_var_name,
-                 std::shared_ptr<MFEMMixedBilinearFormKernel> mblf_kernel) override;
-
-  void Init(platypus::GridFunctions & gridfunctions,
-            const platypus::FESpaces & fespaces,
-            platypus::BCMap & bc_map,
-            platypus::Coefficients & coefficients,
-            mfem::AssemblyLevel assembly_level) override;
-
-  // Operator methods
-  void Mult(const mfem::Vector & u, mfem::Vector & residual) const override;
-  mfem::Operator & GetGradient(const mfem::Vector & u) const override;
-  void RecoverFEMSolution(mfem::BlockVector & trueX,
-                          platypus::GridFunctions & gridfunctions) override;
-
-  // Form system methods
-  void FormSystem(mfem::OperatorHandle & op,
-                  mfem::BlockVector & trueX,
-                  mfem::BlockVector & trueRHS) override;
-  void FormDenseSystem(mfem::OperatorHandle & op,
-                       mfem::BlockVector & trueX,
-                       mfem::BlockVector & trueRHS) override;
-  void FormDiagonalSystem(mfem::OperatorHandle & op,
-                          mfem::BlockVector & trueX,
-                          mfem::BlockVector & trueRHS) override;
-  
-  // Makes the shared pointer and creates the correct structure for the block operator which will hold
-  // individual operators for each of the test variables
-  void MakeBlockOperator() override;
-
-  // Build linear system, with essential boundary conditions accounted for
-  void BuildJacobian(mfem::BlockVector & trueX, mfem::BlockVector & trueRHS) override;
-
   // Data retrieval for writing to @_equation_system_data
-  std::shared_ptr<EquationSystemData> DataWrite()
+  EquationSystemData * GetData() const override
   {
     if (!_equation_system_data)
     {
       MFEM_ABORT("platypus::EquationSystemData instance is NULL.");
     }
-    return _equation_system_data;
-  }
-
-  // Data retrieval for reading @_equation_system_data
-  std::shared_ptr<EquationSystemData> DataRead() const
-  {
-    if (!_equation_system_data)
-    {
-      MFEM_ABORT("platypus::EquationSystemData instance is NULL.");
-    }
-    return _equation_system_data;
+    return _equation_system_data.get();
   }
 
 private:

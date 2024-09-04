@@ -6,9 +6,9 @@ namespace platypus
 void
 TimeDomainEquationSystemProblemOperator::SetGridFunctions()
 {
-  _trial_var_names = GetEquationSystem()->DataRead()->_trial_var_names;
-  _trial_variable_time_derivatives = _problem._gridfunctions.Get(
-      GetEquationSystem()->DataRead()->_trial_var_time_derivative_names);
+  _trial_var_names = GetEquationSystem()->GetData()->_trial_var_names;
+  _trial_variable_time_derivatives =
+      _problem._gridfunctions.Get(GetEquationSystem()->GetData()->_trial_var_time_derivative_names);
 
   TimeDomainProblemOperator::SetGridFunctions();
 }
@@ -21,7 +21,9 @@ TimeDomainEquationSystemProblemOperator::Init(mfem::Vector & X)
   // Define material property coefficients
   for (size_t i = 0; i < _trial_variables.size(); ++i)
   {
+    std::cout << "Got here!" << std::endl;
     *(_trial_variable_time_derivatives.at(i)) = 0.0;
+    std::cout << "After that!" << std::endl;
   }
 
   GetEquationSystem()->BuildEquationSystem(_problem._bc_map);

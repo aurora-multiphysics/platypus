@@ -65,7 +65,6 @@ protected:
   // Array for diagonal systems
   std::shared_ptr<mfem::BlockOperator> _h_block_op;
 
-
   // Arrays to store kernels to act on each component of weak form. Named
   // according to test variable
   platypus::NamedFieldsMap<std::vector<std::shared_ptr<MFEMBilinearFormKernel>>> _blf_kernels_map;
