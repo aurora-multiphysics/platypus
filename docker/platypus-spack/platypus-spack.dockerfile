@@ -1,4 +1,4 @@
-FROM ubuntu:24.04
+FROM ubuntu:22.04
 
 ARG UID=1000
 ARG GID=1000
@@ -22,7 +22,7 @@ RUN apt-get update && \
 RUN userdel -r ubuntu
 
 RUN groupadd -g $GID -o $UNAME
-RUN useradd -m -u $UID -g $GID -s /bin/bash $UNAME
+RUN useradd -lm -u $UID -g $GID -s /bin/bash $UNAME
 
 USER $UNAME
 ENV HOME=/home/$UNAME
