@@ -7,6 +7,8 @@ build_git_repo=aurora-multiphysics/platypus
 
 git clone https://github.com/spack/spack.git -b v0.22.1
 
+# Disable shellcheck lint as file not in repository
+# shellcheck disable=SC1091
 . spack/share/spack/setup-env.sh
 spack compiler find
 spack env create platypus spack.yaml

@@ -1,3 +1,5 @@
+# Ignore warnings for not pinning versions in pip, apt-get install.
+# hadolint global ignore=DL3008,DL3013
 FROM ubuntu:22.04
 
 ARG UID=1000
@@ -8,7 +10,8 @@ RUN apt-get update && \
 	# install:
 	# build-essential and gfortran to build stuff
 	# git to clone stuff
-	# python for spack
+	# python, unzip for spack
+	# libtirpc-dev since spack version is not picked up
 	DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
 		build-essential \
 		gfortran \
