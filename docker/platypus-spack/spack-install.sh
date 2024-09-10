@@ -33,7 +33,7 @@ git clone https://github.com/mfem/mfem.git
 cd mfem
 git checkout master
 cmake -S . -B build \
-    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_BUILD_TYPE=Debug \
     -DCMAKE_POSITION_INDEPENDENT_CODE=YES \
     -DMFEM_THREAD_SAFE=NO \
     -DMFEM_USE_OPENMP=NO \
@@ -43,7 +43,8 @@ cmake -S . -B build \
     -DMFEM_USE_NETCDF=YES \
     -DHYPRE_DIR="$SPACK_VIEW" \
     -DSuperLUDist_DIR="$SPACK_VIEW" \
-    -DHDF5_DIR="$SPACK_VIEW"
+    -DHDF5_DIR="$SPACK_VIEW" \
+    -DCMAKE_EXPORT_COMPILE_COMMANDS=YES
 cmake --build build -j "$compile_cores" --verbose
 cmake --build build/miniapps/common/ -j "$compile_cores" --verbose
 cd ..
