@@ -1,13 +1,12 @@
----
 Content:
-    Platypus:
-        root_dir: ${ROOT_DIR}/doc/content
+    platypus:
+        root_dir: doc/content
     moose:
         root_dir: ${MOOSE_DIR}/framework/doc/content
         content:
-            - js/*
-            - css/*
             - contrib/**
+            - css/**
+            - js/**
             - media/**
 
 Renderer:
@@ -16,10 +15,16 @@ Renderer:
 Extensions:
     MooseDocs.extensions.navigation:
         name: Platypus
+        repo: https://github.com/aurora-multiphysics/platypus
+        menu:
+            Getting Started:
+                Installing Platypus: installation.md
+                Docker Container: installation/using_docker.md
+                CSD3 Build Scripts: installation/csd3_build.md
+            Documentation:
+                Doxygen: doxygen.md
     MooseDocs.extensions.appsyntax:
         executable: ${ROOT_DIR}
-        hide:
-            framework: !include ${MOOSE_DIR}/framework/doc/hidden.yml
-        remove: !include ${MOOSE_DIR}/framework/doc/remove.yml
         includes:
             - include
+        active: true
