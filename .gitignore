@@ -223,6 +223,9 @@ config.status
 *MooseConfig.h.tmp
 conf_vars.mk
 
+# gdb history
+.gdb_history
+
 # GPerf performance
 *.prof
 
