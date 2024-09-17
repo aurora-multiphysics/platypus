@@ -21,7 +21,7 @@ public:
                     mfem::Array<int> bdr_attributes_,
                     mfem::VectorCoefficient * vec_coeff_,
                     mfem::VectorCoefficient * vec_coeff_im_ = nullptr,
-                    APPLY_TYPE boundary_apply_type = TANGENTIAL);
+                    APPLY_TYPE boundary_apply_type = STANDARD);
 
   void ApplyBC(mfem::GridFunction & gridfunc, mfem::Mesh * mesh_) override;
 
