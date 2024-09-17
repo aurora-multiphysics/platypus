@@ -2,6 +2,7 @@
   type = MFEMMesh
   file = gold/beam-tet.mesh
   dim = 3
+  uniform_refine = 2
 []
 
 [Problem]
@@ -14,6 +15,7 @@
     type = MFEMFESpace
     fec_type = H1
     fec_order = FIRST
+    vdim = 3
   []
 []
 
@@ -26,10 +28,10 @@
 
 [BCs]
   [dirichlet]
-    type = MFEMScalarDirichletBC
+    type = MFEMVectorDirichletBC
     variable = displacement
     boundary = '1'
-    coefficient = FixedValue
+    vector_coefficient = FixedValue
   []
   [pull_down]
     type = MFEMVectorBoundaryIntegratedBC
@@ -46,19 +48,21 @@
   []
   [mu]
     type = MFEMConstantCoefficient
-    value = 2.0
-  []
-  [FixedValue]
-    type = MFEMConstantCoefficient
-    value = 0.0
+    value = 1.0
   []
 []
 
 [VectorCoefficients]
+  [FixedValue]
+    type = MFEMVectorConstantCoefficient
+    value_x = 0.0
+    value_y = 0.0
+    value_z = 0.0
+  []
   [PullDownValue]
     type = MFEMVectorConstantCoefficient
     value_x = 0.0
-    value_y = -1.0e-2
+    value_y = -0.01
     value_z = 0.0
   []
 []
