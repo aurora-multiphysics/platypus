@@ -60,7 +60,6 @@ MFEMProblem::initialSetup()
   _coefficients.AddGlobalCoefficientsFromSubdomains();
 
   mfem_problem_builder->SetCoefficients(_coefficients);
-  mfem_problem_builder->SetSolverOptions(_solver_options);
   setAssemblyLevel();
 
   // NB: set to false to avoid reconstructing problem operator.
