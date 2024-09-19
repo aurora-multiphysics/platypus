@@ -6,7 +6,10 @@ InputParameters
 MFEMLinearElasticityKernel::validParams()
 {
   InputParameters params = MFEMKernel::validParams();
-  params.addClassDescription("blah blah");
+  params.addClassDescription(
+      "The Cauchy stress tensor $\\sigma(u)_{ij} = \\lambda \\partial_k u_k \\delta_{ij}"
+      "+ \\mu (\\partial_j u_i + \\partial_i u_j)$ with the weak form of"
+      "$(\\sigma(\\phi_i), \\sigma(u_h))$, to be added to an MFEM problem");
 
   params.addParam<std::string>("lambda",
                                "Name of MFEM Lame costant lambda to multiply the div(u)*I term by");
@@ -20,13 +23,13 @@ MFEMLinearElasticityKernel::MFEMLinearElasticityKernel(const InputParameters & p
   : MFEMKernel(parameters),
     _lambda_name(getParam<std::string>("lambda")),
     _mu_name(getParam<std::string>("mu")),
-    _lambda(getMFEMProblem()._coefficients._scalars.Get(_lambda_name)),
-    _mu(getMFEMProblem()._coefficients._scalars.Get(_mu_name))
+    _lambda(getMFEMProblem().getProperties().getScalarProperty(_lambda_name)),
+    _mu(getMFEMProblem().getProperties().getScalarProperty(_mu_name))
 {
 }
 
 mfem::BilinearFormIntegrator *
 MFEMLinearElasticityKernel::createIntegrator()
 {
-  return new mfem::ElasticityIntegrator(*_lambda, *_mu);
+  return new mfem::ElasticityIntegrator(_lambda, _mu);
 }

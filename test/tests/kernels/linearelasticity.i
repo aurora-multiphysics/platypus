@@ -41,14 +41,18 @@
   []
 []
 
-[Coefficients]
-  [lambda]
-    type = MFEMConstantCoefficient
-    value = 1.0
+[Materials]
+  [Rigidium]
+    type = MFEMGenericConstantMaterial
+    prop_names = 'lambda mu'
+    prop_values = '50.0 50.0'
+    block = 1
   []
-  [mu]
-    type = MFEMConstantCoefficient
-    value = 1.0
+  [Bendium]
+    type = MFEMGenericConstantMaterial
+    prop_names = 'lambda mu'
+    prop_values = '1.0 1.0'
+    block = 2
   []
 []
 
