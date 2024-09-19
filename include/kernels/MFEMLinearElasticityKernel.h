@@ -16,6 +16,6 @@ public:
 protected:
   std::string _lambda_name;
   std::string _mu_name;
-  mfem::Coefficient * _lambda{nullptr};
-  mfem::Coefficient * _mu{nullptr};
+  mfem::Coefficient & _lambda;
+  mfem::Coefficient & _mu;
 };
