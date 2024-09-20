@@ -110,8 +110,36 @@ EquationSystemOperatorBase::ApplyBoundaryConditions(platypus::BCMap & bc_map)
                               GetData()->_test_pfespaces.at(i)->GetParMesh());
   }
 }
+
 void
-EquationSystemOperatorBase::FormLinearSystem(mfem::OperatorHandle & op,
+EquationSystemOperatorBase::FormSystem(mfem::OperatorHandle & op,
+                                             mfem::BlockVector & trueX,
+                                             mfem::BlockVector & trueRHS)
+{
+  GetData()->_matrix_type = EquationSystemData::MatrixType::DENSE;
+
+  switch (GetData()->_matrix_type)
+  {
+    case EquationSystemData::MatrixType::DENSE:
+      FormDenseSystem(op, trueX, trueRHS);
+      break;
+
+    case EquationSystemData::MatrixType::DIAGONAL:
+      FormDiagonalSystem(op, trueX, trueRHS);
+      break;
+  }
+}
+
+void
+EquationSystemOperatorBase::FormDiagonalSystem(mfem::OperatorHandle & op,
+                                             mfem::BlockVector & trueX,
+                                             mfem::BlockVector & trueRHS)
+{
+
+}
+
+void
+EquationSystemOperatorBase::FormDenseSystem(mfem::OperatorHandle & op,
                                              mfem::BlockVector & trueX,
                                              mfem::BlockVector & trueRHS)
 {
@@ -181,7 +209,7 @@ EquationSystemOperatorBase::BuildJacobian(mfem::BlockVector & trueX, mfem::Block
 {
   height = trueX.Size();
   width = trueRHS.Size();
-  FormLinearSystem(GetData()->_jacobian, trueX, trueRHS);
+  FormSystem(GetData()->_jacobian, trueX, trueRHS);
 }
 
 void
@@ -231,6 +259,8 @@ EquationSystemOperatorBase::Init(platypus::GridFunctions & gridfunctions,
         std::make_unique<mfem::ParGridFunction>(gridfunctions.Get(test_var_name)->ParFESpace()));
     GetData()->_trial_variables.Register(test_var_name, gridfunctions.GetShared(test_var_name));
   }
+
+  GetData()->_assembly_level = assembly_level;
 }
 
 void
@@ -437,7 +467,7 @@ TimeDependentEquationSystemOperator::BuildBilinearForms()
 }
 
 void
-TimeDependentEquationSystemOperator::FormLinearSystem(mfem::OperatorHandle & op,
+TimeDependentEquationSystemOperator::FormDenseSystem(mfem::OperatorHandle & op,
                                                       mfem::BlockVector & truedXdt,
                                                       mfem::BlockVector & trueRHS)
 {

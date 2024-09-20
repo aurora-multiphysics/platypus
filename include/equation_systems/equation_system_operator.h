@@ -55,9 +55,17 @@ public:
   virtual void BuildEquationSystem(platypus::BCMap & bc_map);
 
   // Form linear system, with essential boundary conditions accounted for
-  virtual void FormLinearSystem(mfem::OperatorHandle & op,
+  virtual void FormSystem(mfem::OperatorHandle & op,
                                 mfem::BlockVector & trueX,
                                 mfem::BlockVector & trueRHS);
+  virtual void FormDenseSystem(mfem::OperatorHandle & op,
+                                mfem::BlockVector & trueX,
+                                mfem::BlockVector & trueRHS);
+  virtual void FormDiagonalSystem(mfem::OperatorHandle & op,
+                                mfem::BlockVector & trueX,
+                                mfem::BlockVector & trueRHS);
+
+
 
   // Build linear system, with essential boundary conditions accounted for
   virtual void BuildJacobian(mfem::BlockVector & trueX, mfem::BlockVector & trueRHS);
@@ -144,7 +152,7 @@ public:
   virtual void AddKernel(const std::string & test_var_name,
                          std::shared_ptr<MFEMBilinearFormKernel> blf_kernel) override;
   virtual void BuildBilinearForms() override;
-  virtual void FormLinearSystem(mfem::OperatorHandle & op,
+  virtual void FormDenseSystem(mfem::OperatorHandle & op,
                                 mfem::BlockVector & truedXdt,
                                 mfem::BlockVector & trueRHS) override;
 

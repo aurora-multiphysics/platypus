@@ -32,6 +32,9 @@ protected:
     DENSE
   };
 
+  MatrixType _matrix_type;
+  mfem::AssemblyLevel _assembly_level;
+
   // Test variables are associated with LinearForms,
   // whereas trial variables are associated with gridfunctions.
 
