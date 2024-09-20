@@ -3,6 +3,7 @@
 #include "inputs.h"
 #include "named_fields_map.h"
 #include "MFEMKernel.h"
+#include "block_operator_solver.h"
 
 namespace platypus
 {
@@ -61,7 +62,9 @@ protected:
   std::vector<std::unique_ptr<mfem::ParGridFunction>> _xs;
   std::vector<std::unique_ptr<mfem::ParGridFunction>> _dxdts;
 
-  mfem::Array2D<mfem::HypreParMatrix *> _h_blocks;
+  // Equation system blocks
+  mfem::Array2D<const mfem::HypreParMatrix *> _h_blocks;
+  std::shared_ptr<BlockOperatorSolver> _block_op;
 
   // Arrays to store kernels to act on each component of weak form. Named
   // according to test variable
@@ -76,6 +79,7 @@ protected:
       _mblf_kernels_map_map;
 
   mutable mfem::OperatorHandle _jacobian;
+  
 };
 
 /*

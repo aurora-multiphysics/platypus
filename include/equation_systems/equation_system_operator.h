@@ -54,6 +54,9 @@ public:
   virtual void BuildMixedBilinearForms();
   virtual void BuildEquationSystem(platypus::BCMap & bc_map);
 
+  // Forms the BlockOperatorSolver that holds the equation system and respective solvers
+  virtual void MakeBlockOperatorSolver();
+
   // Form linear system, with essential boundary conditions accounted for
   virtual void FormSystem(mfem::OperatorHandle & op,
                                 mfem::BlockVector & trueX,

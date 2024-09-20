@@ -116,7 +116,7 @@ EquationSystemOperatorBase::FormSystem(mfem::OperatorHandle & op,
                                              mfem::BlockVector & trueX,
                                              mfem::BlockVector & trueRHS)
 {
-  GetData()->_matrix_type = EquationSystemData::MatrixType::DENSE;
+  GetData()->_matrix_type = EquationSystemData::MatrixType::DIAGONAL;
 
   switch (GetData()->_matrix_type)
   {
@@ -135,6 +135,23 @@ EquationSystemOperatorBase::FormDiagonalSystem(mfem::OperatorHandle & op,
                                              mfem::BlockVector & trueX,
                                              mfem::BlockVector & trueRHS)
 {
+  MakeBlockOperatorSolver();
+
+  for (int i = 0; i < GetData()->_test_var_names.size(); ++i)
+  {
+    auto & test_var_name = GetData()->_test_var_names.at(i);
+    auto blf = GetData()->_blfs.Get(test_var_name);
+    auto lf = GetData()->_lfs.Get(test_var_name);
+    mfem::Vector aux_x, aux_rhs;
+    mfem::OperatorPtr aux_a;
+    
+    blf->FormLinearSystem(
+        GetData()->_ess_tdof_lists.at(i), *(GetData()->_xs.at(i)), *lf, aux_a, aux_x, aux_rhs);
+    trueX.GetBlock(i) = aux_x;
+    trueRHS.GetBlock(i) = aux_rhs;
+    GetData()->_block_op->SetDiagonalBlock(i, aux_a.Ptr());
+  }
+  op.Reset(GetData()->_block_op.get(), false);
 
 }
 
@@ -155,13 +172,14 @@ EquationSystemOperatorBase::FormDenseSystem(mfem::OperatorHandle & op,
     auto blf = GetData()->_blfs.Get(test_var_name);
     auto lf = GetData()->_lfs.Get(test_var_name);
     mfem::Vector aux_x, aux_rhs;
-    GetData()->_h_blocks(i, i) = new mfem::HypreParMatrix;
+    mfem::HypreParMatrix aux_a;
     blf->FormLinearSystem(GetData()->_ess_tdof_lists.at(i),
                           *(GetData()->_xs.at(i)),
                           *lf,
-                          *GetData()->_h_blocks(i, i),
+                          aux_a,
                           aux_x,
                           aux_rhs);
+    GetData()->_h_blocks(i, i) = new const mfem::HypreParMatrix(aux_a);
     trueX.GetBlock(i) = aux_x;
     trueRHS.GetBlock(i) = aux_rhs;
   }
@@ -181,14 +199,15 @@ EquationSystemOperatorBase::FormDenseSystem(mfem::OperatorHandle & op,
           GetData()->_mblfs.Get(test_var_name)->Has(trial_var_name))
       {
         auto mblf = GetData()->_mblfs.Get(test_var_name)->Get(trial_var_name);
-        GetData()->_h_blocks(i, j) = new mfem::HypreParMatrix;
+        mfem::HypreParMatrix aux_a;
         mblf->FormRectangularLinearSystem(GetData()->_ess_tdof_lists.at(j),
                                           GetData()->_ess_tdof_lists.at(i),
                                           *(GetData()->_xs.at(j)),
                                           aux_lf,
-                                          *GetData()->_h_blocks(i, j),
+                                          aux_a,
                                           aux_x,
                                           aux_rhs);
+        GetData()->_h_blocks(i, j) = new const mfem::HypreParMatrix(aux_a);
         trueRHS.GetBlock(i) += aux_rhs;
       }
     }
@@ -371,6 +390,19 @@ EquationSystemOperatorBase::BuildEquationSystem(platypus::BCMap & bc_map)
   BuildMixedBilinearForms();
 }
 
+void
+EquationSystemOperatorBase::MakeBlockOperatorSolver()
+{
+  mfem::Array<int> block_offsets(GetData()->_test_var_names.size() + 1);
+
+  for (int i = 0; i < GetData()->_test_var_names.size(); ++i)
+    block_offsets[i + 1] =
+        GetData()->_blfs.Get(GetData()->_test_var_names.at(i))->FESpace()->GetTrueVSize();
+
+  block_offsets.PartialSum();
+  GetData()->_block_op = std::make_shared<BlockOperatorSolver>(block_offsets);
+}
+
 EquationSystemOperator::EquationSystemOperator()
   : _equation_system_data{std::make_shared<EquationSystemData>()}
 {
@@ -489,15 +521,18 @@ TimeDependentEquationSystemOperator::FormDenseSystem(mfem::OperatorHandle & op,
     blf->AddMult(*(GetData()->_trial_variables.Get(test_var_name)), *lf, 1.0);
     // }
     mfem::Vector aux_x, aux_rhs;
+    mfem::HypreParMatrix aux_a;
+
     // Update solution values on Dirichlet values to be in terms of du/dt instead of u
     mfem::Vector bc_x = *(GetData()->_xs.at(i).get());
     bc_x -= *(GetData()->_trial_variables.Get(test_var_name));
     bc_x /= GetData()->_dt_coef.constant;
 
     // Form linear system for operator acting on vector of du/dt
-    GetData()->_h_blocks(i, i) = new mfem::HypreParMatrix;
+    
     td_blf->FormLinearSystem(
-        GetData()->_ess_tdof_lists.at(i), bc_x, *lf, *GetData()->_h_blocks(i, i), aux_x, aux_rhs);
+        GetData()->_ess_tdof_lists.at(i), bc_x, *lf, aux_a, aux_x, aux_rhs);
+    GetData()->_h_blocks(i, i) = new const mfem::HypreParMatrix(aux_a);
     truedXdt.GetBlock(i) = aux_x;
     trueRHS.GetBlock(i) = aux_rhs;
   }

@@ -24,8 +24,15 @@ EquationSystemProblemOperator::Solve(mfem::Vector & X)
   GetEquationSystem()->BuildJacobian(_true_x, _true_rhs);
 
   _problem._nonlinear_solver->SetSolver(*_problem._jacobian_solver);
+
+
+  //////////
   _problem._nonlinear_solver->SetOperator(*GetEquationSystem());
+  std::cout << "Just before assert" << std::endl;
+  MFEM_VERIFY(0,"ok");
+
   _problem._nonlinear_solver->Mult(_true_rhs, _true_x);
+  //////
 
   GetEquationSystem()->RecoverFEMSolution(_true_x, _problem._gridfunctions);
 }
