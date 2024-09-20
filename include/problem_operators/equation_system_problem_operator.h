@@ -12,7 +12,7 @@ public:
   EquationSystemProblemOperator(platypus::Problem &) = delete;
 
   EquationSystemProblemOperator(platypus::Problem & problem,
-                                std::unique_ptr<platypus::EquationSystem> equation_system)
+                                std::unique_ptr<platypus::EquationSystemOperator> equation_system)
     : ProblemOperator(problem), _equation_system(std::move(equation_system))
   {
   }
@@ -23,7 +23,7 @@ public:
 
   ~EquationSystemProblemOperator() override = default;
 
-  [[nodiscard]] platypus::EquationSystem * GetEquationSystem() const override
+  [[nodiscard]] platypus::EquationSystemOperator * GetEquationSystem() const override
   {
     if (!_equation_system)
     {
@@ -34,7 +34,7 @@ public:
   }
 
 private:
-  std::unique_ptr<platypus::EquationSystem> _equation_system{nullptr};
+  std::unique_ptr<platypus::EquationSystemOperator> _equation_system{nullptr};
 };
 
 } // namespace platypus

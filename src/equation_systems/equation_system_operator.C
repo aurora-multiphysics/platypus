@@ -5,7 +5,7 @@ namespace platypus
 
 bool
 EquationSystemOperatorBase::VectorContainsName(const std::vector<std::string> & the_vector,
-                                   const std::string & name) const
+                                               const std::string & name) const
 {
 
   auto iter = std::find(the_vector.begin(), the_vector.end(), name);
@@ -33,7 +33,7 @@ EquationSystemOperatorBase::AddTestVariableNameIfMissing(const std::string & tes
 
 void
 EquationSystemOperatorBase::AddKernel(const std::string & test_var_name,
-                          std::shared_ptr<MFEMBilinearFormKernel> blf_kernel)
+                                      std::shared_ptr<MFEMBilinearFormKernel> blf_kernel)
 {
   AddTestVariableNameIfMissing(test_var_name);
   AddTrialVariableNameIfMissing(test_var_name);
@@ -42,7 +42,7 @@ EquationSystemOperatorBase::AddKernel(const std::string & test_var_name,
 
 void
 EquationSystemOperatorBase::AddKernel(const std::string & test_var_name,
-                          std::shared_ptr<MFEMLinearFormKernel> lf_kernel)
+                                      std::shared_ptr<MFEMLinearFormKernel> lf_kernel)
 {
   AddTestVariableNameIfMissing(test_var_name);
   addKernelToMap<MFEMLinearFormKernel>(lf_kernel, GetData()->_lf_kernels_map);
@@ -50,7 +50,7 @@ EquationSystemOperatorBase::AddKernel(const std::string & test_var_name,
 
 void
 EquationSystemOperatorBase::AddKernel(const std::string & test_var_name,
-                          std::shared_ptr<MFEMNonlinearFormKernel> nlf_kernel)
+                                      std::shared_ptr<MFEMNonlinearFormKernel> nlf_kernel)
 {
   AddTestVariableNameIfMissing(test_var_name);
   AddTrialVariableNameIfMissing(nlf_kernel->getTrialVariableName());
@@ -59,8 +59,8 @@ EquationSystemOperatorBase::AddKernel(const std::string & test_var_name,
 
 void
 EquationSystemOperatorBase::AddKernel(const std::string & trial_var_name,
-                          const std::string & test_var_name,
-                          std::shared_ptr<MFEMMixedBilinearFormKernel> mblf_kernel)
+                                      const std::string & test_var_name,
+                                      std::shared_ptr<MFEMMixedBilinearFormKernel> mblf_kernel)
 {
   AddTestVariableNameIfMissing(test_var_name);
   AddTrialVariableNameIfMissing(trial_var_name);
@@ -79,10 +79,13 @@ EquationSystemOperatorBase::AddKernel(const std::string & trial_var_name,
   {
     auto kernels = std::make_shared<std::vector<std::shared_ptr<MFEMMixedBilinearFormKernel>>>();
 
-    GetData()->_mblf_kernels_map_map.Get(test_var_name)->Register(trial_var_name, std::move(kernels));
+    GetData()
+        ->_mblf_kernels_map_map.Get(test_var_name)
+        ->Register(trial_var_name, std::move(kernels));
   }
 
-  GetData()->_mblf_kernels_map_map.GetRef(test_var_name)
+  GetData()
+      ->_mblf_kernels_map_map.GetRef(test_var_name)
       .Get(trial_var_name)
       ->push_back(std::move(mblf_kernel));
 }
@@ -98,21 +101,25 @@ EquationSystemOperatorBase::ApplyBoundaryConditions(platypus::BCMap & bc_map)
     // overwritten in applyEssentialBCs
     *(GetData()->_xs.at(i)) = 0.0;
     *(GetData()->_dxdts.at(i)) = 0.0;
-    bc_map.ApplyEssentialBCs(
-        test_var_name, GetData()->_ess_tdof_lists.at(i), *(GetData()->_xs.at(i)), GetData()->_test_pfespaces.at(i)->GetParMesh());
-    bc_map.ApplyIntegratedBCs(
-        test_var_name, GetData()->_lfs.GetRef(test_var_name), GetData()->_test_pfespaces.at(i)->GetParMesh());
+    bc_map.ApplyEssentialBCs(test_var_name,
+                             GetData()->_ess_tdof_lists.at(i),
+                             *(GetData()->_xs.at(i)),
+                             GetData()->_test_pfespaces.at(i)->GetParMesh());
+    bc_map.ApplyIntegratedBCs(test_var_name,
+                              GetData()->_lfs.GetRef(test_var_name),
+                              GetData()->_test_pfespaces.at(i)->GetParMesh());
   }
 }
 void
 EquationSystemOperatorBase::FormLinearSystem(mfem::OperatorHandle & op,
-                                 mfem::BlockVector & trueX,
-                                 mfem::BlockVector & trueRHS)
+                                             mfem::BlockVector & trueX,
+                                             mfem::BlockVector & trueRHS)
 {
 
   // Allocate block operator
   GetData()->_h_blocks.DeleteAll();
-  GetData()->_h_blocks.SetSize(GetData()->_test_var_names.size(), GetData()->_test_var_names.size());
+  GetData()->_h_blocks.SetSize(GetData()->_test_var_names.size(),
+                               GetData()->_test_var_names.size());
   // Form diagonal blocks.
   for (int i = 0; i < GetData()->_test_var_names.size(); i++)
   {
@@ -121,8 +128,12 @@ EquationSystemOperatorBase::FormLinearSystem(mfem::OperatorHandle & op,
     auto lf = GetData()->_lfs.Get(test_var_name);
     mfem::Vector aux_x, aux_rhs;
     GetData()->_h_blocks(i, i) = new mfem::HypreParMatrix;
-    blf->FormLinearSystem(
-        GetData()->_ess_tdof_lists.at(i), *(GetData()->_xs.at(i)), *lf, *GetData()->_h_blocks(i, i), aux_x, aux_rhs);
+    blf->FormLinearSystem(GetData()->_ess_tdof_lists.at(i),
+                          *(GetData()->_xs.at(i)),
+                          *lf,
+                          *GetData()->_h_blocks(i, i),
+                          aux_x,
+                          aux_rhs);
     trueX.GetBlock(i) = aux_x;
     trueRHS.GetBlock(i) = aux_rhs;
   }
@@ -138,7 +149,8 @@ EquationSystemOperatorBase::FormLinearSystem(mfem::OperatorHandle & op,
       mfem::Vector aux_x, aux_rhs;
       mfem::ParLinearForm aux_lf(GetData()->_test_pfespaces.at(i));
       aux_lf = 0.0;
-      if (GetData()->_mblfs.Has(test_var_name) && GetData()->_mblfs.Get(test_var_name)->Has(trial_var_name))
+      if (GetData()->_mblfs.Has(test_var_name) &&
+          GetData()->_mblfs.Get(test_var_name)->Has(trial_var_name))
       {
         auto mblf = GetData()->_mblfs.Get(test_var_name)->Get(trial_var_name);
         GetData()->_h_blocks(i, j) = new mfem::HypreParMatrix;
@@ -186,7 +198,7 @@ EquationSystemOperatorBase::GetGradient(const mfem::Vector & u) const
 
 void
 EquationSystemOperatorBase::RecoverFEMSolution(mfem::BlockVector & trueX,
-                                   platypus::GridFunctions & gridfunctions)
+                                               platypus::GridFunctions & gridfunctions)
 {
   for (int i = 0; i < GetData()->_trial_var_names.size(); i++)
   {
@@ -198,8 +210,9 @@ EquationSystemOperatorBase::RecoverFEMSolution(mfem::BlockVector & trueX,
 
 void
 EquationSystemOperatorBase::Init(platypus::GridFunctions & gridfunctions,
-                     const platypus::FESpaces & fespaces,
-                     platypus::BCMap & bc_map)
+                                 const platypus::FESpaces & fespaces,
+                                 platypus::BCMap & bc_map,
+                                 mfem::AssemblyLevel assembly_level)
 {
   for (auto & test_var_name : GetData()->_test_var_names)
   {
@@ -227,7 +240,8 @@ EquationSystemOperatorBase::BuildLinearForms(platypus::BCMap & bc_map)
   for (int i = 0; i < GetData()->_test_var_names.size(); i++)
   {
     auto test_var_name = GetData()->_test_var_names.at(i);
-    GetData()->_lfs.Register(test_var_name, std::make_shared<mfem::ParLinearForm>(GetData()->_test_pfespaces.at(i)));
+    GetData()->_lfs.Register(
+        test_var_name, std::make_shared<mfem::ParLinearForm>(GetData()->_test_pfespaces.at(i)));
     GetData()->_lfs.GetRef(test_var_name) = 0.0;
   }
   // Apply boundary conditions
@@ -257,7 +271,8 @@ EquationSystemOperatorBase::BuildBilinearForms()
   for (int i = 0; i < GetData()->_test_var_names.size(); i++)
   {
     auto test_var_name = GetData()->_test_var_names.at(i);
-    GetData()->_blfs.Register(test_var_name, std::make_shared<mfem::ParBilinearForm>(GetData()->_test_pfespaces.at(i)));
+    GetData()->_blfs.Register(
+        test_var_name, std::make_shared<mfem::ParBilinearForm>(GetData()->_test_pfespaces.at(i)));
 
     // Apply kernels
     auto blf = GetData()->_blfs.Get(test_var_name);
@@ -295,7 +310,8 @@ EquationSystemOperatorBase::BuildMixedBilinearForms()
       if (GetData()->_mblf_kernels_map_map.Has(test_var_name) &&
           GetData()->_mblf_kernels_map_map.Get(test_var_name)->Has(trial_var_name))
       {
-        auto mblf_kernels = GetData()->_mblf_kernels_map_map.GetRef(test_var_name).GetRef(trial_var_name);
+        auto mblf_kernels =
+            GetData()->_mblf_kernels_map_map.GetRef(test_var_name).GetRef(trial_var_name);
         auto mblf = std::make_shared<mfem::ParMixedBilinearForm>(GetData()->_test_pfespaces.at(j),
                                                                  GetData()->_test_pfespaces.at(i));
         // Apply all mixed kernels with this test/trial pair
@@ -324,17 +340,24 @@ EquationSystemOperatorBase::BuildEquationSystem(platypus::BCMap & bc_map)
   BuildMixedBilinearForms();
 }
 
-EquationSystemOperator::EquationSystemOperator() : _equation_system_data{std::make_shared<EquationSystemData>()} {}
+EquationSystemOperator::EquationSystemOperator()
+  : _equation_system_data{std::make_shared<EquationSystemData>()}
+{
+}
 
-EquationSystemOperator::~EquationSystemOperator() { GetData()->_h_blocks.DeleteAll();}
+EquationSystemOperator::~EquationSystemOperator() { GetData()->_h_blocks.DeleteAll(); }
 
-TimeDependentEquationSystemOperator::TimeDependentEquationSystemOperator() : _equation_system_data{std::make_shared<TimeDependentEquationSystemData>()}
+TimeDependentEquationSystemOperator::TimeDependentEquationSystemOperator()
+  : _equation_system_data{std::make_shared<TimeDependentEquationSystemData>()}
 {
   mfem::ConstantCoefficient dt(1.0);
   GetData()->_dt_coef = dt;
 }
 
-TimeDependentEquationSystemOperator::~TimeDependentEquationSystemOperator() { GetData()->_h_blocks.DeleteAll();}
+TimeDependentEquationSystemOperator::~TimeDependentEquationSystemOperator()
+{
+  GetData()->_h_blocks.DeleteAll();
+}
 
 void
 TimeDependentEquationSystemOperator::AddTrialVariableNameIfMissing(const std::string & var_name)
@@ -367,7 +390,7 @@ TimeDependentEquationSystemOperator::SetTimeStep(double dt)
 
 void
 TimeDependentEquationSystemOperator::AddKernel(const std::string & test_var_name,
-                                       std::shared_ptr<MFEMBilinearFormKernel> blf_kernel)
+                                               std::shared_ptr<MFEMBilinearFormKernel> blf_kernel)
 {
   if (blf_kernel->getTrialVariableName() == GetTimeDerivativeName(test_var_name))
   {
@@ -390,8 +413,8 @@ TimeDependentEquationSystemOperator::BuildBilinearForms()
   for (int i = 0; i < GetData()->_test_var_names.size(); i++)
   {
     auto test_var_name = GetData()->_test_var_names.at(i);
-    GetData()->_td_blfs.Register(test_var_name,
-                      std::make_shared<mfem::ParBilinearForm>(GetData()->_test_pfespaces.at(i)));
+    GetData()->_td_blfs.Register(
+        test_var_name, std::make_shared<mfem::ParBilinearForm>(GetData()->_test_pfespaces.at(i)));
 
     // Apply kernels
     auto td_blf = GetData()->_td_blfs.Get(test_var_name);
@@ -415,13 +438,14 @@ TimeDependentEquationSystemOperator::BuildBilinearForms()
 
 void
 TimeDependentEquationSystemOperator::FormLinearSystem(mfem::OperatorHandle & op,
-                                              mfem::BlockVector & truedXdt,
-                                              mfem::BlockVector & trueRHS)
+                                                      mfem::BlockVector & truedXdt,
+                                                      mfem::BlockVector & trueRHS)
 {
 
   // Allocate block operator
   GetData()->_h_blocks.DeleteAll();
-  GetData()->_h_blocks.SetSize(GetData()->_test_var_names.size(), GetData()->_test_var_names.size());
+  GetData()->_h_blocks.SetSize(GetData()->_test_var_names.size(),
+                               GetData()->_test_var_names.size());
   // Form diagonal blocks.
   for (int i = 0; i < GetData()->_test_var_names.size(); i++)
   {
@@ -441,7 +465,8 @@ TimeDependentEquationSystemOperator::FormLinearSystem(mfem::OperatorHandle & op,
 
     // Form linear system for operator acting on vector of du/dt
     GetData()->_h_blocks(i, i) = new mfem::HypreParMatrix;
-    td_blf->FormLinearSystem(GetData()->_ess_tdof_lists.at(i), bc_x, *lf, *GetData()->_h_blocks(i, i), aux_x, aux_rhs);
+    td_blf->FormLinearSystem(
+        GetData()->_ess_tdof_lists.at(i), bc_x, *lf, *GetData()->_h_blocks(i, i), aux_x, aux_rhs);
     truedXdt.GetBlock(i) = aux_x;
     trueRHS.GetBlock(i) = aux_rhs;
   }

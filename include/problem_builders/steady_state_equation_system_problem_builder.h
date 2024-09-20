@@ -26,14 +26,14 @@ public:
 
   void ConstructOperator() override
   {
-    auto equation_system = std::make_unique<platypus::EquationSystem>();
+    auto equation_system = std::make_unique<platypus::EquationSystemOperator>();
     auto problem_operator = std::make_unique<platypus::EquationSystemProblemOperator>(
         *this, std::move(equation_system));
 
     SetOperator(std::move(problem_operator));
   }
 
-  [[nodiscard]] platypus::EquationSystem * GetEquationSystem() const override
+  [[nodiscard]] platypus::EquationSystemOperator * GetEquationSystem() const override
   {
     return GetOperator()->GetEquationSystem();
   }
@@ -62,7 +62,7 @@ protected:
     return ProblemBuilder::GetProblem<platypus::SteadyStateEquationSystemProblem>();
   }
 
-  [[nodiscard]] platypus::EquationSystem * GetEquationSystem() const override
+  [[nodiscard]] platypus::EquationSystemOperator * GetEquationSystem() const override
   {
     return GetProblem()->GetEquationSystem();
   }

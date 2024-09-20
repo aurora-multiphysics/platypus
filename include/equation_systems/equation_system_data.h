@@ -13,7 +13,8 @@ using MFEMNonlinearFormKernel = MFEMKernel<mfem::NonlinearFormIntegrator>;
 using MFEMMixedBilinearFormKernel = MFEMKernel<mfem::BilinearFormIntegrator>;
 
 /*
-Struct to hold all of the data related to the equation system needed for the solver to use in static systems
+Struct to hold all of the data related to the equation system needed for the solver to use in static
+systems
 */
 struct EquationSystemData
 {
@@ -53,7 +54,7 @@ protected:
 
   std::vector<mfem::Array<int>> _ess_tdof_lists;
 
-    // gridfunctions for setting Dirichlet BCs
+  // gridfunctions for setting Dirichlet BCs
   std::vector<std::unique_ptr<mfem::ParGridFunction>> _xs;
   std::vector<std::unique_ptr<mfem::ParGridFunction>> _dxdts;
 
@@ -72,11 +73,11 @@ protected:
       _mblf_kernels_map_map;
 
   mutable mfem::OperatorHandle _jacobian;
-
 };
 
 /*
-Struct to hold all of the data related to the equation system needed for the solver to use in time dependent systems
+Struct to hold all of the data related to the equation system needed for the solver to use in time
+dependent systems
 */
 struct TimeDependentEquationSystemData : public EquationSystemData
 {
@@ -88,7 +89,6 @@ struct TimeDependentEquationSystemData : public EquationSystemData
   friend class TimeDomainEquationSystemProblemOperator;
 
 protected:
-
   mfem::ConstantCoefficient _dt_coef; // Coefficient for timestep scaling
   std::vector<std::string> _trial_var_time_derivative_names;
 
@@ -96,8 +96,6 @@ protected:
       _td_blf_kernels_map;
   // Container to store contributions to weak form of the form (F du/dt, v)
   platypus::NamedFieldsMap<mfem::ParBilinearForm> _td_blfs;
-
 };
-
 
 } // namespace platypus

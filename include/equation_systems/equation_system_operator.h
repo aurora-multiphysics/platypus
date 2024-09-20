@@ -16,7 +16,6 @@ class EquationSystemOperatorBase : public mfem::Operator
 {
 
 public:
-
   using MFEMBilinearFormKernel = MFEMKernel<mfem::BilinearFormIntegrator>;
   using MFEMLinearFormKernel = MFEMKernel<mfem::LinearFormIntegrator>;
   using MFEMNonlinearFormKernel = MFEMKernel<mfem::NonlinearFormIntegrator>;
@@ -48,7 +47,8 @@ public:
   // Build forms
   virtual void Init(platypus::GridFunctions & gridfunctions,
                     const platypus::FESpaces & fespaces,
-                    platypus::BCMap & bc_map);
+                    platypus::BCMap & bc_map,
+                    mfem::AssemblyLevel assembly_level);
   virtual void BuildLinearForms(platypus::BCMap & bc_map);
   virtual void BuildBilinearForms();
   virtual void BuildMixedBilinearForms();
@@ -98,7 +98,6 @@ protected:
 
 private:
   std::shared_ptr<EquationSystemData> _equation_system_data{nullptr};
-
 };
 
 /*
@@ -107,11 +106,10 @@ mixed and nonlinear forms) and build methods for static problems
 */
 class EquationSystemOperator : public EquationSystemOperatorBase
 {
-    
-  EquationSystemOperator();
-  ~EquationSystemOperator();
 
 public:
+  EquationSystemOperator();
+  ~EquationSystemOperator();
 
   // Data retrieval for reading/writing to @_equation_system_data
   EquationSystemData * GetData() const override
@@ -125,7 +123,6 @@ public:
 
 private:
   std::shared_ptr<EquationSystemData> _equation_system_data{nullptr};
-
 };
 
 /*
@@ -136,7 +133,6 @@ class TimeDependentEquationSystemOperator : public EquationSystemOperatorBase
 {
 
 public:
-
   TimeDependentEquationSystemOperator();
   ~TimeDependentEquationSystemOperator();
 
@@ -151,7 +147,7 @@ public:
   virtual void FormLinearSystem(mfem::OperatorHandle & op,
                                 mfem::BlockVector & truedXdt,
                                 mfem::BlockVector & trueRHS) override;
-  
+
   // Data retrieval for reading/writing to @_equation_system_data
   TimeDependentEquationSystemData * GetData() const override
   {
@@ -164,7 +160,6 @@ public:
 
 private:
   std::shared_ptr<TimeDependentEquationSystemData> _equation_system_data{nullptr};
-
 };
 
 } // namespace platypus
