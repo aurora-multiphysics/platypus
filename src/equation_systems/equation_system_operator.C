@@ -367,6 +367,7 @@ EquationSystemOperatorBase::BuildEquationSystem(platypus::BCMap & bc_map)
 {
   BuildLinearForms(bc_map);
   BuildBilinearForms();
+    if (GetData()->_matrix_type == EquationSystemData::MatrixType::DENSE)
   BuildMixedBilinearForms();
 }
 
@@ -517,6 +518,7 @@ TimeDependentEquationSystemOperator::UpdateEquationSystem(platypus::BCMap & bc_m
 {
   BuildLinearForms(bc_map);
   BuildBilinearForms();
+    if (GetData()->_matrix_type == EquationSystemData::MatrixType::DENSE)
   BuildMixedBilinearForms();
 }
 
