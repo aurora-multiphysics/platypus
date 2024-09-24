@@ -1,6 +1,6 @@
 Platypus
 =====
-
+[![Documentation](https://github.com/aurora-multiphysics/platypus/actions/workflows/pages.yml/badge.svg?branch=main)](https://aurora-multiphysics.github.io/platypus/)
 ![lint](https://github.com/aurora-multiphysics/platypus/actions/workflows/lint.yml/badge.svg?branch=main)
 ![build](https://github.com/aurora-multiphysics/platypus/actions/workflows/main.yml/badge.svg?branch=main)
 [![codecov](https://codecov.io/gh/aurora-multiphysics/platypus/graph/badge.svg?token=WV2DE9DT53)](https://codecov.io/gh/aurora-multiphysics/platypus)

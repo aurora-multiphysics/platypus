@@ -25,6 +25,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get install 
     curl \
     doxygen \
     git \
+    graphviz \
     ninja-build \
     pre-commit \
     python3 \
@@ -53,7 +54,10 @@ RUN pip install --no-cache-dir packaging && \
     pip install --no-cache-dir setuptools && \
     pip install --no-cache-dir xmltodict && \
     pip install --no-cache-dir deepdiff && \
-    pip install --no-cache-dir jinja2
+    pip install --no-cache-dir jinja2 && \
+    pip install --no-cache-dir livereload && \
+    pip install --no-cache-dir pybtex && \
+    pip install --no-cache-dir pylatexenc
 
 # Install CMake
 WORKDIR /$WORKDIR

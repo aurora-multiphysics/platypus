@@ -25,6 +25,13 @@ RUN git checkout $build_git_sha
 WORKDIR /$WORKDIR/platypus
 RUN make -j$compile_cores coverage=$coverage
 
+# Build Platypus docs
+WORKDIR /$WORKDIR/platypus
+RUN make -j$compile_cores
+RUN doxygen doc/content/doxygen/Doxyfile
+WORKDIR /$WORKDIR/platypus/doc
+RUN ./moosedocs.py build
+
 # Test Platypus regression tests
 WORKDIR /$WORKDIR/platypus 
 RUN make test linkcoverage=$coverage

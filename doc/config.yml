@@ -1,6 +1,6 @@
 Content:
     platypus:
-        root_dir: doc/content
+        root_dir: ${ROOT_DIR}/doc/content
     moose:
         root_dir: ${MOOSE_DIR}/framework/doc/content
         content:
@@ -28,3 +28,7 @@ Extensions:
         includes:
             - include
         active: true
+
+Translator:
+    type: MooseDocs.base.Translator
+    destination: ${ROOT_DIR}/doc/build/
