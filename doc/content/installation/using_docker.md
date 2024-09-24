@@ -16,7 +16,7 @@ docker run -it alexanderianblair/platypus:main
 The Platypus executable can then be found at `/opt/platypus/platypus-opt` inside the container.
 
 Additional information and options for using Docker can be found at
-this [tutorial](https://docs.docker.com/get-started/) on the Docker website.
+this [tutorial](https://docs.docker.com/get-started/) on the Docker site.
 
 !alert! tip title=Platypus Dependencies
 Alternatively, a container containing up-to-date images of only
