@@ -11,6 +11,6 @@ Platypus enables the set-up and assembly of finite element problems using the
 
 !style halign=center
 Platypus is available on [GitHub](https://github.com/aurora-multiphysics/platypus)
-- get started by following the [installation instructions](installation.md)
+&mdash; get started by following the [installation instructions](installation.md)
 !col-end!
 

@@ -34,6 +34,8 @@ jobs:
         uses: super-linter/super-linter/slim@v6.7.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # External doxygen style files and MOOSE Doxygen header do not meet Platypus
+          # linting requirements; exclude them from lint checks:
           FILTER_REGEX_EXCLUDE: ((^|/)doxygen-awesome|moose_doxy_header.html|doxygen.css|tabs.css)
           VALIDATE_ANSIBLE: false
           VALIDATE_CHECKOV: false
