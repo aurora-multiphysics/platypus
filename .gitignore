@@ -157,7 +157,6 @@ libmoose-dbg*
 
 #doxygen generated
 doc/content/doxygen/html/*
-# doc/content/doxygen/**/*
 moose/doc/content/doxygen/html/*
 modules/*/doc/content/doxygen/html/*
 tutorials/*/*/doc/content/doxygen/html/*
@@ -194,20 +193,6 @@ framework/contrib/hit/hit
 # MooseDocs
 site
 python/MooseDocs/test/output
-# !**/doc/content/**/*.md
-# !**/doc/content/**/*.jpg
-# !**/doc/content/**/*.jpeg
-# !**/doc/content/**/*.gif
-# !**/doc/content/**/*.png
-# !**/doc/content/**/*.svg
-# !**/doc/content/**/*.ogg
-# !**/doc/content/**/*.webm
-# !**/doc/content/**/*.mp4
-# !**/doc/content/**/*.css
-# !**/doc/content/**/*.js
-# !**/doc/content/**/*.bib
-# !**/doc/content/**/*.woff
-# !**/doc/content/**/*.woff2
 !python/MooseDocs/test/gold/**/*.json
 !python/MooseDocs/test/gold/**/*.html
 !python/MooseDocs/test/gold/**/*.tex
