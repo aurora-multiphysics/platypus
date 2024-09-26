@@ -32,6 +32,7 @@ public:
   platypus::FECollections _fecs;
   platypus::FESpaces _fespaces;
   platypus::GridFunctions _gridfunctions;
+  mfem::AssemblyLevel _assembly_level;
 
   mfem::Device _device;
   MPI_Comm _comm;
