@@ -1,4 +1,5 @@
 #pragma once
+#include <map>
 #include "AuxiliarySystem.h"
 #include "DisplacedProblem.h"
 #include "ExternalProblem.h"
@@ -15,6 +16,7 @@
 #include "MFEMFESpace.h"
 #include "MFEMSolverBase.h"
 #include "PropertyManager.h"
+#include "ObjectManager.h"
 #include "Function.h"
 #include "MooseEnum.h"
 #include "SystemBase.h"
@@ -111,6 +113,15 @@ public:
                  InputParameters & parameters) override;
 
   /**
+   * Override of ExternalProblem::addFunction. Uses ExternalProblem::addFunction to create a
+   * MFEMGeneralUserObject representing the function in MOOSE, and creates a corresponding
+   * MFEM Coefficient or VectorCoefficient object.
+   */
+  void addFunction(const std::string & function_name,
+                   const std::string & name,
+                   InputParameters & parameters) override;
+
+  /**
    * Method called in AddMFEMPreconditionerAction which will create the solver.
    */
   void addMFEMPreconditioner(const std::string & user_object_name,
@@ -137,6 +148,18 @@ public:
    * by Material and Kernel classes (among others).
    */
   platypus::PropertyManager & getProperties() { return _properties; }
+
+  /**
+   * Method to get the MFEM scalar coefficient object corresponding to the named function.
+   */
+  virtual std::shared_ptr<mfem::FunctionCoefficient>
+  getScalarFunctionCoefficient(const std::string & name);
+
+  /**
+   * Method to get the MFEM vector coefficient object corresponding to the named function.
+   */
+  virtual std::shared_ptr<mfem::VectorFunctionCoefficient>
+  getVectorFunctionCoefficient(const std::string & name);
 
   std::string _input_mesh;
   int _order;
@@ -169,6 +192,11 @@ protected:
 
   mfem::Device _device;
 
+  std::map<std::string, std::shared_ptr<mfem::FunctionCoefficient>> _scalar_functions;
+  std::map<std::string, std::shared_ptr<mfem::VectorFunctionCoefficient>> _vector_functions;
+  platypus::ScalarCoefficientManager _scalar_manager;
+  platypus::VectorCoefficientManager _vector_manager;
+  platypus::MatrixCoefficientManager _matrix_manager;
   platypus::PropertyManager _properties;
   platypus::InputParameters _solver_options;
   platypus::Outputs _outputs;

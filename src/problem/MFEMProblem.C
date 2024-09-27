@@ -21,6 +21,7 @@ MFEMProblem::MFEMProblem(const InputParameters & params)
   : ExternalProblem(params),
     _input_mesh(_mesh.parameters().get<MeshFileName>("file")),
     _coefficients(),
+    _properties(_scalar_manager, _vector_manager, _matrix_manager),
     _outputs(),
     _exec_params()
 {
@@ -297,6 +298,14 @@ MFEMProblem::addKernel(const std::string & kernel_name,
   }
 }
 
+void
+MFEMProblem::addFunction(const std::string & kernel_name,
+                         const std::string & name,
+                         InputParameters & parameters)
+{
+  ExternalProblem::addFunction(kernel_name, name, parameters);
+}
+
 InputParameters
 MFEMProblem::addMFEMFESpaceFromMOOSEVariable(InputParameters & parameters)
 {
@@ -357,6 +366,18 @@ std::vector<VariableName>
 MFEMProblem::getAuxVariableNames()
 {
   return systemBaseAuxiliary().getVariableNames();
+}
+
+std::shared_ptr<mfem::FunctionCoefficient>
+MFEMProblem::getScalarFunctionCoefficient(const std::string & name)
+{
+  return std::shared_ptr<mfem::FunctionCoefficient>();
+}
+
+std::shared_ptr<mfem::VectorFunctionCoefficient>
+MFEMProblem::getVectorFunctionCoefficient(const std::string & name)
+{
+  return std::shared_ptr<mfem::VectorFunctionCoefficient>();
 }
 
 MFEMMesh &
