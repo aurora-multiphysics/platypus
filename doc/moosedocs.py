@@ -26,4 +26,9 @@ if MOOSE_PYTHON_DIR not in sys.path:
 
 from MooseDocs import main
 if __name__ == '__main__':
+    os.chdir("..")
+    doxygen_run_cmd = "doxygen doc/content/doxygen/Doxyfile"
+    if os.system(doxygen_run_cmd) != 0:
+        raise Exception(doxygen_run_cmd + " failed to run.")
+    os.chdir("doc")
     sys.exit(main.run())
