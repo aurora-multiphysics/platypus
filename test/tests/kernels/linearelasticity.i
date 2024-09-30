@@ -66,8 +66,8 @@
   [PullDownValue]
     type = MFEMVectorConstantCoefficient
     value_x = 0.0
-    value_y = -0.01
-    value_z = 0.0
+    value_y = 0.0
+    value_z = -0.01
   []
 []
 
