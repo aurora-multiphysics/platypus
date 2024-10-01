@@ -1,17 +1,10 @@
 #pragma once
 
-#include "MFEMBoundaryCondition.h"
-#include "MFEMVectorFunctionCoefficient.h"
-#include "boundary_conditions.h"
+#include "MFEMVectorDirichletBCBase.h"
 
-class MFEMVectorDirichletBC : public MFEMBoundaryCondition
+class MFEMVectorDirichletBC : public MFEMVectorDirichletBCBase
 {
 public:
-  static InputParameters validParams();
-
   MFEMVectorDirichletBC(const InputParameters & parameters);
   ~MFEMVectorDirichletBC() override {}
-
-protected:
-  MFEMVectorCoefficient * _vec_coef{nullptr};
 };

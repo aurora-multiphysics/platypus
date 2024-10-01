@@ -7,7 +7,7 @@ namespace platypus
 class VectorDirichletBC : public EssentialBC
 {
 
-protected:
+public:
   enum APPLY_TYPE
   {
     STANDARD,
@@ -15,7 +15,6 @@ protected:
     NORMAL
   };
 
-public:
   VectorDirichletBC(const std::string & name_, mfem::Array<int> bdr_attributes_);
   VectorDirichletBC(const std::string & name_,
                     mfem::Array<int> bdr_attributes_,
