@@ -6,7 +6,7 @@ InputParameters
 MFEMVectorBoundaryIntegratedBC::validParams()
 {
   InputParameters params = MFEMBoundaryCondition::validParams();
-  params.addRequiredParam<UserObjectName>(
+  params.addRequiredParam<std::string>(
       "vector_coefficient", "The vector MFEM coefficient which will be used in the integrated BC");
   return params;
 }
