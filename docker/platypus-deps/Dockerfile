@@ -75,7 +75,7 @@ RUN git clone https://github.com/ornladios/ADIOS2.git
 WORKDIR /$WORKDIR/ADIOS2
 RUN git checkout f626281 && mkdir build
 WORKDIR /$WORKDIR/ADIOS2/build/
-RUN cmake .. && make -j$compile_cores && make install
+RUN cmake .. -DCMAKE_INSTALL_PREFIX=./install && make -j$compile_cores && make install
 
 # Download SuperLU
 WORKDIR /$WORKDIR
@@ -143,7 +143,8 @@ RUN cmake .. \
     -DSuperLUDist_DIR=/$WORKDIR/petsc/ \
     -DMFEM_USE_NETCDF=YES \
     -DHDF5_DIR=/usr/lib/x86_64-linux-gnu/hdf5/mpich/ \
-    -DMFEM_USE_ADIOS2=YES && \
+    -DMFEM_USE_ADIOS2=YES \
+    -DADIOS2_DIR=/$WORKDIR/ADIOS2/build/install/ && \
     make -j$compile_cores
 WORKDIR /$WORKDIR/mfem/build/miniapps/common
 RUN make -j$compile_cores
