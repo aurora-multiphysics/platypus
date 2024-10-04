@@ -17,4 +17,5 @@ public:
 
 protected:
   unsigned int _refinements;
+  const std::string _engine_type;
 };
