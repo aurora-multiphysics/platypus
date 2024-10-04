@@ -1,4 +1,6 @@
 #include "MFEMADIOS2DataCollection.h"
+#include "FEProblemBase.h"
+#include "MFEMMesh.h"
 
 registerMooseObject("PlatypusApp", MFEMADIOS2DataCollection);
 
@@ -12,11 +14,16 @@ MFEMADIOS2DataCollection::validParams()
                                 "Number of uniform refinements for oversampling "
                                 "(refinement levels beyond any uniform "
                                 "refinements)");
+  MooseEnum engine_types("BP3 BP4 BP5", "BP3", false);
+  params.addParam<MooseEnum>(
+      "engine_type", engine_types, "Choice of ADIOS2 engine to be used for output.");
   return params;
 }
 
 MFEMADIOS2DataCollection::MFEMADIOS2DataCollection(const InputParameters & parameters)
-  : MFEMDataCollection(parameters), _refinements(getParam<unsigned int>("refinements"))
+  : MFEMDataCollection(parameters),
+    _refinements(getParam<unsigned int>("refinements")),
+    _engine_type(parameters.get<MooseEnum>("engine_type"))
 {
 }
 
@@ -24,7 +31,7 @@ std::shared_ptr<mfem::DataCollection>
 MFEMADIOS2DataCollection::createDataCollection(const std::string & collection_name) const
 {
   auto adios_dc = std::make_shared<mfem::ADIOS2DataCollection>(
-      MPI_COMM_WORLD, _file_base.c_str() + collection_name + ".bp");
+      MPI_COMM_WORLD, _file_base.c_str() + collection_name + ".bp", nullptr, _engine_type);
 
   adios_dc->SetPrecision(9);
   adios_dc->SetLevelsOfDetail(_refinements + 1);

@@ -1,5 +1,13 @@
 [Tests]
   design = 'syntax/Problem/index.md'
+  [./MFEMADIOS2]
+    type = RunApp
+    input = adios2.i
+    requirement = 'Platypus shall have the ability to solve a diffusion problem set up from MOOSE and produce the same result as a native run.'
+  []
+[]
+[Tests]
+  design = 'syntax/Problem/index.md'
   [./MFEMDataCollections]
     type = 'CheckFiles'
     input = 'datacollections.i'
