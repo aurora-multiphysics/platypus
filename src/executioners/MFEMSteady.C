@@ -73,6 +73,16 @@ MFEMSteady::execute()
   // Solve equation system.
   _problem_operator->Solve(_problem_data._f);
 
+  // Displace mesh
+  if (_mfem_problem.mesh().shouldDisplace())
+  {
+    _mfem_problem.mesh().displaceMesh(
+        static_cast<mfem::GridFunction const &>(*_problem_data._gridfunctions.Get(
+            _mfem_problem.mesh()._mesh_displacement_variable.value()
+        ))
+    );
+  }
+
   _mfem_problem.computeIndicators();
   _mfem_problem.computeMarkers();
 
