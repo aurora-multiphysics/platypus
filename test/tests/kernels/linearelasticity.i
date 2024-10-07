@@ -3,11 +3,11 @@
   file = gold/beam-tet.mesh
   dim = 3
   uniform_refine = 2
+  displacement = "displacement"
 []
 
 [Problem]
   type = MFEMProblem
-  device = "cpu"
 []
 
 [FESpaces]
@@ -99,7 +99,8 @@
 []
 
 [Executioner]
-  type = Steady
+  type = MFEMSteady
+  device = "cpu"
 []
 
 [Outputs]

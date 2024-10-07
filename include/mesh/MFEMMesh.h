@@ -44,6 +44,18 @@ public:
    */
   std::unique_ptr<MooseMesh> safeClone() const override;
 
+  /**
+   * Returns true if mesh displacement is required.
+   */
+  bool shouldDisplace() const;
+
+  /**
+   * Displace the nodes of the mesh by the given displacement.
+   */
+  void displaceMesh(mfem::GridFunction const & displacement);
+
+  std::optional<std::string> _mesh_displacement_variable;
+
 private:
   /**
    * Builds a placeholder mesh when no MOOSE mesh is required.
