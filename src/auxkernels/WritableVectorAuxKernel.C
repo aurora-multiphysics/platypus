@@ -1,6 +1,6 @@
 #include "WritableVectorAuxKernel.h"
 
-registerMooseObject("MooseApp", WritableVectorAuxKernel);
+registerMooseObject("PlatypusApp", WritableVectorAuxKernel);
 
 MooseVariable &
 WritableVectorAuxKernel::writableVariable(const std::string & var_name, unsigned int comp)

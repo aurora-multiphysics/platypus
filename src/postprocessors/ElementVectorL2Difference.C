@@ -1,6 +1,6 @@
 #include "ElementVectorL2Difference.h"
 
-registerMooseObject("MooseApp", ElementVectorL2Difference);
+registerMooseObject("PlatypusApp", ElementVectorL2Difference);
 
 InputParameters
 ElementVectorL2Difference::validParams()

@@ -1,6 +1,6 @@
 #include "VectorVariableToComponentsAux.h"
 
-registerMooseObject("MooseApp", VectorVariableToComponentsAux);
+registerMooseObject("PlatypusApp", VectorVariableToComponentsAux);
 
 InputParameters
 VectorVariableToComponentsAux::validParams()
