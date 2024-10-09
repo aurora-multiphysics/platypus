@@ -9,7 +9,7 @@ MFEMCurlCurlKernel::validParams()
   InputParameters params = MFEMKernel::validParams();
   params.addClassDescription(
       "The curl curl operator ($-k\\nabla \\times \\nabla \\times u$), with the weak "
-      "form of $ (k\\nabla \\times \\phi_i, \\nabla \\times u_h), to be added to an MFEM problem");
+      "form of $(k\\nabla \\times \\phi_i, \\nabla \\times u_h)$, to be added to an MFEM problem");
 
   params.addParam<std::string>("coefficient", "Name of property k to multiply the Laplacian by");
 
