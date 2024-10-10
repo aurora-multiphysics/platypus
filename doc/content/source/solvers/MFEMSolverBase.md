@@ -6,18 +6,7 @@ documenting the class, which includes the typical automatic documentation associ
 MooseObject; however, what is contained is ultimately determined by what is necessary to make the
 documentation clear for users.
 
-!syntax description /Solver/MFEMSolverBase
-
 ## Overview
 
 !! Replace these lines with information regarding the MFEMSolverBase object.
 
-## Example Input File Syntax
-
-!! Describe and include an example of how to use the MFEMSolverBase object.
-
-!syntax parameters /Solver/MFEMSolverBase
-
-!syntax inputs /Solver/MFEMSolverBase
-
-!syntax children /Solver/MFEMSolverBase

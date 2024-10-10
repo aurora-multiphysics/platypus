@@ -15,7 +15,7 @@ Documentation on the main components comprising Platypus can be found in:
 - [MFEMExectioner](source/executioners/MFEMExecutioner.md): Controls the assembly and execution of
   an MFEM FE problem. Choice of device (CPU/GPU) and assembly level is controlled here.
 
-- [EquationSystem](source/equation_systems/equation_system.md): Class responsible for definining and
+- [EquationSystem](source/equation_systems/equation_system.md): Class responsible for defining and
   assembling the weak form into an `mfem::Operator` that solves an iteration of the FE problem and
   can be passed to an `mfem::NewtonSolver`.
 

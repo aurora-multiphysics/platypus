@@ -6,18 +6,6 @@ documenting the class, which includes the typical automatic documentation associ
 MooseObject; however, what is contained is ultimately determined by what is necessary to make the
 documentation clear for users.
 
-!syntax description /Outputs/MFEMDataCollection
-
 ## Overview
 
 !! Replace these lines with information regarding the MFEMDataCollection object.
-
-## Example Input File Syntax
-
-!! Describe and include an example of how to use the MFEMDataCollection object.
-
-!syntax parameters /Outputs/MFEMDataCollection
-
-!syntax inputs /Outputs/MFEMDataCollection
-
-!syntax children /Outputs/MFEMDataCollection
