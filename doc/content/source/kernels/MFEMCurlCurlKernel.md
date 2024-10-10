@@ -1,20 +1,26 @@
 # MFEMCurlCurlKernel
 
-!alert construction title=Undocumented Class
-The MFEMCurlCurlKernel has not been documented. The content listed below should be used as a starting point for
-documenting the class, which includes the typical automatic documentation associated with a
-MooseObject; however, what is contained is ultimately determined by what is necessary to make the
-documentation clear for users.
+## Summary
 
 !syntax description /Kernels/MFEMCurlCurlKernel
 
 ## Overview
 
-!! Replace these lines with information regarding the MFEMCurlCurlKernel object.
+Adds the domain integrator for integrating the bilinear form
+
+!equation
+(k\vec\nabla \times \vec u, \vec\nabla \times \vec v)_\Omega \,\,\, \forall \vec v \in V
+
+where $\vec u, \vec v \in H(\mathrm{curl})$.
+
+This term arises from the weak form of the curl curl operator
+
+!equation
+-k\vec\nabla \times \vec\nabla \times \vec u
 
 ## Example Input File Syntax
 
-!! Describe and include an example of how to use the MFEMCurlCurlKernel object.
+!listing curlcurl.i
 
 !syntax parameters /Kernels/MFEMCurlCurlKernel
 

@@ -1,20 +1,23 @@
 # MFEMVectorFEWeakDivergenceKernel
 
-!alert construction title=Undocumented Class
-The MFEMVectorFEWeakDivergenceKernel has not been documented. The content listed below should be used as a starting point for
-documenting the class, which includes the typical automatic documentation associated with a
-MooseObject; however, what is contained is ultimately determined by what is necessary to make the
-documentation clear for users.
+## Summary
 
 !syntax description /Kernels/MFEMVectorFEWeakDivergenceKernel
 
 ## Overview
 
-!! Replace these lines with information regarding the MFEMVectorFEWeakDivergenceKernel object.
+Adds the domain integrator for integrating the mixed bilinear form
 
-## Example Input File Syntax
+!equation
+-(k \vec u, \vec\nabla v)_\Omega \,\,\, \forall v \in V
 
-!! Describe and include an example of how to use the MFEMVectorFEWeakDivergenceKernel object.
+where $\vec u \in H(\mathrm{curl})$ or $H(\mathrm{div})$ and
+$v \in H^1$.
+
+This term arises from the weak form of the divergence operator
+
+!equation
+\vec\nabla \cdot \left(k \vec u\right)
 
 !syntax parameters /Kernels/MFEMVectorFEWeakDivergenceKernel
 

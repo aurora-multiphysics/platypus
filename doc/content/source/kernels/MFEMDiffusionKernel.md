@@ -1,20 +1,26 @@
 # MFEMDiffusionKernel
 
-!alert construction title=Undocumented Class
-The MFEMDiffusionKernel has not been documented. The content listed below should be used as a starting point for
-documenting the class, which includes the typical automatic documentation associated with a
-MooseObject; however, what is contained is ultimately determined by what is necessary to make the
-documentation clear for users.
+## Summary
 
 !syntax description /Kernels/MFEMDiffusionKernel
 
 ## Overview
 
-!! Replace these lines with information regarding the MFEMDiffusionKernel object.
+Adds the domain integrator for integrating the bilinear form
+
+!equation
+(k\vec\nabla u, \vec\nabla v)_\Omega \,\,\, \forall v \in V
+
+where $u, v \in H^1$.
+
+This term arises from the weak form of the Laplacian operator
+
+!equation
+-k \nabla^2 u
 
 ## Example Input File Syntax
 
-!! Describe and include an example of how to use the MFEMDiffusionKernel object.
+!listing kernels/diffusion.i
 
 !syntax parameters /Kernels/MFEMDiffusionKernel
 

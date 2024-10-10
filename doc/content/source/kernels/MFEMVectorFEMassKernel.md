@@ -1,20 +1,26 @@
 # MFEMVectorFEMassKernel
 
-!alert construction title=Undocumented Class
-The MFEMVectorFEMassKernel has not been documented. The content listed below should be used as a starting point for
-documenting the class, which includes the typical automatic documentation associated with a
-MooseObject; however, what is contained is ultimately determined by what is necessary to make the
-documentation clear for users.
+## Summary
 
 !syntax description /Kernels/MFEMVectorFEMassKernel
 
 ## Overview
 
-!! Replace these lines with information regarding the MFEMVectorFEMassKernel object.
+Adds the domain integrator for integrating the bilinear form
+
+!equation
+(k \vec u, \vec v)_\Omega \,\,\, \forall \vec v \in V
+
+where $\vec u, \vec v \in H(\mathrm{curl})$ or $H(\mathrm{div})$.
+
+This term arises from the weak form of the mass operator
+
+!equation
+k \vec u
 
 ## Example Input File Syntax
 
-!! Describe and include an example of how to use the MFEMVectorFEMassKernel object.
+!listing kernels/curlcurl.i
 
 !syntax parameters /Kernels/MFEMVectorFEMassKernel
 

@@ -1,20 +1,22 @@
 # MFEMMixedVectorGradientKernel
 
-!alert construction title=Undocumented Class
-The MFEMMixedVectorGradientKernel has not been documented. The content listed below should be used as a starting point for
-documenting the class, which includes the typical automatic documentation associated with a
-MooseObject; however, what is contained is ultimately determined by what is necessary to make the
-documentation clear for users.
+## Summary
 
 !syntax description /Kernels/MFEMMixedVectorGradientKernel
 
 ## Overview
 
-!! Replace these lines with information regarding the MFEMMixedVectorGradientKernel object.
+Adds the domain integrator for integrating the mixed bilinear form
 
-## Example Input File Syntax
+!equation
+(k \vec \nabla u, \vec v)_\Omega \,\,\, \forall \vec v \in V
 
-!! Describe and include an example of how to use the MFEMMixedVectorGradientKernel object.
+where $u \in H^1$ and $\vec v \in H(\mathrm{curl})$ or $H(\mathrm{div})$.
+
+This term arises from the weak form of the gradient operator
+
+!equation
+k \vec\nabla u
 
 !syntax parameters /Kernels/MFEMMixedVectorGradientKernel
 
