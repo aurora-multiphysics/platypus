@@ -75,16 +75,12 @@ MFEMMesh::shouldDisplace() const
 }
 
 void
-MFEMMesh::displaceMesh(mfem::GridFunction const & displacement)
+MFEMMesh::displace(mfem::GridFunction const & displacement)
 {
   _mfem_par_mesh->EnsureNodes();
   mfem::GridFunction * nodes = _mfem_par_mesh->GetNodes();
 
-  mfem::GridFunction new_displacement(*nodes);
-  new_displacement.ProjectGridFunction(displacement);
-
-  *nodes += new_displacement;
-  // TODO: update FESpaces GridFunctions etc for transient solves
+  *nodes += displacement;
 }
 
 void
