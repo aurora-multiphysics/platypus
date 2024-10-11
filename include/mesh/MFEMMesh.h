@@ -56,8 +56,9 @@ public:
 
   /**
    * Displace the nodes of the mesh by the given displacement.
+   * Does not update FE spaces for variables.
    */
-  void displaceMesh(mfem::GridFunction const & displacement);
+  void displace(mfem::GridFunction const & displacement);
 
   std::optional<std::string> _mesh_displacement_variable;
 

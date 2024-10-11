@@ -16,6 +16,7 @@
     fec_type = H1
     fec_order = FIRST
     vdim = 3
+    ordering = "vdim"
   []
 []
 
