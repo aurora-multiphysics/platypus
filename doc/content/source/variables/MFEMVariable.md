@@ -1,23 +1,28 @@
 # MFEMVariable
 
-!alert construction title=Undocumented Class
-The MFEMVariable has not been documented. The content listed below should be used as a starting point for
-documenting the class, which includes the typical automatic documentation associated with a
-MooseObject; however, what is contained is ultimately determined by what is necessary to make the
-documentation clear for users.
+## Summary
 
-!syntax description /Adaptivity/Markers/MFEMVariable
+!syntax description /Variables/MFEMVariable
 
 ## Overview
 
-!! Replace these lines with information regarding the MFEMVariable object.
+`MFEMVariable` defines a finite element variable (`mfem::ParGridFunction`) with respect to a finite
+element space created on the problem's mesh. Multiple `MFEMVariable` objects can be created with
+respect to the same `MFEMFESpace`.
 
 ## Example Input File Syntax
 
-!! Describe and include an example of how to use the MFEMVariable object.
+Preferentially, users should create an  `MFEMVariable` with respect to an `MFEMFESpace`:
 
-!syntax parameters /Adaptivity/Markers/MFEMVariable
+!listing test/tests/kernels/diffusion.i block=Problem FESpaces Variables
 
-!syntax inputs /Adaptivity/Markers/MFEMVariable
+However, if a user creates a MOOSE variable in an `MFEMProblem`, then Platypus should automatically
+create the corresponding `MFEMFESpace` and `MFEMVariable` for that type:
 
-!syntax children /Adaptivity/Markers/MFEMVariable
+!listing test/tests/variables/mfem_variables_from_moose.i block=Problem Variables
+
+!syntax parameters /Variables/MFEMVariable
+
+!syntax inputs /Variables/MFEMVariable
+
+!syntax children /Variables/MFEMVariable
