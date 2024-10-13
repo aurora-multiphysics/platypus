@@ -24,8 +24,8 @@ Extensions:
             Overview:
                 Key Components: components.md                  
             Documentation:
-                Source: source/index.md           
-                Doxygen: doxygen.md           
+                Source: source/index.md
+                Doxygen: doxygen.md
     MooseDocs.extensions.appsyntax:
         executable: ${ROOT_DIR}
         includes:

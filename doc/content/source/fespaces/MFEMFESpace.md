@@ -1,20 +1,19 @@
 # MFEMFESpace
 
-!alert construction title=Undocumented Class
-The MFEMFESpace has not been documented. The content listed below should be used as a starting point for
-documenting the class, which includes the typical automatic documentation associated with a
-MooseObject; however, what is contained is ultimately determined by what is necessary to make the
-documentation clear for users.
+## Summary
 
 !syntax description /FESpaces/MFEMFESpace
 
 ## Overview
 
-!! Replace these lines with information regarding the MFEMFESpace object.
+Defines a finite element space for MFEM which one or more MFEMVariables can be defined with respect to.
+
+The family of shape functions is selected from the `fec_type` parameter, and the order is controlled
+using the `fec_order` parameter.
 
 ## Example Input File Syntax
 
-!! Describe and include an example of how to use the MFEMFESpace object.
+!listing test/tests/kernels/diffusion.i block=FESpaces Variables
 
 !syntax parameters /FESpaces/MFEMFESpace
 

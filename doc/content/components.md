@@ -38,7 +38,7 @@ Documentation on the main components comprising Platypus can be found in:
   (set of shape functions) used along with a mesh to define a finite element space.
 
 - [MFEMKernel](source/kernels/MFEMKernel.md/index.md): Class defining integrators contributing to
-  the weak form built in `EquationSystem`. Contains methods returning
+  the weak form built inside `EquationSystem`. Contains methods returning
   `mfem::NonlinearFormIntegrators` and `mfem::LinearFormIntegrators` to add to the weak form, along
   with marker arrays labelling the volumes the (domain) integrators are to be applied to.
 
