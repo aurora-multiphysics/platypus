@@ -1,16 +1,11 @@
 # MFEMProblemData
 
-!alert construction title=Undocumented Class
-The MFEMProblemData has not been documented. The content listed below should be used as a starting point for
-documenting the class, which includes the typical automatic documentation associated with a
-MooseObject; however, what is contained is ultimately determined by what is necessary to make the
-documentation clear for users.
+## Summary
+
+`MFEMProblemData` stores and owns the required data associated with a snapshot of the MFEM finite element problem.
 
 ## Overview
 
-!! Replace these lines with information regarding the MFEMProblemData object.
+Data stored in the `MFEMProblemData` struct is built and aded to by builder methods in `MFEMProblem`.
 
-## Example Input File Syntax
-
-!! Describe and include an example of how to use the MFEMProblemData object.
-
+!listing include/problem/MFEMProblemData.h
