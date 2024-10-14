@@ -1,11 +1,17 @@
 # PropertyMap
 
-!alert construction title=Undocumented Class
-The PropertyMap has not been documented. The content listed below should be used as a starting point for
-documenting the class, which includes the typical automatic documentation associated with a
-MooseObject; however, what is contained is ultimately determined by what is necessary to make the
-documentation clear for users.
+## Summary
+
+`PropertyMap` stores MFEM coefficient objects, handling the set-up of piecewise coefficients defined
+across multiple materials.
 
 ## Overview
 
-!! Replace these lines with information regarding the PropertyMap object.
+`PropertyMap` is a templated class used to store `mfem::Coefficient`, `mfem::VectorCoefficient`, or
+`mfem::MatrixCoefficient` derived objects added to the MFEM problem. It also associates added
+coefficents for the same named property on multiple mesh subdomains (blocks) with the (global)
+piecewise coefficients required by domain and boundary integrators that span multiple blocks.
+
+Addition of new material properties and coefficients to the `PropertyMap` should usually be managed
+by calling the appropriate methods of the `PropertyManager`.
+
