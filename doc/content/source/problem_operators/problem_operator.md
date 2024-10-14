@@ -1,11 +1,9 @@
 # ProblemOperator
 
-!alert construction title=Undocumented Class
-The ProblemOperator has not been documented. The content listed below should be used as a starting point for
-documenting the class, which includes the typical automatic documentation associated with a
-MooseObject; however, what is contained is ultimately determined by what is necessary to make the
-documentation clear for users.
+## Summary
 
-## Overview
+`ProblemOperator` objects are `mfem::Operators` that are called inside `MFEMExecutioner` to solve a
+step of the FE problem and update the `mfem::BlockVector` storing the true degrees of freedom of all
+variables.
 
-!! Replace these lines with information regarding the ProblemOperator object.
+For more information on usage, see `MFEMExecutioner` and its derived classes.
