@@ -1,20 +1,23 @@
 # MFEMMesh
 
-!alert construction title=Undocumented Class
-The MFEMMesh has not been documented. The content listed below should be used as a starting point for
-documenting the class, which includes the typical automatic documentation associated with a
-MooseObject; however, what is contained is ultimately determined by what is necessary to make the
-documentation clear for users.
+## Summary
 
 !syntax description /Mesh/MFEMMesh
 
 ## Overview
 
-!! Replace these lines with information regarding the MFEMMesh object.
+`MFEMMesh` is responsible for building a `mfem::ParMesh` object from the provided mesh input file
+for use in an `MFEMProblem`. Exodus files are supported, along with other mesh formats listed at
+<https://mfem.org/mesh-formats/>.
+
+As MOOSE checks for the existence of a `libMesh` MOOSE mesh at various points during setup,
+`MFEMMesh` currently builds an dummy MOOSE mesh of a single quad alongside the MFEM mesh. This dummy
+mesh should not be used in an MFEMProblem; all MFEM objects should access the mfem::ParMesh via the
+getMFEMParMesh() accessor as needed.
 
 ## Example Input File Syntax
 
-!! Describe and include an example of how to use the MFEMMesh object.
+!listing test/tests/kernels/diffusion.i block=Problem Mesh
 
 !syntax parameters /Mesh/MFEMMesh
 
