@@ -18,11 +18,19 @@ SetMeshFESpaceAction::SetMeshFESpaceAction(const InputParameters & parameters) :
 void
 SetMeshFESpaceAction::act()
 {
-  auto & mfem_problem = static_cast<MFEMProblem &>(*_problem.get());
-  mfem::ParMesh & mesh = mfem_problem.mesh().getMFEMParMesh();
-  mfem::ParGridFunction const * displacement = mfem_problem.getMeshDisplacementGridFunction();
-  if (displacement)
+  auto * mfem_problem = dynamic_cast<MFEMProblem *>(_problem.get());
+
+  if (!mfem_problem)
   {
-    mesh.SetNodalFESpace(displacement->ParFESpace());
+    return;
   }
+
+  mfem::ParMesh & mesh = mfem_problem->mesh().getMFEMParMesh();
+  mfem::ParGridFunction const * displacement = mfem_problem->getMeshDisplacementGridFunction();
+  if (!displacement)
+  {
+    return;
+  }
+
+  mesh.SetNodalFESpace(displacement->ParFESpace());
 }
