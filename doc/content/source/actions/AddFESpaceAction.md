@@ -1,20 +1,17 @@
 # AddFESpaceAction
 
-!alert construction title=Undocumented Action Class
-The AddFESpaceAction has not been documented. The content listed below should be used as a starting point for
-documenting the class, which includes the typical automatic documentation associated with an Action;
-however, what is contained is ultimately determined by what is necessary to make the documentation
-clear for users.
+## Summary
 
 !syntax description /FESpaces/AddFESpaceAction
 
 ## Overview
 
-!! Replace these lines with information regarding the AddFESpaceAction action.
+Action called to add an MFEM finite element space to the problem, parsing content inside an `FESpaces`
+block in the user input. Only has an effect if the `Problem` type is set to `MFEMProblem`.
 
 ## Example Input File Syntax
 
-!! Describe and include an example of how to use the AddFESpaceAction action.
+!listing test/tests/kernels/heatconduction.i block=Problem FESpaces
 
 !syntax description /FESpaces/AddFESpaceAction
 

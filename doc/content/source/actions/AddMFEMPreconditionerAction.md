@@ -1,21 +1,17 @@
 # AddMFEMPreconditionerAction
 
-!alert construction title=Undocumented Action Class
-The AddMFEMPreconditionerAction has not been documented. The content listed below should be used as a starting point for
-documenting the class, which includes the typical automatic documentation associated with an Action;
-however, what is contained is ultimately determined by what is necessary to make the documentation
-clear for users.
+## Summary
 
 !syntax description /Preconditioner/AddMFEMPreconditionerAction
 
 ## Overview
 
-!! Replace these lines with information regarding the AddMFEMPreconditionerAction action.
+Action called to add a linear preconditioner to an MFEM problem, parsing content inside a
+`Preconditioner` block in the user input. Only has an effect if the `Problem` type is set to
+`MFEMProblem`.
 
 ## Example Input File Syntax
 
-!! Describe and include an example of how to use the AddMFEMPreconditionerAction action.
-
-!syntax description /Preconditioner/AddMFEMPreconditionerAction
+!listing test/tests/kernels/curlcurl.i block=Problem FESpaces Preconditioner
 
 !syntax parameters /Preconditioner/AddMFEMPreconditionerAction

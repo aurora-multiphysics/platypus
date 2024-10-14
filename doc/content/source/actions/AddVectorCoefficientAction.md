@@ -1,21 +1,16 @@
 # AddVectorCoefficientAction
 
-!alert construction title=Undocumented Action Class
-The AddVectorCoefficientAction has not been documented. The content listed below should be used as a starting point for
-documenting the class, which includes the typical automatic documentation associated with an Action;
-however, what is contained is ultimately determined by what is necessary to make the documentation
-clear for users.
+## Summary
 
 !syntax description /VectorCoefficients/AddVectorCoefficientAction
 
 ## Overview
 
-!! Replace these lines with information regarding the AddVectorCoefficientAction action.
+Action called to add an MFEM vector coefficient to the problem, parsing content inside a `VectorCoefficients`
+block in the user input. Only has an effect if the `Problem` type is set to `MFEMProblem`.
 
 ## Example Input File Syntax
 
-!! Describe and include an example of how to use the AddVectorCoefficientAction action.
-
-!syntax description /VectorCoefficients/AddVectorCoefficientAction
+!listing test/tests/kernels/curlcurl.i block=Problem Functions Coefficients
 
 !syntax parameters /VectorCoefficients/AddVectorCoefficientAction

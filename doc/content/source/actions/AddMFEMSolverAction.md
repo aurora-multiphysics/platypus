@@ -1,21 +1,16 @@
 # AddMFEMSolverAction
 
-!alert construction title=Undocumented Action Class
-The AddMFEMSolverAction has not been documented. The content listed below should be used as a starting point for
-documenting the class, which includes the typical automatic documentation associated with an Action;
-however, what is contained is ultimately determined by what is necessary to make the documentation
-clear for users.
+## Summary
 
 !syntax description /Solver/AddMFEMSolverAction
 
 ## Overview
 
-!! Replace these lines with information regarding the AddMFEMSolverAction action.
+Action called to add a linear solver to an MFEM problem, parsing content inside a `Solver` block in
+the user input. Only has an effect if the `Problem` type is set to `MFEMProblem`.
 
 ## Example Input File Syntax
 
-!! Describe and include an example of how to use the AddMFEMSolverAction action.
-
-!syntax description /Solver/AddMFEMSolverAction
+!listing test/tests/kernels/curlcurl.i block=Problem FESpaces Preconditioner Solver
 
 !syntax parameters /Solver/AddMFEMSolverAction
