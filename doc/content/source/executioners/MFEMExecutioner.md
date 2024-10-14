@@ -1,15 +1,26 @@
 # MFEMExecutioner
 
-!alert construction title=Undocumented Class
-The MFEMExecutioner has not been documented. The content listed below should be used as a starting point for
-documenting the class, which includes the typical automatic documentation associated with a
-MooseObject; however, what is contained is ultimately determined by what is necessary to make the
-documentation clear for users.
+## Summary
+
+Virtual base class for executioners used to solve MFEM FE problems.
 
 ## Overview
 
-!! Replace these lines with information regarding the MFEMExecutioner object.
+`MFEMExecutioner` is a purely virtual base class used to control the execution of MFEM FE problems.
+Importantly, use of an `MFEMExecutioner` derived `Executioner` allows for selection of the desired
+device and assembly strategy to use for the FE problem.
+
+Provided MFEM and its dependencies have been built with support for GPU backends (eg. `cuda` or
+`hip`), they may be selected here to enable use of GPUs for solvers and during assembly.
+
+Selection of partial assembly levels is also supported to improve performance on GPUs; full
+description of the various assembly levels supported is available
+ [here](https://mfem.org/performance/).
+
+By default, legacy assembly of the FE problem on CPUs will be selected for robustness.
 
 ## Example Input File Syntax
 
-!! Describe and include an example of how to use the MFEMExecutioner object.
+!listing test/tests/kernels/diffusion.i block=Executioner
+
+!listing test/tests/kernels/diffusion_partial.i block=Executioner

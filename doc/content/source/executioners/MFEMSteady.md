@@ -1,20 +1,17 @@
 # MFEMSteady
 
-!alert construction title=Undocumented Class
-The MFEMSteady has not been documented. The content listed below should be used as a starting point for
-documenting the class, which includes the typical automatic documentation associated with a
-MooseObject; however, what is contained is ultimately determined by what is necessary to make the
-documentation clear for users.
-
 !syntax description /Executioner/MFEMSteady
 
 ## Overview
 
-!! Replace these lines with information regarding the MFEMSteady object.
+`MFEMSteady` is the `MFEMExecutioner` type used to solve time independent MFEM finite element problems.
+
+As in all [`MFEMExecutioner`](MFEMExecutioner.md) derived classes, the desired device and assembly
+level to use during problem set-up and solution can be selected.
 
 ## Example Input File Syntax
 
-!! Describe and include an example of how to use the MFEMSteady object.
+!listing test/tests/kernels/diffusion.i block=Executioner
 
 !syntax parameters /Executioner/MFEMSteady
 

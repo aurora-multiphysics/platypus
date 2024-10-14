@@ -1,20 +1,23 @@
 # MFEMTransient
 
-!alert construction title=Undocumented Class
-The MFEMTransient has not been documented. The content listed below should be used as a starting point for
-documenting the class, which includes the typical automatic documentation associated with a
-MooseObject; however, what is contained is ultimately determined by what is necessary to make the
-documentation clear for users.
+## Summary
 
 !syntax description /Executioner/MFEMTransient
 
 ## Overview
 
-!! Replace these lines with information regarding the MFEMTransient object.
+`MFEMTransient` is the `MFEMExecutioner` type used to solve time dependent MFEM finite element
+problems.
+
+As in all [`MFEMExecutioner`](MFEMExecutioner.md) derived classes, the desired device and assembly
+level to use during problem set-up and solution can be selected.
+
+Currently, only simulations with constant timestep `dt` and an implicit backwards Euler timestepper
+are supported.
 
 ## Example Input File Syntax
 
-!! Describe and include an example of how to use the MFEMTransient object.
+!listing test/tests/kernels/heatconduction.i block=Executioner
 
 !syntax parameters /Executioner/MFEMTransient
 
