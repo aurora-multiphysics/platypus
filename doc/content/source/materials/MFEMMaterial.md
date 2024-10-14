@@ -1,20 +1,22 @@
 # MFEMMaterial
 
-!alert construction title=Undocumented Class
-The MFEMMaterial has not been documented. The content listed below should be used as a starting point for
-documenting the class, which includes the typical automatic documentation associated with a
-MooseObject; however, what is contained is ultimately determined by what is necessary to make the
-documentation clear for users.
+## Summary
 
 !syntax description /Materials/MFEMMaterial
 
 ## Overview
 
-!! Replace these lines with information regarding the MFEMMaterial object.
+`MFEMMaterial` is the base class for materials defined for MFEM problems. They may be defined on one
+or more subdomains (blocks); if no subdomains are provided, the material will be applied on all
+subdomains in the mesh.
+
+`MFEMMaterial` is intended to allow the specification of `mfem::Coefficient`,
+`mfem::VectorCoefficient`, and `mfem::MatrixCoefficient` objects to add to the MFEM problem in a
+manner consistent with the standard MOOSE Materials system.
 
 ## Example Input File Syntax
 
-!! Describe and include an example of how to use the MFEMMaterial object.
+!listing test/tests/kernels/diffusion.i block=Materials
 
 !syntax parameters /Materials/MFEMMaterial
 

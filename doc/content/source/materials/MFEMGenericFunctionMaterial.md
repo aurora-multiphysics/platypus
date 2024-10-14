@@ -1,20 +1,15 @@
 # MFEMGenericFunctionMaterial
 
-!alert construction title=Undocumented Class
-The MFEMGenericFunctionMaterial has not been documented. The content listed below should be used as a starting point for
-documenting the class, which includes the typical automatic documentation associated with a
-MooseObject; however, what is contained is ultimately determined by what is necessary to make the
-documentation clear for users.
+## Summary
 
 !syntax description /Materials/MFEMGenericFunctionMaterial
 
 ## Overview
 
-!! Replace these lines with information regarding the MFEMGenericFunctionMaterial object.
-
-## Example Input File Syntax
-
-!! Describe and include an example of how to use the MFEMGenericFunctionMaterial object.
+`MFEMGenericFunctionMaterial` defines one or more scalar material properties with values obtained from MOOSE functions on
+one or more subdomains of the mesh, given by the `blocks` parameter if provided, or applied to the
+entire mesh if missing. The scalar material properties are named according to members in the
+`prop_names` parameter, with respective functions used to get property values given by the members of `prop_values`.
 
 !syntax parameters /Materials/MFEMGenericFunctionMaterial
 

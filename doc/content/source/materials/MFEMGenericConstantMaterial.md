@@ -1,20 +1,19 @@
 # MFEMGenericConstantMaterial
 
-!alert construction title=Undocumented Class
-The MFEMGenericConstantMaterial has not been documented. The content listed below should be used as a starting point for
-documenting the class, which includes the typical automatic documentation associated with a
-MooseObject; however, what is contained is ultimately determined by what is necessary to make the
-documentation clear for users.
+## Summary
 
 !syntax description /Materials/MFEMGenericConstantMaterial
 
 ## Overview
 
-!! Replace these lines with information regarding the MFEMGenericConstantMaterial object.
+`MFEMGenericConstantMaterial` defines one or more scalar material properties with constant values on
+one or more subdomains of the mesh, given by the `blocks` parameter if provided, or applied to the
+entire mesh if missing. The scalar material properties are named according to members in the
+`prop_names` parameter, with respective (constant) values given by the members of `prop_values`.
 
 ## Example Input File Syntax
 
-!! Describe and include an example of how to use the MFEMGenericConstantMaterial object.
+!listing test/tests/kernels/heatconduction.i block=Materials
 
 !syntax parameters /Materials/MFEMGenericConstantMaterial
 

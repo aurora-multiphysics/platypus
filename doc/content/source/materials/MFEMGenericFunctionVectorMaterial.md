@@ -1,20 +1,17 @@
 # MFEMGenericFunctionVectorMaterial
 
-!alert construction title=Undocumented Class
-The MFEMGenericFunctionVectorMaterial has not been documented. The content listed below should be used as a starting point for
-documenting the class, which includes the typical automatic documentation associated with a
-MooseObject; however, what is contained is ultimately determined by what is necessary to make the
-documentation clear for users.
+## Summary
 
 !syntax description /Materials/MFEMGenericFunctionVectorMaterial
 
 ## Overview
 
-!! Replace these lines with information regarding the MFEMGenericFunctionVectorMaterial object.
-
-## Example Input File Syntax
-
-!! Describe and include an example of how to use the MFEMGenericFunctionVectorMaterial object.
+`MFEMGenericFunctionVectorMaterial` defines one or more vector material properties with values
+obtained from MOOSE functions on one or more subdomains of the mesh, given by the `blocks` parameter
+if provided, or applied to the entire mesh if missing. The vector material properties are named
+according to members in the `prop_names` parameter, with respective functions used to get property
+values given by the members of `prop_values`. The number of `prop_values` should be the number of
+`prop_names` multiplied by number of vector components, assumed to be the mesh dimension.
 
 !syntax parameters /Materials/MFEMGenericFunctionVectorMaterial
 
