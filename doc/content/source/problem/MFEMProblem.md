@@ -19,7 +19,7 @@ The order in which these actions are executed repects the dependencies declared 
 ## Example Input File Syntax
 
 In order to build the FE problem using the MFEM library on the backend, the `MFEMProblem` type must
- be used in [Problem] block in the user input.
+ be used in `Problem` block in the user input.
 
 !listing test/tests/kernels/diffusion.i block=Problem
 
