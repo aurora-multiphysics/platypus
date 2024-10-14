@@ -1,20 +1,22 @@
 # MFEMParaViewDataCollection
 
-!alert construction title=Undocumented Class
-The MFEMParaViewDataCollection has not been documented. The content listed below should be used as a starting point for
-documenting the class, which includes the typical automatic documentation associated with a
-MooseObject; however, what is contained is ultimately determined by what is necessary to make the
-documentation clear for users.
+## Summary
 
 !syntax description /Outputs/MFEMParaViewDataCollection
 
 ## Overview
 
-!! Replace these lines with information regarding the MFEMParaViewDataCollection object.
+`MFEMDataCollection` controlling output of data to an `mfem::ParaViewDataCollection` for
+visualisation in ParaView. The VTK output format can be chosen (ASCII, BINARY, or BINARY32) as well
+as whether to output the data on high-order elements or on a refined set of output points.
+
+Many of Platypus's tests use ASCII MFEMParaViewDataCollection outputs for portability of the
+reference files on different systems; however, for speed, it is recommended to prefer use of the
+BINARY VTK format.
 
 ## Example Input File Syntax
 
-!! Describe and include an example of how to use the MFEMParaViewDataCollection object.
+!listing test/tests/kernels/diffusion.i block=Outputs
 
 !syntax parameters /Outputs/MFEMParaViewDataCollection
 
