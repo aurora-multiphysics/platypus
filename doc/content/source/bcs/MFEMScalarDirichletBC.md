@@ -1,5 +1,7 @@
 # MFEMScalarDirichletBC
 
+## Summary
+
 !syntax description /BCs/MFEMScalarDirichletBC
 
 ## Overview

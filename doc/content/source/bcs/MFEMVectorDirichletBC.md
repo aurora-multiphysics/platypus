@@ -1,5 +1,7 @@
 # MFEMVectorDirichletBC
 
+## Summary
+
 !syntax description /BCs/MFEMVectorDirichletBC
 
 ## Overview
