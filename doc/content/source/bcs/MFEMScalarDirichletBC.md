@@ -1,20 +1,15 @@
 # MFEMScalarDirichletBC
 
-!alert construction title=Undocumented Class
-The MFEMScalarDirichletBC has not been documented. The content listed below should be used as a starting point for
-documenting the class, which includes the typical automatic documentation associated with a
-MooseObject; however, what is contained is ultimately determined by what is necessary to make the
-documentation clear for users.
-
 !syntax description /BCs/MFEMScalarDirichletBC
 
 ## Overview
 
-!! Replace these lines with information regarding the MFEMScalarDirichletBC object.
+Boundary condition for enforcing an essential (Dirichlet) condition on a scalar variable on the
+boundary, fixing its values to the input scalar coefficient on the boundary.
 
 ## Example Input File Syntax
 
-!! Describe and include an example of how to use the MFEMScalarDirichletBC object.
+!listing test/tests/kernels/heatconduction.i block=BCs
 
 !syntax parameters /BCs/MFEMScalarDirichletBC
 

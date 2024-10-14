@@ -1,16 +1,23 @@
 # MFEMBoundaryCondition
 
-!alert construction title=Undocumented Class
-The MFEMBoundaryCondition has not been documented. The content listed below should be used as a starting point for
-documenting the class, which includes the typical automatic documentation associated with a
-MooseObject; however, what is contained is ultimately determined by what is necessary to make the
-documentation clear for users.
+## Summary
+
+Base class for MFEM boundary condition objects.
 
 ## Overview
 
-!! Replace these lines with information regarding the MFEMBoundaryCondition object.
+`MFEMBoundaryCondition` represent boundary conditions applied to the MFEM problem, applied on the
+user-provided list of boundaries.
 
-## Example Input File Syntax
+Similar to `MFEMKernel`, the boundary condition is applied to the weak form equation that is
+labelled according to the test variable name returned from `getTestVariableName()`.
 
-!! Describe and include an example of how to use the MFEMBoundaryCondition object.
+`MFEMBoundaryCondition` objects come in two varieties, depending on which child class they inherit
+from:
+
+- Essential boundary conditions, inheriting from `MFEMEssentialBC`, for the application of
+  Dirichlet-like BCs removing degrees of freedom from the problem at the boundary;
+
+- Integrated boundary conditions, inheriting from `MFEMIntegratedBC`, which apply one or more
+  boundary integrators to the weak form on the specified boundary surfaces.
 

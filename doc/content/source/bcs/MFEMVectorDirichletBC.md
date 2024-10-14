@@ -1,20 +1,19 @@
 # MFEMVectorDirichletBC
 
-!alert construction title=Undocumented Class
-The MFEMVectorDirichletBC has not been documented. The content listed below should be used as a starting point for
-documenting the class, which includes the typical automatic documentation associated with a
-MooseObject; however, what is contained is ultimately determined by what is necessary to make the
-documentation clear for users.
-
 !syntax description /BCs/MFEMVectorDirichletBC
 
 ## Overview
 
-!! Replace these lines with information regarding the MFEMVectorDirichletBC object.
+Boundary condition for enforcing an essential (Dirichlet) boundary condition on a vector variable on the
+boundary.
+
+The components of the vector variable on which the essential boundary condition are applied are
+controlled by the `_boundary_apply_type` parameter. Currently, only the tangential components of the
+vector variable on the boundary are fixed to the values of the input vector coefficient.
 
 ## Example Input File Syntax
 
-!! Describe and include an example of how to use the MFEMVectorDirichletBC object.
+!listing test/tests/kernels/curlcurl.i block=BCs
 
 !syntax parameters /BCs/MFEMVectorDirichletBC
 

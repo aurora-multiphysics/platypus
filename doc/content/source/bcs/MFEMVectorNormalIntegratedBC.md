@@ -1,20 +1,17 @@
 # MFEMVectorNormalIntegratedBC
 
-!alert construction title=Undocumented Class
-The MFEMVectorNormalIntegratedBC has not been documented. The content listed below should be used as a starting point for
-documenting the class, which includes the typical automatic documentation associated with a
-MooseObject; however, what is contained is ultimately determined by what is necessary to make the
-documentation clear for users.
+## Summary
 
 !syntax description /BCs/MFEMVectorNormalIntegratedBC
 
 ## Overview
 
-!! Replace these lines with information regarding the MFEMVectorNormalIntegratedBC object.
+Adds the boundary integrator for integrating the linear form
 
-## Example Input File Syntax
+!equation
+(\vec f \cdot \vec n, v)_{\partial\Omega} \,\,\, \forall v \in V
 
-!! Describe and include an example of how to use the MFEMVectorNormalIntegratedBC object.
+where $v \in H^1$ and $\vec n$ is the outward facing unit normal vector on the surface.
 
 !syntax parameters /BCs/MFEMVectorNormalIntegratedBC
 
