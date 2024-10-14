@@ -1,20 +1,17 @@
 # MFEMCoefficient
 
-!alert construction title=Undocumented Class
-The MFEMCoefficient has not been documented. The content listed below should be used as a starting point for
-documenting the class, which includes the typical automatic documentation associated with a
-MooseObject; however, what is contained is ultimately determined by what is necessary to make the
-documentation clear for users.
+## Summary
 
 !syntax description /Coefficients/MFEMCoefficient
 
 ## Overview
 
-!! Replace these lines with information regarding the MFEMCoefficient object.
+Base class for `mfem::Coefficient` objects to be added to MFEM problems. Derived classes should
+override the `getCoefficient` method to return the `mfem::Coefficient` of the desired type.
 
 ## Example Input File Syntax
 
-!! Describe and include an example of how to use the MFEMCoefficient object.
+!listing test/tests/kernels/heatconduction.i block=Problem Functions Coefficients
 
 !syntax parameters /Coefficients/MFEMCoefficient
 

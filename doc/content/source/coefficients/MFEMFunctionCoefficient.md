@@ -1,20 +1,17 @@
 # MFEMFunctionCoefficient
 
-!alert construction title=Undocumented Class
-The MFEMFunctionCoefficient has not been documented. The content listed below should be used as a starting point for
-documenting the class, which includes the typical automatic documentation associated with a
-MooseObject; however, what is contained is ultimately determined by what is necessary to make the
-documentation clear for users.
+## Summary
 
 !syntax description /Coefficients/MFEMFunctionCoefficient
 
 ## Overview
 
-!! Replace these lines with information regarding the MFEMFunctionCoefficient object.
+Class defining `mfem::FunctionCoefficient` objects to be added to MFEM problems. The
+`mfem::FunctionCoefficient` takes a named MOOSE function of time and space in its constructor.
 
 ## Example Input File Syntax
 
-!! Describe and include an example of how to use the MFEMFunctionCoefficient object.
+!listing test/tests/kernels/heatconduction.i block=Problem Functions Coefficients
 
 !syntax parameters /Coefficients/MFEMFunctionCoefficient
 

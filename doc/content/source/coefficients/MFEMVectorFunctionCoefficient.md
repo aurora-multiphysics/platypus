@@ -1,20 +1,17 @@
 # MFEMVectorFunctionCoefficient
 
-!alert construction title=Undocumented Class
-The MFEMVectorFunctionCoefficient has not been documented. The content listed below should be used as a starting point for
-documenting the class, which includes the typical automatic documentation associated with a
-MooseObject; however, what is contained is ultimately determined by what is necessary to make the
-documentation clear for users.
+## Summary
 
 !syntax description /VectorCoefficients/MFEMVectorFunctionCoefficient
 
 ## Overview
 
-!! Replace these lines with information regarding the MFEMVectorFunctionCoefficient object.
+Class defining `mfem::VectorFunctionCoefficient` objects to be added to MFEM problems. The
+`mfem::VectorFunctionCoefficient` takes a named MOOSE vector function of time and space in its constructor.
 
 ## Example Input File Syntax
 
-!! Describe and include an example of how to use the MFEMVectorFunctionCoefficient object.
+!listing test/tests/kernels/curlcurl.i block=Problem Functions VectorCoefficients
 
 !syntax parameters /VectorCoefficients/MFEMVectorFunctionCoefficient
 

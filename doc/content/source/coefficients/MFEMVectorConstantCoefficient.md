@@ -1,20 +1,14 @@
 # MFEMVectorConstantCoefficient
 
-!alert construction title=Undocumented Class
-The MFEMVectorConstantCoefficient has not been documented. The content listed below should be used as a starting point for
-documenting the class, which includes the typical automatic documentation associated with a
-MooseObject; however, what is contained is ultimately determined by what is necessary to make the
-documentation clear for users.
+## Summary
 
 !syntax description /VectorCoefficients/MFEMVectorConstantCoefficient
 
 ## Overview
 
-!! Replace these lines with information regarding the MFEMVectorConstantCoefficient object.
-
-## Example Input File Syntax
-
-!! Describe and include an example of how to use the MFEMVectorConstantCoefficient object.
+Class defining `mfem::VectorConstantCoefficient` objects to be added to MFEM problems. The
+`mfem::VectorConstantCoefficient` takes a triple of constant values (one for each vector component)
+to define the constant vector returned by the coefficient.
 
 !syntax parameters /VectorCoefficients/MFEMVectorConstantCoefficient
 
