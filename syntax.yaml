@@ -30949,7 +30949,7 @@
       cpp_type: std::vector<double, std::allocator<double> >
       group_name:
       description: |
-        Coefficents ($\sigma$) multiplier for the coupled force term.
+        Coefficients ($\sigma$) multiplier for the coupled force term.
     - name: control_tags
       required: No
       default: !!str

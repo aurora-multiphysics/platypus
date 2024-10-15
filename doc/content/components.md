@@ -9,7 +9,7 @@ Documentation on the main components comprising Platypus can be found in:
 - [PlatypusApp](source/base/PlatypusApp.md): Defines relative dependencies between Actions when
   parsing user input files during problem set-up, and thus the order in which they are executed.
 
-- [MFEMExectioner](source/executioners/MFEMExecutioner.md): Controls the assembly and execution of
+- [MFEMExecutioner](source/executioners/MFEMExecutioner.md): Controls the assembly and execution of
   an MFEM FE problem. Choice of device (CPU/GPU) and assembly level is controlled here.
 
 - [MFEMProblem](source/problem/MFEMProblem.md): Builder responsible for constructing and adding user

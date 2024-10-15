@@ -12,8 +12,8 @@
  controlled by the `MFEMExecutioner` used to solve the problem.
 
 `MFEMProblem` methods are called by `Actions` during parsing of the user's input file, which add
- and/or initialise members of the owned [MFEMProblemData](source/problem/MFEMProblemData.md) struct.
-The order in which these actions are executed repects the dependencies declared in
+ and/or initialize members of the owned [MFEMProblemData](source/problem/MFEMProblemData.md) struct.
+The order in which these actions are executed respects the dependencies declared in
  [PlatypusApp](source/base/PlatypusApp.md).
 
 ## Example Input File Syntax

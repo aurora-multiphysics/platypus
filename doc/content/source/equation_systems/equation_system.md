@@ -8,7 +8,7 @@ handles the update of the state of all variables (including any required nonline
 !equation
 {\left(\mathcal{L}(u), v\right)_{\Omega}=\left(f,v\right)_{\Omega}\,\,\,\forall v \in V}
 
-Discretising the trial variable $u$ by $u\approx u_h = \sum_i u_i \phi_i(\vec x)$,
+Discretizing the trial variable $u$ by $u\approx u_h = \sum_i u_i \phi_i(\vec x)$,
 and approximating the test space $V$ by a finite dimensional subspace spanned by
 the basis $\{\varphi_i\}$, the weak form becomes
 

@@ -10,7 +10,7 @@ Virtual base class for executioners used to solve MFEM FE problems.
 Importantly, use of an `MFEMExecutioner` derived `Executioner` allows for selection of the desired
 device and assembly strategy to use for the FE problem.
 
-Provided MFEM and its dependencies have been built with support for GPU backends (eg. `cuda` or
+Provided MFEM and its dependencies have been built with support for GPU backends (e.g. `cuda` or
 `hip`), they may be selected here to enable use of GPUs for solvers and during assembly.
 
 Selection of partial assembly levels is also supported to improve performance on GPUs; full

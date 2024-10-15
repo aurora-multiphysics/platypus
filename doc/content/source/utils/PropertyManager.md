@@ -11,7 +11,7 @@ global piecewise coefficients constructed from multiple coefficients defined on 
 of the mesh.
 
 End users should not usually need to interact with the `PropertyManager` directly, instead
-definining `Materials` for all subdomains of their mesh which will add properties using the
+defining `Materials` for all subdomains of their mesh which will add properties using the
 `PropertyManager` internally. Developers wanting to add new coefficients to the MFEMProblem should
 do so using the `PropertyManager::declareXXX` methods, and use `getScalarProperty`,
 `getVectorProperty`, and/or `getMatrixProperty` to fetch global coefficients for properties in the
