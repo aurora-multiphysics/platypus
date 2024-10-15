@@ -1,12 +1,15 @@
 # MFEMSolverBase
 
-!alert construction title=Undocumented Class
-The MFEMSolverBase has not been documented. The content listed below should be used as a starting point for
-documenting the class, which includes the typical automatic documentation associated with a
-MooseObject; however, what is contained is ultimately determined by what is necessary to make the
-documentation clear for users.
+## Summary
+
+Base class for `mfem::Solver` objects to use in MFEM problems.
 
 ## Overview
 
-!! Replace these lines with information regarding the MFEMSolverBase object.
+Classes derived from `MFEMSolverBase` can usually be used as preconditioners or linear solvers; the
+`constructSolver` method should be overriden to construct a `shared_ptr` to an `mfem::Solver`
+derived object, and the `getSolver` method should return the `shared_ptr` for use during a solve.
+
+Problem-specific information - such as finite element spaces used in the set-up of some
+preconditioners - can be passed to the `mfem::Solver` at construction time.
 
