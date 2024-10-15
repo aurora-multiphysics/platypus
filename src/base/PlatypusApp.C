@@ -45,6 +45,7 @@ associateSyntaxInner(Syntax & syntax, ActionFactory & /*action_factory*/)
   registerSyntaxTask(
       "AddVectorCoefficientAction", "VectorCoefficients/*", "add_mfem_vector_coefficients");
   addTaskDependency("add_material", "add_mfem_vector_coefficients");
+  addTaskDependency("add_bc", "add_mfem_vector_coefficients");
 
   // add FESpaces
   registerMooseObjectTask("add_mfem_fespaces", MFEMFESpace, false);
