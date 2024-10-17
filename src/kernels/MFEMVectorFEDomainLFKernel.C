@@ -6,9 +6,9 @@ InputParameters
 MFEMVectorFEDomainLFKernel::validParams()
 {
   InputParameters params = MFEMKernel::validParams();
-  params.addClassDescription("A volumetric function ($f$), with the weak "
-                             "form of $ (f, u_h), to be added to an MFEM problem");
-
+  params.addClassDescription("Adds the domain integrator to an MFEM problem for the linear form "
+                             "$(\\vec f, \\vec v)_\\Omega$ "
+                             "arising from the weak form of the forcing term $\\vec f$.");
   params.addParam<std::string>("vector_coefficient", "Name of MFEM vector coefficient f.");
 
   return params;
