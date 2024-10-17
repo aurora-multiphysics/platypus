@@ -1,0 +1,28 @@
+# This is a Spack Environment file.
+#
+# It describes a set of packages to be installed, along with
+# configuration settings.
+spack:
+  # add package specs to the `specs` list
+  specs:
+  - bear
+  - cmake@3.27
+  - hdf5+hl
+  - libpng
+  - libtirpc
+  - libtool
+  - netcdf-c
+  - openmpi
+  - petsc+hypre+int64+metis+mpi+mumps+ptscotch+scalapack+shared+strumpack+superlu-dist
+  - py-deepdiff
+  - py-jinja2
+  - py-packaging
+  - py-pyyaml
+  - py-setuptools
+  - py-xmltodict
+  - python@3.12
+  - zlib
+
+  view: true
+  concretizer:
+    unify: true
