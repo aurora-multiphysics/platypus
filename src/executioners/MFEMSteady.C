@@ -72,6 +72,21 @@ MFEMSteady::execute()
 
   // Solve equation system.
   _problem_operator->Solve(_problem_data._f);
+  auto iterative_solver =
+      dynamic_cast<mfem::IterativeSolver *>(_problem_data._jacobian_solver.get());
+  if (iterative_solver)
+  {
+    _last_solve_converged = iterative_solver->GetConverged();
+  }
+  else
+  {
+    _last_solve_converged = true;
+  }
+  if (!lastSolveConverged())
+  {
+    _console << "Aborting as solve did not converge" << std::endl;
+    return;
+  }
 
   _mfem_problem.computeIndicators();
   _mfem_problem.computeMarkers();

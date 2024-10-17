@@ -12,8 +12,6 @@ public:
   MFEMExecutioner(const InputParameters & params);
   virtual ~MFEMExecutioner() override = default;
 
-  virtual bool lastSolveConverged() const override { return true; };
-
   /// Virtual method to construct the ProblemOperator. Call for default problems.
   virtual void constructProblemOperator() = 0;
 

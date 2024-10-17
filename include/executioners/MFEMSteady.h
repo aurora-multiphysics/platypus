@@ -11,6 +11,7 @@ public:
   explicit MFEMSteady(const InputParameters & params);
   ~MFEMSteady() override = default;
 
+  virtual bool lastSolveConverged() const override { return _last_solve_converged; };
   void constructProblemOperator() override;
   virtual void init() override;
   virtual void execute() override;
@@ -26,6 +27,6 @@ protected:
   unsigned int _output_iteration_number;
 
 private:
-  bool _last_solve_converged;
+  bool _last_solve_converged{false};
   std::unique_ptr<platypus::ProblemOperator> _problem_operator{nullptr};
 };

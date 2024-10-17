@@ -41,7 +41,7 @@ MFEMTransient::constructProblemOperator()
 }
 
 void
-MFEMTransient::step(double dt, int it) const
+MFEMTransient::step(double dt, int it)
 {
   // Check if current time step is final
   if (_t + dt >= _t_final - dt / 2)
@@ -54,6 +54,21 @@ MFEMTransient::step(double dt, int it) const
 
   // Sync Host/Device
   _problem_data._f.HostRead();
+  auto iterative_solver =
+      dynamic_cast<mfem::IterativeSolver *>(_problem_data._jacobian_solver.get());
+  if (iterative_solver)
+  {
+    _last_solve_converged = iterative_solver->GetConverged();
+  }
+  else
+  {
+    _last_solve_converged = true;
+  }
+  if (!lastSolveConverged())
+  {
+    _console << "Aborting as solve did not converge" << std::endl;
+    return;
+  }
 
   // Perform the output of the current time step
   _mfem_problem.outputStep(EXEC_TIMESTEP_END);

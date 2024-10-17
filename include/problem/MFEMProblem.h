@@ -26,7 +26,7 @@ public:
 
   virtual void initialSetup() override;
   virtual void externalSolve() override{};
-  virtual bool nlConverged(const unsigned int nl_sys_num) override { return true; };
+  virtual bool nlConverged(const unsigned int nl_sys_num) override { return false; };
   virtual void syncSolutions(Direction direction) override{};
 
   /**

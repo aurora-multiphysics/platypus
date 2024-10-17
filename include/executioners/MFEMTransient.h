@@ -11,14 +11,16 @@ public:
   explicit MFEMTransient(const InputParameters & params);
   ~MFEMTransient() override = default;
 
+  virtual bool lastSolveConverged() const override { return _last_solve_converged; };
   void constructProblemOperator() override;
-  void step(double dt, int it) const;
+  void step(double dt, int it);
   virtual void init() override;
   virtual void execute() override;
 
   mutable double _t_step; // Time step
 
 private:
+  bool _last_solve_converged{false};
   double _t_initial;       // Start time
   double _t_final;         // End time
   Real & _t;               // Current time
