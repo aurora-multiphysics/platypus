@@ -23,18 +23,13 @@ MFEMADIOS2DataCollection::validParams()
 MFEMADIOS2DataCollection::MFEMADIOS2DataCollection(const InputParameters & parameters)
   : MFEMDataCollection(parameters),
     _refinements(getParam<unsigned int>("refinements")),
-    _engine_type(parameters.get<MooseEnum>("engine_type"))
+    _engine_type(parameters.get<MooseEnum>("engine_type")),
+    _adios_dc(_problem_data._comm,
+              (_file_base + std::string("/Run") + std::to_string(getFileNumber()) + ".bp").c_str(),
+              _problem_data._pmesh.get(),
+              _engine_type)
 {
-}
-
-std::shared_ptr<mfem::DataCollection>
-MFEMADIOS2DataCollection::createDataCollection(const std::string & collection_name) const
-{
-  auto adios_dc = std::make_shared<mfem::ADIOS2DataCollection>(
-      MPI_COMM_WORLD, _file_base.c_str() + collection_name + ".bp", nullptr, _engine_type);
-
-  adios_dc->SetPrecision(9);
-  adios_dc->SetLevelsOfDetail(_refinements + 1);
-
-  return adios_dc;
+  _adios_dc.SetPrecision(9);
+  _adios_dc.SetLevelsOfDetail(_refinements + 1);
+  registerFields();
 }

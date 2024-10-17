@@ -12,10 +12,10 @@ public:
 
   MFEMADIOS2DataCollection(const InputParameters & parameters);
 
-  std::shared_ptr<mfem::DataCollection>
-  createDataCollection(const std::string & collection_name) const override;
+  virtual mfem::DataCollection & getDataCollection() override { return _adios_dc; }
 
 protected:
   unsigned int _refinements;
   const std::string _engine_type;
+  mfem::ADIOS2DataCollection _adios_dc;
 };
