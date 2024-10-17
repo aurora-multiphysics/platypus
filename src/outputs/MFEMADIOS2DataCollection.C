@@ -25,7 +25,7 @@ MFEMADIOS2DataCollection::MFEMADIOS2DataCollection(const InputParameters & param
     _refinements(getParam<unsigned int>("refinements")),
     _engine_type(parameters.get<MooseEnum>("engine_type")),
     _adios_dc(_problem_data._comm,
-              (_file_base + std::string("/Run") + std::to_string(getFileNumber()) + ".bp").c_str(),
+              (_file_base + std::string("/Run") + std::to_string(getFileNumber())).c_str(),
               _problem_data._pmesh.get(),
               _engine_type)
 {
