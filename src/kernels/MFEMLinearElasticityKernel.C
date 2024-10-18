@@ -11,10 +11,10 @@ MFEMLinearElasticityKernel::validParams()
       "+ \\mu (\\partial_j u_i + \\partial_i u_j)$ with the weak form of"
       "$(\\sigma(\\phi_i), \\sigma(u_h))$, to be added to an MFEM problem");
 
-  params.addParam<std::string>("lambda",
-                               "Name of MFEM Lame costant lambda to multiply the div(u)*I term by");
+  params.addParam<std::string>(
+      "lambda", "Name of MFEM Lame constant lambda to multiply the div(u)*I term by");
   params.addParam<std::string>("mu",
-                               "Name of MFEM Lame costant mu to multiply the gradients term by");
+                               "Name of MFEM Lame constant mu to multiply the gradients term by");
 
   return params;
 }
