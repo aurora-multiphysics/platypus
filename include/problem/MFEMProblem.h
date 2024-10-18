@@ -155,13 +155,16 @@ public:
    */
   MFEMProblemData & getProblemData() { return _problem_data; }
 
+  /**
+   * Displace the mesh, if mesh displacement is enabled.
+   */
   void displaceMesh();
 
   /**
-   * Method to get the displacement GridFunction to apply to nodes.
-   * nullptr if no mesh displacement GridFunction specified.
+   * Returns optional reference to the displacement GridFunction to apply to nodes.
    */
-  mfem::ParGridFunction const * getMeshDisplacementGridFunction();
+  std::optional<std::reference_wrapper<mfem::ParGridFunction const>>
+  getMeshDisplacementGridFunction();
 
 protected:
   /**

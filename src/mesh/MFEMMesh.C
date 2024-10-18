@@ -68,12 +68,6 @@ MFEMMesh::buildMesh()
   }
 }
 
-bool
-MFEMMesh::shouldDisplace() const
-{
-  return _mesh_displacement_variable.has_value();
-}
-
 void
 MFEMMesh::displace(mfem::GridFunction const & displacement)
 {

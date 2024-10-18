@@ -26,11 +26,11 @@ SetMeshFESpaceAction::act()
   }
 
   mfem::ParMesh & mesh = mfem_problem->mesh().getMFEMParMesh();
-  mfem::ParGridFunction const * displacement = mfem_problem->getMeshDisplacementGridFunction();
+  auto const displacement = mfem_problem->getMeshDisplacementGridFunction();
   if (!displacement)
   {
     return;
   }
 
-  mesh.SetNodalFESpace(displacement->ParFESpace());
+  mesh.SetNodalFESpace(displacement.value().get().ParFESpace());
 }

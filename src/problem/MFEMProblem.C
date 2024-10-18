@@ -284,17 +284,18 @@ MFEMProblem::displaceMesh()
   }
 }
 
-mfem::ParGridFunction const *
+std::optional<std::reference_wrapper<mfem::ParGridFunction const>>
 MFEMProblem::getMeshDisplacementGridFunction()
 {
-  // If std::optional<T&> and transform were allowed this would be easier
-  if (mesh()._mesh_displacement_variable.has_value())
+  // If C++23 transform were available this would be easier
+  auto const displacement_variable = mesh().getMeshDisplacementVariable();
+  if (displacement_variable)
   {
-    return _problem_data._gridfunctions.Get(mesh()._mesh_displacement_variable.value());
+    return *_problem_data._gridfunctions.Get(displacement_variable.value());
   }
   else
   {
-    return nullptr;
+    return std::nullopt;
   }
 }
 
