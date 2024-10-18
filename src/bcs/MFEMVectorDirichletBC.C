@@ -2,8 +2,15 @@
 
 registerMooseObject("PlatypusApp", MFEMVectorDirichletBC);
 
-// TODO: Currently assumes the vector function coefficient is 3D
 MFEMVectorDirichletBC::MFEMVectorDirichletBC(const InputParameters & parameters)
-  : MFEMVectorDirichletBCBase(parameters, MFEMVectorDirichletBCBase::APPLY_TYPE::STANDARD)
+  : MFEMVectorDirichletBCBase(parameters)
 {
+}
+
+void
+MFEMVectorDirichletBC::ApplyBC(mfem::GridFunction & gridfunc, mfem::Mesh * mesh_)
+{
+  mfem::Array<int> ess_bdrs(mesh_->bdr_attributes.Max());
+  ess_bdrs = GetMarkers(*mesh_);
+  gridfunc.ProjectBdrCoefficient(*_vec_coef->getVectorCoefficient(), ess_bdrs);
 }
