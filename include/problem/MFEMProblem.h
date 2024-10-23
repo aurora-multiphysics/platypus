@@ -1,4 +1,5 @@
 #pragma once
+#include <map>
 #include "../common/pfem_extras.hpp"
 #include "ExternalProblem.h"
 #include "MFEMProblemData.h"
@@ -13,6 +14,7 @@
 #include "MFEMDataCollection.h"
 #include "MFEMFESpace.h"
 #include "MFEMSolverBase.h"
+#include "Function.h"
 #include "MooseEnum.h"
 #include "libmesh/string_to_enum.h"
 
@@ -116,6 +118,15 @@ public:
                  InputParameters & parameters) override;
 
   /**
+   * Override of ExternalProblem::addFunction. Uses ExternalProblem::addFunction to create a
+   * MFEMGeneralUserObject representing the function in MOOSE, and creates a corresponding
+   * MFEM Coefficient or VectorCoefficient object.
+   */
+  void addFunction(const std::string & type,
+                   const std::string & name,
+                   InputParameters & parameters) override;
+
+  /**
    * Method called in AddMFEMPreconditionerAction which will create the solver.
    */
   void addMFEMPreconditioner(const std::string & user_object_name,
@@ -155,6 +166,18 @@ public:
    */
   MFEMProblemData & getProblemData() { return _problem_data; }
 
+  /**
+   * Method to get the MFEM scalar coefficient object corresponding to the named function.
+   */
+  virtual std::shared_ptr<mfem::FunctionCoefficient>
+  getScalarFunctionCoefficient(const std::string & name);
+
+  /**
+   * Method to get the MFEM vector coefficient object corresponding to the named function.
+   */
+  virtual std::shared_ptr<mfem::VectorFunctionCoefficient>
+  getVectorFunctionCoefficient(const std::string & name);
+
 protected:
   /**
    * Template method for adding kernels. We can only add kernels using equation system problem
@@ -177,4 +200,6 @@ protected:
   }
 
   MFEMProblemData _problem_data;
+  std::map<std::string, std::shared_ptr<mfem::FunctionCoefficient>> _scalar_functions;
+  std::map<std::string, std::shared_ptr<mfem::VectorFunctionCoefficient>> _vector_functions;
 };
