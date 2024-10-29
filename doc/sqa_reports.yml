@@ -1,0 +1,27 @@
+Applications:
+    platypus:
+        app_types:
+            - platypus
+        content_directory: ${ROOT_DIR}/doc/content
+        remove:
+            - ${MOOSE_DIR}/framework/doc/remove.yml
+        log_default: WARNING
+        show_warning: false
+
+Documents:
+    software_requirements_specification: sqa/platypus_srs.md
+    software_design_description: sqa/platypus_sdd.md
+    software_test_plan: sqa/platypus_stp.md
+    requirements_traceability_matrix: sqa/platypus_rtm.md
+    verification_validation_report: sqa/platypus_vvr.md
+    failure_analysis_report: sqa/platypus_far.md
+    software_library_list: sqa/platypus_sll.md
+    log_default: WARNING
+    show_warning: false
+
+Requirements:
+    platypus:
+        directories:
+            - ${ROOT_DIR}/test
+        log_default: WARNING
+        show_warning: false
