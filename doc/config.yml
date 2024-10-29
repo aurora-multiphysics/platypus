@@ -22,6 +22,7 @@ Extensions:
                 Docker Container: installation/using_docker.md
                 CSD3 Build Scripts: installation/csd3_build.md
             Documentation:
+                Source: source/index.md
                 Doxygen: doxygen.md
     MooseDocs.extensions.appsyntax:
         executable: ${ROOT_DIR}
