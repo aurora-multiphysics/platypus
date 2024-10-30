@@ -103,6 +103,10 @@ install_spack_deps() {
     spack install slepc +cuda cuda_arch=80
     spack load slepc arch=${ARCH}
 
+    echo "Installing Conduit..."
+    spack install conduit +adios +mpi +parmetis +shared
+    spack load conduit arch=${ARCH}
+
     echo "Installing netcdf..."
     spack install netcdf-c +parallel-netcdf
     spack load netcdf-c arch=${ARCH}
@@ -173,6 +177,7 @@ install_mfem() {
         -DMFEM_USE_SUPERLU=YES \
         -DMFEM_USE_NETCDF=YES \
         -DMFEM_USE_GSLIB=YES \
+        -DMFEM_USE_CONDUIT=YES \
         -DGSLIB_DIR="${BUILD_PATH}/gslib/build" \
         -DSuperLUDist_DIR="${SLU_DIR}" \
         -DSuperLUDist_VERSION_OK=YES
