@@ -90,6 +90,12 @@ install_spack_deps() {
     spack uninstall -ay arch=${ARCH}
     spack clean -ab
 
+    echo "Installing Conduit..."
+    spack install conduit +mpi +parmetis +shared \
+        ^mpich +cuda +slurm cuda_arch=80 \
+        ^hdf5 +cxx +fortran +hl +mpi +shared
+    spack load conduit arch=${ARCH}
+
     echo "Installing Petsc..."
     # Spack's petsc doesn't like openmpi, but it works with mpich
     spack install petsc +cuda cuda_arch=80 +fortran +hdf5 +hypre +metis +mpi \
@@ -103,17 +109,13 @@ install_spack_deps() {
     spack install slepc +cuda cuda_arch=80
     spack load slepc arch=${ARCH}
 
-    echo "Installing Conduit..."
-    spack install conduit +adios +mpi +parmetis +shared
-    spack load conduit arch=${ARCH}
-
     echo "Installing netcdf..."
     spack install netcdf-c +parallel-netcdf
     spack load netcdf-c arch=${ARCH}
 
-    echo "Installing ninja..."
-    spack install ninja
-    spack load ninja arch=${ARCH}
+    #echo "Installing ninja..."
+    #spack install ninja
+    #spack load ninja arch=${ARCH}
 
     echo "Adding python modules..."
 
@@ -153,6 +155,7 @@ install_mfem() {
     export F77=mpif77
     export FC=mpif90
     SLU_DIR=$(spack find --format "{prefix}" superlu-dist)
+    CONDUIT_DIR=$(spack find --format "{prefix}" conduit)
     export SLU_DIR
 
     # Build MFEM
@@ -179,6 +182,7 @@ install_mfem() {
         -DMFEM_USE_GSLIB=YES \
         -DMFEM_USE_CONDUIT=YES \
         -DGSLIB_DIR="${BUILD_PATH}/gslib/build" \
+        -DCONDUIT_DIR="${CONDUIT_DIR}" \
         -DSuperLUDist_DIR="${SLU_DIR}" \
         -DSuperLUDist_VERSION_OK=YES
 
