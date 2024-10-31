@@ -12,7 +12,9 @@ MFEMVariable::validParams()
   // Create user-facing 'boundary' input for restricting inheriting object to boundaries.
   params.addRequiredParam<UserObjectName>("fespace",
                                           "The finite element space this variable is defined on.");
-
+  //STP: Temp hack to add a "initial condition" to test transfers in lieu of
+  //Initial condition system
+  params.addParam<double>("ic",0.0,"Temp way to set the grid function to test transfers");
   // Require moose variable parameters (not used!)
   params += MooseVariableBase::validParams();
 
@@ -27,7 +29,8 @@ MFEMVariable::MFEMVariable(const InputParameters & parameters)
     _fespace(getUserObject<MFEMFESpace>("fespace")),
     _gridfunction(buildGridFunction())
 {
-  *_gridfunction = 0.0;
+  
+  *_gridfunction = parameters.get<double>("ic");
 }
 
 const std::shared_ptr<mfem::ParGridFunction>

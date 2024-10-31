@@ -1,4 +1,4 @@
-MFEM_DIR			:=$(APPLICATION_DIR)/../mfem/build
+MFEM_DIR			?=$(APPLICATION_DIR)/../mfem/build_cpu
 
 include $(MFEM_DIR)/config/config.mk
 MFEM_INCLUDES 		:= -I$(MFEM_INC_DIR)/config -I$(MFEM_DIR)/ -I$(MFEM_DIR)/../miniapps/common
