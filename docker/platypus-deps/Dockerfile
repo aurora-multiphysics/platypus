@@ -189,11 +189,6 @@ RUN METHOD=opt make -j$compile_cores
 WORKDIR /$WORKDIR/moose/test
 RUN METHOD=opt make -j$compile_cores
 
-# Build HEAT_TRANSFER module 
-WORKDIR /$WORKDIR/moose/modules/heat_transfer
-RUN METHOD=opt make -j$compile_cores
-
-# Build SOLID_MECHANICS module 
-WORKDIR /$WORKDIR/moose/modules/solid_mechanics
-RUN METHOD=opt make -j$compile_cores
-
+# Build HEAT_TRANSFER and SOLID_MECHANICS modules
+WORKDIR /$WORKDIR/moose/modules
+RUN METHOD=opt make ALL_MODULES=no HEAT_TRANSFER=yes SOLID_MECHANICS=yes -j$compile_cores
