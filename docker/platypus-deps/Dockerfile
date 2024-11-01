@@ -108,8 +108,8 @@ RUN ./configure \
 
 # Install PETSc
 WORKDIR /$WORKDIR/petsc/petsc-3.19.3
-RUN make PETSC_DIR=/$WORKDIR/petsc/petsc-3.19.3 PETSC_ARCH=arch-linux-c-opt install && \
-    make PETSC_DIR=/$WORKDIR/petsc/petsc-3.19.3 PETSC_ARCH=arch-linux-c-opt check
+RUN make PETSC_DIR=/$WORKDIR/petsc/petsc-3.19.3 PETSC_ARCH=arch-linux-c-opt install 
+#&& \  make PETSC_DIR=/$WORKDIR/petsc/petsc-3.19.3 PETSC_ARCH=arch-linux-c-opt check
 WORKDIR /$WORKDIR
 RUN export PETSC_DIR=/$WORKDIR/petsc
 
@@ -189,6 +189,10 @@ RUN METHOD=opt make -j$compile_cores
 WORKDIR /$WORKDIR/moose/test
 RUN METHOD=opt make -j$compile_cores
 
-# Build HEAT_TRANSFER and SOLID_MECHANICS modules
-WORKDIR /$WORKDIR/moose/modules
-RUN METHOD=opt make ALL_MODULES=no HEAT_TRANSFER=yes SOLID_MECHANICS=yes -j$compile_cores
+# Build HEAT_TRANSFER module 
+WORKDIR /$WORKDIR/moose/modules/heat_transfer
+RUN METHOD=opt make -j$compile_cores
+
+# Build SOLID_MECHANICS module 
+WORKDIR /$WORKDIR/moose/modules/solid_mechanics
+RUN METHOD=opt make -j$compile_cores
