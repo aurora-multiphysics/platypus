@@ -108,8 +108,8 @@ RUN ./configure \
 
 # Install PETSc
 WORKDIR /$WORKDIR/petsc/petsc-3.19.3
-RUN make PETSC_DIR=/$WORKDIR/petsc/petsc-3.19.3 PETSC_ARCH=arch-linux-c-opt install 
-#&& \  make PETSC_DIR=/$WORKDIR/petsc/petsc-3.19.3 PETSC_ARCH=arch-linux-c-opt check
+RUN make PETSC_DIR=/$WORKDIR/petsc/petsc-3.19.3 PETSC_ARCH=arch-linux-c-opt install && \
+    make PETSC_DIR=/$WORKDIR/petsc/petsc-3.19.3 PETSC_ARCH=arch-linux-c-opt check
 WORKDIR /$WORKDIR
 RUN export PETSC_DIR=/$WORKDIR/petsc
 
