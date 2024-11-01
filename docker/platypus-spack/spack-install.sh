@@ -55,9 +55,15 @@ git checkout master
 cd moose
 ./configure --with-derivative-size=200
 ./scripts/update_and_rebuild_libmesh.sh \
+    --with-cxx=mpicxx \
+    --with-cc=mpicc \
+    --with-fc=mpif90 \
+    --with-f77=mpif77 \
+    --with-f90=mpif90 \
     --with-mpi="$SPACK_VIEW" \
     --with-mpi-include="$SPACK_VIEW" \
-    --with-mpi-lib="$SPACK_VIEW"
+    --with-mpi-lib="$SPACK_VIEW" \
+    --with-netcdf="$SPACK_VIEW"
 ./scripts/update_and_rebuild_wasp.sh
 make -C framework -j "$compile_cores" -B
 cd ..
