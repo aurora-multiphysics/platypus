@@ -38,9 +38,8 @@ public:
   std::vector<mfem::ParFiniteElementSpace *> _test_pfespaces;
 
   // Components of weak form. // Named according to test variable
-  platypus::NamedFieldsMap<mfem::ParBilinearForm> _blfs;
-  platypus::NamedFieldsMap<mfem::ParLinearForm> _lfs;
   platypus::NamedFieldsMap<mfem::ParNonlinearForm> _nlfs;
+  platypus::NamedFieldsMap<mfem::ParLinearForm> _lfs;
   platypus::NamedFieldsMap<platypus::NamedFieldsMap<mfem::ParMixedBilinearForm>>
       _mblfs; // named according to trial variable
 
@@ -70,7 +69,7 @@ public:
                     platypus::BCMap & bc_map,
                     mfem::AssemblyLevel assembly_level);
   virtual void BuildLinearForms(platypus::BCMap & bc_map);
-  virtual void BuildBilinearForms(platypus::BCMap & bc_map);
+  virtual void BuildNonlinearForms(platypus::BCMap & bc_map);
   virtual void BuildMixedBilinearForms();
   virtual void BuildEquationSystem(platypus::BCMap & bc_map);
 
@@ -164,11 +163,11 @@ public:
   platypus::NamedFieldsMap<std::vector<std::shared_ptr<MFEMBilinearFormKernel>>>
       _td_blf_kernels_map;
   // Container to store contributions to weak form of the form (F du/dt, v)
-  platypus::NamedFieldsMap<mfem::ParBilinearForm> _td_blfs;
+  platypus::NamedFieldsMap<mfem::ParNonlinearForm> _td_nlfs;
 
   virtual void AddKernel(const std::string & test_var_name,
                          std::shared_ptr<MFEMBilinearFormKernel> blf_kernel) override;
-  virtual void BuildBilinearForms(platypus::BCMap & bc_map) override;
+  virtual void BuildNonlinearForms(platypus::BCMap & bc_map) override;
   virtual void FormLegacySystem(mfem::OperatorHandle & op,
                                 mfem::BlockVector & truedXdt,
                                 mfem::BlockVector & trueRHS) override;

@@ -78,7 +78,7 @@ BCMap::ApplyIntegratedBCs(const std::string & name_, mfem::LinearForm & lf, mfem
 };
 
 void
-BCMap::ApplyIntegratedBCs(const std::string & name_, mfem::BilinearForm & blf, mfem::Mesh * mesh_)
+BCMap::ApplyIntegratedBCs(const std::string & name_, mfem::NonlinearForm & nlf, mfem::Mesh * mesh_)
 {
   for (auto const & [name, bc_] : *this)
   {
@@ -100,7 +100,7 @@ BCMap::ApplyIntegratedBCs(const std::string & name_, mfem::BilinearForm & blf, m
       continue;
     }
 
-    blf.AddBoundaryIntegrator(blfi, bc->_bdr_markers);
+    nlf.AddBoundaryIntegrator(blfi, bc->_bdr_markers);
   }
 };
 

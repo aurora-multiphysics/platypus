@@ -16,7 +16,7 @@ public:
                          mfem::GridFunction & gridfunc,
                          mfem::Mesh * mesh_);
 
-  void ApplyIntegratedBCs(const std::string & name_, mfem::BilinearForm & blf, mfem::Mesh * mesh_);
+  void ApplyIntegratedBCs(const std::string & name_, mfem::NonlinearForm & nlf, mfem::Mesh * mesh_);
 
   void ApplyIntegratedBCs(const std::string & name_, mfem::LinearForm & lf, mfem::Mesh * mesh_);
 };

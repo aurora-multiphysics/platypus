@@ -131,19 +131,22 @@ EquationSystem::FormSystem(mfem::OperatorHandle & op,
                            mfem::BlockVector & trueRHS)
 {
   auto & test_var_name = _test_var_names.at(0);
-  auto blf = _blfs.Get(test_var_name);
+  auto nlf = _nlfs.Get(test_var_name);
   auto lf = _lfs.Get(test_var_name);
-  mfem::BlockVector aux_x, aux_rhs;
+  mfem::Vector gf_tdofs(_test_pfespaces.at(0)->GetTrueVSize()),
+      lf_tdofs(_test_pfespaces.at(0)->GetTrueVSize());
   mfem::OperatorPtr * aux_a = new mfem::OperatorPtr;
+  lf->ParallelAssemble(lf_tdofs);
+  _xs.at(0)->ParallelProject(gf_tdofs);
 
-  blf->FormLinearSystem(_ess_tdof_lists.at(0), *(_xs.at(0)), *lf, *aux_a, aux_x, aux_rhs);
+  nlf->SetEssentialTrueDofs(_ess_tdof_lists.at(0));
+  // Assemble form
+  nlf->Setup();
 
-  trueX.GetBlock(0) = aux_x;
-  trueRHS.GetBlock(0) = aux_rhs;
+  trueX.GetBlock(0) = gf_tdofs;
+  trueRHS.GetBlock(0) = lf_tdofs;
   trueX.SyncFromBlocks();
   trueRHS.SyncFromBlocks();
-
-  op.Reset(aux_a->Ptr());
 }
 
 void
@@ -159,15 +162,36 @@ EquationSystem::FormLegacySystem(mfem::OperatorHandle & op,
   for (int i = 0; i < _test_var_names.size(); i++)
   {
     auto & test_var_name = _test_var_names.at(i);
-    auto blf = _blfs.Get(test_var_name);
+    auto nlf = _nlfs.Get(test_var_name);
     auto lf = _lfs.Get(test_var_name);
-    mfem::Vector aux_x, aux_rhs;
-    mfem::HypreParMatrix * aux_a = new mfem::HypreParMatrix;
-    // Ownership of aux_a goes to the blf
-    blf->FormLinearSystem(_ess_tdof_lists.at(i), *(_xs.at(i)), *lf, *aux_a, aux_x, aux_rhs);
-    _h_blocks(i, i) = aux_a;
-    trueX.GetBlock(i) = aux_x;
-    trueRHS.GetBlock(i) = aux_rhs;
+    mfem::Vector gf_tdofs = *(_xs.at(i).get());
+    // mfem::Vector gf_tdofs(_test_pfespaces.at(i)->GetTrueVSize()),
+    // lf_tdofs(_test_pfespaces.at(i)->GetTrueVSize());
+    mfem::Vector lf_tdofs(_test_pfespaces.at(i)->GetTrueVSize());
+
+    mfem::OperatorPtr * aux_a = new mfem::OperatorPtr;
+    lf->ParallelAssemble(lf_tdofs);
+    _xs.at(i)->ParallelProject(gf_tdofs);
+
+    nlf->SetEssentialTrueDofs(_ess_tdof_lists.at(i));
+    // Assemble form
+    nlf->Setup();
+
+    trueX.GetBlock(i) = gf_tdofs;
+    trueRHS.GetBlock(i) = lf_tdofs;
+    trueX.SyncFromBlocks();
+    trueRHS.SyncFromBlocks();
+
+    // auto & test_var_name = _test_var_names.at(i);
+    // auto nlf = _nlfs.Get(test_var_name);
+    // auto lf = _lfs.Get(test_var_name);
+    // mfem::Vector aux_x, aux_rhs;
+    // mfem::HypreParMatrix * aux_a = new mfem::HypreParMatrix;
+    // // Ownership of aux_a goes to the nlf
+    // // nlf->FormLinearSystem(_ess_tdof_lists.at(i), *(_xs.at(i)), *lf, *aux_a, aux_x, aux_rhs);
+    // _h_blocks(i, i) = aux_a;
+    // trueX.GetBlock(i) = aux_x;
+    // trueRHS.GetBlock(i) = aux_rhs;
   }
 
   // Form off-diagonal blocks
@@ -185,7 +209,7 @@ EquationSystem::FormLegacySystem(mfem::OperatorHandle & op,
       {
         auto mblf = _mblfs.Get(test_var_name)->Get(trial_var_name);
         mfem::HypreParMatrix * aux_a = new mfem::HypreParMatrix;
-        // Ownership of aux_a goes to the blf
+        // Ownership of aux_a goes to the nlf
         mblf->FormRectangularLinearSystem(_ess_tdof_lists.at(j),
                                           _ess_tdof_lists.at(i),
                                           *(_xs.at(j)),
@@ -206,7 +230,7 @@ EquationSystem::FormLegacySystem(mfem::OperatorHandle & op,
   }
 
   // Create monolithic matrix
-  op.Reset(mfem::HypreParMatrixFromBlocks(_h_blocks));
+  // op.Reset(mfem::HypreParMatrixFromBlocks(_h_blocks));
 }
 
 void
@@ -220,7 +244,10 @@ EquationSystem::BuildJacobian(mfem::BlockVector & trueX, mfem::BlockVector & tru
 void
 EquationSystem::Mult(const mfem::Vector & x, mfem::Vector & residual) const
 {
-  _jacobian->Mult(x, residual);
+  auto & test_var_name = _test_var_names.at(0);
+  auto nlf = _nlfs.Get(test_var_name);
+  nlf->Mult(x, residual);
+  // _jacobian->Mult(x, residual);
   x.HostRead();
   residual.HostRead();
 }
@@ -228,7 +255,9 @@ EquationSystem::Mult(const mfem::Vector & x, mfem::Vector & residual) const
 mfem::Operator &
 EquationSystem::GetGradient(const mfem::Vector & u) const
 {
-  return *_jacobian;
+  auto & test_var_name = _test_var_names.at(0);
+  auto nlf = _nlfs.Get(test_var_name);
+  return nlf->GetGradient(u);
 }
 
 void
@@ -303,30 +332,29 @@ EquationSystem::BuildLinearForms(platypus::BCMap & bc_map)
 }
 
 void
-EquationSystem::BuildBilinearForms(platypus::BCMap & bc_map)
+EquationSystem::BuildNonlinearForms(platypus::BCMap & bc_map)
 {
   // Register bilinear forms
   for (int i = 0; i < _test_var_names.size(); i++)
   {
     auto test_var_name = _test_var_names.at(i);
-    _blfs.Register(test_var_name, std::make_shared<mfem::ParBilinearForm>(_test_pfespaces.at(i)));
-
+    _nlfs.Register(test_var_name, std::make_shared<mfem::ParNonlinearForm>(_test_pfespaces.at(i)));
     bc_map.ApplyIntegratedBCs(
-        test_var_name, _blfs.GetRef(test_var_name), _test_pfespaces.at(i)->GetParMesh());
+        test_var_name, _nlfs.GetRef(test_var_name), _test_pfespaces.at(i)->GetParMesh());
     // Apply kernels
-    auto blf = _blfs.Get(test_var_name);
+    auto nlf = _nlfs.Get(test_var_name);
     if (_blf_kernels_map.Has(test_var_name))
     {
-      blf->SetAssemblyLevel(_assembly_level);
+      nlf->SetAssemblyLevel(_assembly_level);
       auto blf_kernels = _blf_kernels_map.GetRef(test_var_name);
 
       for (auto & blf_kernel : blf_kernels)
       {
-        blf->AddDomainIntegrator(blf_kernel->createIntegrator());
+        nlf->AddDomainIntegrator(blf_kernel->createIntegrator());
       }
     }
     // Assemble
-    blf->Assemble();
+    nlf->Setup();
   }
 }
 
@@ -374,7 +402,7 @@ EquationSystem::BuildMixedBilinearForms()
 void
 EquationSystem::BuildEquationSystem(platypus::BCMap & bc_map)
 {
-  BuildBilinearForms(bc_map);
+  BuildNonlinearForms(bc_map);
   BuildMixedBilinearForms();
   BuildLinearForms(bc_map);
 }
@@ -403,9 +431,9 @@ TimeDependentEquationSystem::SetTimeStep(double dt)
     _dt_coef.constant = dt;
     for (auto test_var_name : _test_var_names)
     {
-      auto blf = _blfs.Get(test_var_name);
-      blf->Update();
-      blf->Assemble();
+      auto nlf = _nlfs.Get(test_var_name);
+      nlf->Update();
+      nlf->Setup();
     }
   }
 }
@@ -427,59 +455,59 @@ TimeDependentEquationSystem::AddKernel(const std::string & test_var_name,
 }
 
 void
-TimeDependentEquationSystem::BuildBilinearForms(platypus::BCMap & bc_map)
+TimeDependentEquationSystem::BuildNonlinearForms(platypus::BCMap & bc_map)
 {
-  EquationSystem::BuildBilinearForms(bc_map);
+  EquationSystem::BuildNonlinearForms(bc_map);
 
   // Build and assemble bilinear forms acting on time derivatives
   for (int i = 0; i < _test_var_names.size(); i++)
   {
     auto test_var_name = _test_var_names.at(i);
 
-    _td_blfs.Register(test_var_name,
-                      std::make_shared<mfem::ParBilinearForm>(_test_pfespaces.at(i)));
+    _td_nlfs.Register(test_var_name,
+                      std::make_shared<mfem::ParNonlinearForm>(_test_pfespaces.at(i)));
     bc_map.ApplyIntegratedBCs(
-        test_var_name, _td_blfs.GetRef(test_var_name), _test_pfespaces.at(i)->GetParMesh());
+        test_var_name, _td_nlfs.GetRef(test_var_name), _test_pfespaces.at(i)->GetParMesh());
 
-    // Apply kernels to td_blf
-    auto td_blf = _td_blfs.Get(test_var_name);
+    // Apply kernels to td_nlf
+    auto td_nlf = _td_nlfs.Get(test_var_name);
     if (_td_blf_kernels_map.Has(test_var_name))
     {
-      td_blf->SetAssemblyLevel(_assembly_level);
+      td_nlf->SetAssemblyLevel(_assembly_level);
       auto td_blf_kernels = _td_blf_kernels_map.GetRef(test_var_name);
 
       for (auto & td_blf_kernel : td_blf_kernels)
       {
-        td_blf->AddDomainIntegrator(td_blf_kernel->createIntegrator());
+        td_nlf->AddDomainIntegrator(td_blf_kernel->createIntegrator());
       }
     }
 
-    // Recover and scale integrators from blf. This is to apply the dt*du/dt contributions from the
+    // Recover and scale integrators from nlf. This is to apply the dt*du/dt contributions from the
     // operator on the trial variable in the implicit integration scheme
-    auto blf = _blfs.Get(test_var_name);
-    auto integs = blf->GetDBFI();
-    auto b_integs = blf->GetBBFI();
-    auto markers = blf->GetBBFI_Marker();
+    auto nlf = _nlfs.Get(test_var_name);
+    auto integs = nlf->GetDNFI();
+    auto b_integs = nlf->GetBNFI();
+    // auto markers = nlf->GetBNFI_Marker();
 
     mfem::SumIntegrator * sum = new mfem::SumIntegrator;
     ScaleIntegrator * scaled_sum = new ScaleIntegrator(sum, _dt_coef.constant, false);
 
     for (int i = 0; i < integs->Size(); ++i)
     {
-      sum->AddIntegrator(*integs[i]);
+      // sum->AddIntegrator(*integs[i]);
     }
 
     for (int i = 0; i < b_integs->Size(); ++i)
     {
-      td_blf->AddBoundaryIntegrator(new ScaleIntegrator(*b_integs[i], _dt_coef.constant, false),
-                                    *(*markers[i]));
+      // td_nlf->AddBoundaryIntegrator(new ScaleIntegrator(*b_integs[i], _dt_coef.constant, false),
+      //                               *(*markers[i]));
     }
 
-    // scaled_sum is owned by td_blf
-    td_blf->AddDomainIntegrator(scaled_sum);
+    // scaled_sum is owned by td_nlf
+    td_nlf->AddDomainIntegrator(scaled_sum);
 
     // Assemble form
-    td_blf->Assemble();
+    td_nlf->Setup();
   }
 }
 
@@ -496,26 +524,50 @@ TimeDependentEquationSystem::FormLegacySystem(mfem::OperatorHandle & op,
   for (int i = 0; i < _test_var_names.size(); i++)
   {
     auto & test_var_name = _test_var_names.at(i);
-    auto td_blf = _td_blfs.Get(test_var_name);
-    auto blf = _blfs.Get(test_var_name);
+    auto td_nlf = _td_nlfs.Get(test_var_name);
+    auto nlf = _nlfs.Get(test_var_name);
     auto lf = _lfs.Get(test_var_name);
-    // if implicit, add contribution to linear form from terms involving state
-    // variable at previous timestep: {
-    blf->AddMult(*_trial_variables.Get(test_var_name), *lf, -1.0);
-    // }
-    mfem::Vector aux_x, aux_rhs;
+    mfem::Vector lf_tdofs(_test_pfespaces.at(i)->GetTrueVSize());
+    mfem::OperatorPtr * aux_a = new mfem::OperatorPtr;
+    nlf->AddMult(*_trial_variables.Get(test_var_name), *lf, -1.0);
     // Update solution values on Dirichlet values to be in terms of du/dt instead of u
-    mfem::Vector bc_x = *(_xs.at(i).get());
-    bc_x -= *_trial_variables.Get(test_var_name);
-    bc_x /= _dt_coef.constant;
+    mfem::Vector gf_tdofs = *(_xs.at(i).get());
+    gf_tdofs -= *_trial_variables.Get(test_var_name);
+    gf_tdofs /= _dt_coef.constant;
 
-    // Form linear system for operator acting on vector of du/dt
-    mfem::HypreParMatrix * aux_a = new mfem::HypreParMatrix;
-    // Ownership of aux_a goes to the blf
-    td_blf->FormLinearSystem(_ess_tdof_lists.at(i), bc_x, *lf, *aux_a, aux_x, aux_rhs);
-    _h_blocks(i, i) = aux_a;
-    truedXdt.GetBlock(i) = aux_x;
-    trueRHS.GetBlock(i) = aux_rhs;
+    lf->ParallelAssemble(lf_tdofs);
+    // _xs.at(i)->ParallelProject(gf_tdofs);
+
+    nlf->SetEssentialTrueDofs(_ess_tdof_lists.at(i));
+    // Assemble form
+    nlf->Setup();
+
+    truedXdt.GetBlock(i) = gf_tdofs;
+    trueRHS.GetBlock(i) = lf_tdofs;
+    truedXdt.SyncFromBlocks();
+    trueRHS.SyncFromBlocks();
+
+    // auto & test_var_name = _test_var_names.at(i);
+    // auto td_nlf = _td_nlfs.Get(test_var_name);
+    // auto nlf = _nlfs.Get(test_var_name);
+    // auto lf = _lfs.Get(test_var_name);
+    // // if implicit, add contribution to linear form from terms involving state
+    // // variable at previous timestep: {
+    // nlf->AddMult(*_trial_variables.Get(test_var_name), *lf, -1.0);
+    // // }
+    // mfem::Vector aux_x, aux_rhs;
+    // // Update solution values on Dirichlet values to be in terms of du/dt instead of u
+    // mfem::Vector bc_x = *(_xs.at(i).get());
+    // bc_x -= *_trial_variables.Get(test_var_name);
+    // bc_x /= _dt_coef.constant;
+
+    // // Form linear system for operator acting on vector of du/dt
+    // mfem::HypreParMatrix * aux_a = new mfem::HypreParMatrix;
+    // // Ownership of aux_a goes to the nlf
+    // // td_nlf->FormLinearSystem(_ess_tdof_lists.at(i), bc_x, *lf, *aux_a, aux_x, aux_rhs);
+    // _h_blocks(i, i) = aux_a;
+    // truedXdt.GetBlock(i) = aux_x;
+    // trueRHS.GetBlock(i) = aux_rhs;
   }
 
   truedXdt.SyncFromBlocks();
@@ -531,15 +583,15 @@ TimeDependentEquationSystem::FormSystem(mfem::OperatorHandle & op,
                                         mfem::BlockVector & trueRHS)
 {
   auto & test_var_name = _test_var_names.at(0);
-  auto td_blf = _td_blfs.Get(test_var_name);
-  auto blf = _blfs.Get(test_var_name);
+  auto td_nlf = _td_nlfs.Get(test_var_name);
+  auto nlf = _nlfs.Get(test_var_name);
   auto lf = _lfs.Get(test_var_name);
   // if implicit, add contribution to linear form from terms involving state
   // variable at previous timestep: {
 
   // The AddMult method in mfem::BilinearForm is not defined for non-legacy assembly
   mfem::Vector lf_prev(lf->Size());
-  blf->Mult(*_trial_variables.Get(test_var_name), lf_prev);
+  nlf->Mult(*_trial_variables.Get(test_var_name), lf_prev);
   *lf -= lf_prev;
   // }
   mfem::Vector aux_x, aux_rhs;
@@ -550,8 +602,8 @@ TimeDependentEquationSystem::FormSystem(mfem::OperatorHandle & op,
 
   // Form linear system for operator acting on vector of du/dt
   mfem::OperatorPtr * aux_a = new mfem::OperatorPtr;
-  // Ownership of aux_a goes to the blf
-  td_blf->FormLinearSystem(_ess_tdof_lists.at(0), bc_x, *lf, *aux_a, aux_x, aux_rhs);
+  // Ownership of aux_a goes to the nlf
+  // td_nlf->FormLinearSystem(_ess_tdof_lists.at(0), bc_x, *lf, *aux_a, aux_x, aux_rhs);
 
   truedXdt.GetBlock(0) = aux_x;
   trueRHS.GetBlock(0) = aux_rhs;
@@ -562,10 +614,43 @@ TimeDependentEquationSystem::FormSystem(mfem::OperatorHandle & op,
   op.Reset(aux_a->Ptr());
 }
 
+// void
+// EquationSystem::FormNLSystem(mfem::OperatorHandle & op,
+//                            mfem::BlockVector & trueX,
+//                            mfem::BlockVector & trueRHS)
+// {
+//   auto & test_var_name = _test_var_names.at(0);
+//   auto blf = _blfs.Get(test_var_name);
+//   auto integs = blf->GetDBFI();
+//   auto b_integs = blf->GetBBFI();
+//   auto markers = blf->GetBBFI_Marker();
+
+//   auto lf = _lfs.Get(test_var_name);
+//   mfem::BlockVector aux_x, aux_rhs;
+
+//   mfem::ParNonlinearForm nlf(_test_pfespaces.at(0));
+//   for (int i = 0; i < integs->Size(); ++i)
+//   {
+//     nlf.AddDomainIntegrator(*integs[i]);
+//   }
+//   for (int i = 0; i < b_integs->Size(); ++i)
+//   {
+//     nlf.AddBoundaryIntegrator(*b_integs[i], *(*markers[i]));
+//   }
+//   nlf.SetEssentialTrueDofs(_ess_tdof_lists.at(0));
+//   // Assemble form
+//   nlf.Setup();
+
+//   trueX.GetBlock(0) = aux_x;
+//   trueRHS.GetBlock(0) = aux_rhs;
+//   trueX.SyncFromBlocks();
+//   trueRHS.SyncFromBlocks();
+// }
+
 void
 TimeDependentEquationSystem::UpdateEquationSystem(platypus::BCMap & bc_map)
 {
-  BuildBilinearForms(bc_map);
+  BuildNonlinearForms(bc_map);
   BuildMixedBilinearForms();
   BuildLinearForms(bc_map);
 }
