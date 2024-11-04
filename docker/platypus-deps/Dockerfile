@@ -113,6 +113,18 @@ RUN make PETSC_DIR=/$WORKDIR/petsc/petsc-3.19.3 PETSC_ARCH=arch-linux-c-opt inst
 WORKDIR /$WORKDIR
 RUN export PETSC_DIR=/$WORKDIR/petsc
 
+# Download and build Conduit
+WORKDIR /$WORKDIR
+RUN git clone --recursive https://github.com/llnl/conduit.git
+WORKDIR /$WORKDIR/conduit
+RUN mkdir build
+WORKDIR /$WORKDIR/conduit/build
+RUN cmake  ../src \
+       -DCMAKE_INSTALL_PREFIX=/$WORKDIR/conduit/build-install \
+       -DCMAKE_BUILD_TYPE="Release" \
+	   -DENABLE_MPI=YES
+RUN make -j$compile_cores install
+
 # Build MFEM and common miniapp
 WORKDIR /$WORKDIR
 RUN git clone https://github.com/mfem/mfem.git
@@ -134,6 +146,8 @@ RUN cmake .. \
     -DMFEM_USE_SUPERLU=YES \
     -DSuperLUDist_DIR=/$WORKDIR/petsc/ \
     -DMFEM_USE_NETCDF=YES \
+    -DMFEM_USE_CONDUIT=YES \
+    -DCONDUIT_DIR=/$WORKDIR/conduit/build-install \
     -DHDF5_DIR=/usr/lib/x86_64-linux-gnu/hdf5/mpich/ && \
     make -j$compile_cores
 WORKDIR /$WORKDIR/mfem/build/miniapps/common
@@ -173,4 +187,12 @@ WORKDIR /$WORKDIR/moose/framework
 RUN METHOD=opt make -j$compile_cores
 
 WORKDIR /$WORKDIR/moose/test
+RUN METHOD=opt make -j$compile_cores
+
+# Build HEAT_TRANSFER module 
+WORKDIR /$WORKDIR/moose/modules/heat_transfer
+RUN METHOD=opt make -j$compile_cores
+
+# Build SOLID_MECHANICS module 
+WORKDIR /$WORKDIR/moose/modules/solid_mechanics
 RUN METHOD=opt make -j$compile_cores
