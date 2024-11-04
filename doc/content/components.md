@@ -26,9 +26,6 @@ Documentation on the main components comprising Platypus can be found in:
 - [MFEMMesh](source/mesh/MFEMMesh.md): Builds an `mfem::ParMesh` object from the provided mesh input
   file.
 
-- [MFEMFECollection](source/fespaces/MFEMFECollection.md): Class specifying a finite element family
-  (set of shape functions) used along with a mesh to define a finite element space.
-
 - [MFEMFESpace](source/fespaces/MFEMFESpace.md): Class responsible for defining the finite element
   space that an `MFEMVariable` is defined with respect to.
 
@@ -36,12 +33,12 @@ Documentation on the main components comprising Platypus can be found in:
   objects representing trial variables; stores a set of (true) degrees of freedom for a variable
   with respect to an `MFEMFESpace`.
 
-- [MFEMKernel](source/kernels/MFEMKernel.md/index.md): Base class defining integrators contributing
-  to the weak form built inside `EquationSystem`. Contains methods returning
+- [MFEMKernel](source/kernels/MFEMKernel.md): Base class defining integrators contributing to the
+  weak form built inside `EquationSystem`. Contains methods returning
   `mfem::NonlinearFormIntegrators` and `mfem::LinearFormIntegrators` to add to the weak form, along
   with marker arrays labelling the volumes the (domain) integrators are to be applied to.
 
-- [MFEMBoundaryCondition](source/kernels/MFEMKernel.md/index.md): Class defining essential
+- [MFEMBoundaryCondition](source/bcs/MFEMBoundaryCondition.md): Base class defining essential
   (Dirichlet) and integrated boundary conditions to apply to the equation system.
 
 - [EquationSystem](source/equation_systems/equation_system.md): Class responsible for defining and
