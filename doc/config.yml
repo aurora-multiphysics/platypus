@@ -22,8 +22,8 @@ Extensions:
                 Docker Container: installation/using_docker.md
                 CSD3 Build Scripts: installation/csd3_build.md
             Overview:
-                Key Components: components.md     
-            Examples: examples/index.md                                  
+                Key Components: components.md
+            Examples: examples/index.md
             Documentation:
                 Source: source/index.md
                 Doxygen: doxygen.md
