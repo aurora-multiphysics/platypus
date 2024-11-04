@@ -490,11 +490,16 @@ TimeDependentEquationSystem::BuildNonlinearForms(platypus::BCMap & bc_map)
     // auto markers = nlf->GetBNFI_Marker();
 
     mfem::SumIntegrator * sum = new mfem::SumIntegrator;
-    ScaleIntegrator * scaled_sum = new ScaleIntegrator(sum, _dt_coef.constant, false);
+    ScaleIntegrator * scaled_sum = new ScaleIntegrator(sum, _dt_coef.constant, true);
 
-    for (int i = 0; i < integs->Size(); ++i)
+    if (_blf_kernels_map.Has(test_var_name))
     {
-      // sum->AddIntegrator(*integs[i]);
+      auto blf_kernels = _blf_kernels_map.GetRef(test_var_name);
+
+      for (auto & blf_kernel : blf_kernels)
+      {
+        sum->AddIntegrator(blf_kernel->createIntegrator());
+      }
     }
 
     for (int i = 0; i < b_integs->Size(); ++i)
@@ -538,9 +543,9 @@ TimeDependentEquationSystem::FormLegacySystem(mfem::OperatorHandle & op,
     lf->ParallelAssemble(lf_tdofs);
     // _xs.at(i)->ParallelProject(gf_tdofs);
 
-    nlf->SetEssentialTrueDofs(_ess_tdof_lists.at(i));
+    td_nlf->SetEssentialTrueDofs(_ess_tdof_lists.at(i));
     // Assemble form
-    nlf->Setup();
+    td_nlf->Setup();
 
     truedXdt.GetBlock(i) = gf_tdofs;
     trueRHS.GetBlock(i) = lf_tdofs;
@@ -574,7 +579,7 @@ TimeDependentEquationSystem::FormLegacySystem(mfem::OperatorHandle & op,
   trueRHS.SyncFromBlocks();
 
   // Create monolithic matrix
-  op.Reset(mfem::HypreParMatrixFromBlocks(_h_blocks));
+  // op.Reset(mfem::HypreParMatrixFromBlocks(_h_blocks));
 }
 
 void
@@ -596,9 +601,9 @@ TimeDependentEquationSystem::FormSystem(mfem::OperatorHandle & op,
   // }
   mfem::Vector aux_x, aux_rhs;
   // Update solution values on Dirichlet values to be in terms of du/dt instead of u
-  mfem::Vector bc_x = *(_xs.at(0).get());
-  bc_x -= *_trial_variables.Get(test_var_name);
-  bc_x /= _dt_coef.constant;
+  aux_x = *(_xs.at(0).get());
+  aux_x -= *_trial_variables.Get(test_var_name);
+  aux_x /= _dt_coef.constant;
 
   // Form linear system for operator acting on vector of du/dt
   mfem::OperatorPtr * aux_a = new mfem::OperatorPtr;
@@ -611,7 +616,7 @@ TimeDependentEquationSystem::FormSystem(mfem::OperatorHandle & op,
   trueRHS.SyncFromBlocks();
 
   // Create monolithic matrix
-  op.Reset(aux_a->Ptr());
+  // op.Reset(aux_a->Ptr());
 }
 
 // void
@@ -646,6 +651,26 @@ TimeDependentEquationSystem::FormSystem(mfem::OperatorHandle & op,
 //   trueX.SyncFromBlocks();
 //   trueRHS.SyncFromBlocks();
 // }
+
+void
+TimeDependentEquationSystem::Mult(const mfem::Vector & dx_dt, mfem::Vector & residual) const
+{
+  auto & test_var_name = _test_var_names.at(0);
+  auto td_nlf = _td_nlfs.Get(test_var_name);
+
+  td_nlf->Mult(dx_dt, residual);
+  // _jacobian->Mult(x, residual);
+  dx_dt.HostRead();
+  residual.HostRead();
+}
+
+mfem::Operator &
+TimeDependentEquationSystem::GetGradient(const mfem::Vector & u) const
+{
+  auto & test_var_name = _test_var_names.at(0);
+  auto td_nlf = _td_nlfs.Get(test_var_name);
+  return td_nlf->GetGradient(u);
+}
 
 void
 TimeDependentEquationSystem::UpdateEquationSystem(platypus::BCMap & bc_map)

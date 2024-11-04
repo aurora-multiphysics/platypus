@@ -174,6 +174,9 @@ public:
   virtual void FormSystem(mfem::OperatorHandle & op,
                           mfem::BlockVector & truedXdt,
                           mfem::BlockVector & trueRHS) override;
+  /// Compute residual y = Mu
+  void Mult(const mfem::Vector & u, mfem::Vector & residual) const override;
+  mfem::Operator & GetGradient(const mfem::Vector & u) const override;
 };
 
 } // namespace platypus
