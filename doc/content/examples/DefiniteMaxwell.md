@@ -36,7 +36,7 @@ where
 In this example, we solve this using the weak form
 
 !equation
--(\vec\nabla \times \vec E, \vec\nabla \times \vec v)_\Omega + (\vec E, \vec v)_\Omega
+(\vec\nabla \times \vec E, \vec\nabla \times \vec v)_\Omega + (\vec E, \vec v)_\Omega
 = (\vec f, \vec v)_\Omega \,\,\, \forall \vec v \in V
 
 where

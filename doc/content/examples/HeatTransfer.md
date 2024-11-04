@@ -18,13 +18,15 @@ T = T_0 \,\,\, &\mathrm{on}\,\, \Gamma_\mathrm{D}
 \end{split}
 \end{equation}
 
-where $T_0 = 1.0$, $T_\mathrm{inf} = 0.5$, $\rho c_p = 1.0$, and $h_\mathrm{htc} = 5.0$.
+where $T_0 = 1.0$, $T_\mathrm{inf} = 0.5$, $\rho c_p = 1.0$, and $h_\mathrm{htc} = 5.0$, subject to
+the initial condition $T(t=0)=0.0$.
 
 In this example, we solve this using the weak form
 
 !equation
 \left(\rho c_p \frac{\partial T}{\partial t}, v\right)_\Omega + (k \vec \nabla T, \vec \nabla v)_\Omega
-= (\vec f, \vec v)_\Omega \,\,\, \forall \vec v \in V
+- (k \vec \nabla T \cdot \hat n, v)_{\partial \Omega}
+= 0 \,\,\, \forall v \in V
 
 where
 
