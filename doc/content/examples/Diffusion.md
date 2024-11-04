@@ -23,7 +23,7 @@ In this example, we solve this using the weak form
 
 !equation
 (k \vec \nabla T, \vec \nabla v)_\Omega
-= 0 \,\,\, \forall \vec v \in V
+= 0 \,\,\, \forall v \in V
 
 where
 
