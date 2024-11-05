@@ -113,10 +113,6 @@ install_spack_deps() {
     spack install netcdf-c +parallel-netcdf
     spack load netcdf-c arch=${ARCH}
 
-    #echo "Installing ninja..."
-    #spack install ninja
-    #spack load ninja arch=${ARCH}
-
     echo "Adding python modules..."
 
     spack install py-pyaml
