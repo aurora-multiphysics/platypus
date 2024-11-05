@@ -3,7 +3,7 @@
 ## Summary
 
 Solves a 3D electromagnetic diffusion problem for
-  the electric field on a cube missing an octant, discretised using $H(\mathrm{curl})$ conforming Nédélec elements. This example
+  the electric field on a cube missing an octant, discretized using $H(\mathrm{curl})$ conforming Nédélec elements. This example
   is based on [MFEM Example 3](https://mfem.org/examples/).
 
 

@@ -3,7 +3,7 @@
 ## Summary
 
 Solves a transient heat conduction problem with a
-  boundary parameterised by a heat transfer coefficient that exchanges heat with a thermal
+  boundary parameterized by a heat transfer coefficient that exchanges heat with a thermal
   reservoir.
 
 ## Description
