@@ -2,7 +2,11 @@
 
 ## Description
 
-Documentation on the main components comprising Platypus can be found in:
+Platypus components are intended to be used together in MOOSE simulations with the
+[`MFEMProblem`](source/problem/MFEMProblem.md) `Problem` type. In general, regular MOOSE objects and
+types should not be used in a sub-app using [`MFEMProblem`](source/problem/MFEMProblem.md), with the
+notable exception of MOOSE `Functions`, which may be used and included in Platypus problems.
+Documentation on the main components comprising Platypus can be found in the following files:
 
 ## Problem Assembly
 
@@ -42,5 +46,5 @@ Documentation on the main components comprising Platypus can be found in:
   (Dirichlet) and integrated boundary conditions to apply to the equation system.
 
 - [EquationSystem](source/equation_systems/equation_system.md): Class responsible for defining and
-  assembling the weak form into an `mfem::Operator` that solves an iteration of the FE problem and
-  can be passed to an `mfem::NewtonSolver`.
+  assembling the weak form into an `mfem::Operator`, that can be used to solve for the set of trial
+  variables at a given time or timestep, which can be passed to an `mfem::NewtonSolver`.
