@@ -71,7 +71,9 @@ MFEMSteady::execute()
   _mfem_problem.timestepSetup();
 
   // Solve equation system.
+   if (_mfem_problem.shouldSolve()) {
   _problem_operator->Solve(_problem_data._f);
+	}
 
   _mfem_problem.computeIndicators();
   _mfem_problem.computeMarkers();
