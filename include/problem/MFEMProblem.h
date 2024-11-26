@@ -126,6 +126,10 @@ public:
                    const std::string & name,
                    InputParameters & parameters) override;
 
+  void addInitialCondition(const std::string & ic_name,
+                           const std::string & name,
+                           InputParameters & parameters) override;
+
   /**
    * Method called in AddMFEMPreconditionerAction which will create the solver.
    */
@@ -218,6 +222,16 @@ public:
    */
   std::optional<std::reference_wrapper<mfem::ParGridFunction const>>
   getMeshDisplacementGridFunction();
+
+  /**
+   * @returns a shared pointer to an MFEM coefficient created using the [Coefficients] syntax
+   */
+  std::shared_ptr<mfem::Coefficient> getCoefficient(const std::string & name);
+
+  /**
+   * @returns a shared pointer to an MFEM parallel grid function
+   */
+  std::shared_ptr<mfem::ParGridFunction> getGridFunction(const std::string & name);
 
 protected:
   /**

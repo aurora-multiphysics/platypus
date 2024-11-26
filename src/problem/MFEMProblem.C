@@ -1,4 +1,5 @@
 #include "MFEMProblem.h"
+#include "MFEMScalarIC.h"
 
 #include <vector>
 #include <algorithm>
@@ -420,4 +421,25 @@ MFEMProblem::mesh()
   mooseAssert(ExternalProblem::mesh().type() == "MFEMMesh",
               "Please choose the MFEMMesh mesh type for an MFEMProblem\n");
   return (MFEMMesh &)_mesh;
+}
+
+std::shared_ptr<mfem::Coefficient>
+MFEMProblem::getCoefficient(const std::string & name)
+{
+  return getUserObject<MFEMCoefficient>(name).getCoefficient();
+}
+
+std::shared_ptr<mfem::ParGridFunction>
+MFEMProblem::getGridFunction(const std::string & name)
+{
+  return getUserObject<MFEMVariable>(name).getGridFunction();
+}
+
+void
+MFEMProblem::addInitialCondition(const std::string & ic_name,
+                                 const std::string & name,
+                                 InputParameters & parameters)
+{
+  FEProblemBase::addUserObject(ic_name, name, parameters);
+  getUserObject<MFEMScalarIC>(name); // error check
 }

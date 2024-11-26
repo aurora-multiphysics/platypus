@@ -23,12 +23,20 @@
   []
 []
 
+[ICs]
+  [diffused_ic]
+    type = MFEMScalarIC
+    coefficient = one
+    variable = diffused
+  []
+[]
+
 [Functions]
-  [value_bottom]
+  [one]
     type = ParsedFunction
     expression = 1.0
   []
-  [value_top]
+  [zero]
     type = ParsedFunction
     expression = 0.0
   []
@@ -39,13 +47,13 @@
     type = MFEMScalarDirichletBC
     variable = diffused
     boundary = '1'
-    coefficient = BottomValue
+    coefficient = one
   []
   [low_terminal]
     type = MFEMScalarDirichletBC
     variable = diffused
     boundary = '2'
-    coefficient = TopValue
+    coefficient = zero
   []
 []
 
@@ -58,13 +66,13 @@
 []
 
 [Coefficients]
-  [TopValue]
+  [zero]
     type = MFEMFunctionCoefficient
-    function = value_top
+    function = zero
   []
-  [BottomValue]
+  [one]
     type = MFEMFunctionCoefficient
-    function = value_bottom
+    function = one
   []
 []
 
@@ -86,7 +94,7 @@
   type = MFEMHypreGMRES
   preconditioner = boomeramg
   l_tol = 1e-16
-  l_max_its = 1000  
+  l_max_its = 1000
 []
 
 [Executioner]
