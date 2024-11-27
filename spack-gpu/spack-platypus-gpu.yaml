@@ -1,0 +1,74 @@
+# This is a Spack Environment file.
+#
+# It describes a set of packages to be installed, along with
+# configuration settings.
+spack:
+  # add package specs to the `specs` list
+  specs:
+  - cmake@3.27
+  - gslib
+  - libpng
+  - libtirpc
+  - libtool
+  - netcdf-c +parallel-netcdf
+  - openmpi
+    #- petsc+hypre+int64+metis+mpi+mumps+ptscotch+scalapack+shared+strumpack+superlu-dist%clang
+  - py-deepdiff
+  - py-jinja2
+  - py-packaging
+  - py-pyyaml
+  - py-setuptools
+  - py-xmltodict
+  - zlib
+    #  - cuda@12.6.3
+  - python@3.12.5
+  - petsc +batch +cuda cuda_arch=90 +fortran +hdf5 +hypre +metis +mpi +superlu-dist
+  - openmpi
+  - cuda
+  - hdf5 +cxx +fortran +hl +mpi +shared
+  - hypre +mpi +shared +cuda cuda_arch=90 +superlu-dist +cublas +gpu-aware-mpi +fortran
+  - superlu-dist +cuda cuda_arch=90 +parmetis +shared
+  - slepc +cuda cuda_arch=90
+    #    - openmpi+cuda fabrics=auto
+  - llvm@18 targets="aarch64, nvptx" %gcc
+  view: true
+  concretizer:
+    unify: true
+  compilers:
+    #  - compiler:
+    #      spec: clang@=18.1.8
+    #      paths:
+    #        cc: /opt/software/builder/developers/compilers/llvm/18.1.8/1/default/bin/clang
+    #        cxx: /opt/software/builder/developers/compilers/llvm/18.1.8/1/default/bin/clang++
+    #        f77: /opt/software/builder/developers/compilers/gcc/14.2/1/default/bin/gfortran
+    #        fc: /opt/software/builder/developers/compilers/gcc/14.2/1/default/bin/gfortran
+    #      flags:
+    #              #        cxxflags: -stdlib=libc++
+    #        cxxflags: -stdlib=libstdc++
+    #      operating_system: rocky9
+    #      target: aarch64
+    #      modules: []
+    #      environment: {}
+    #      extra_rpaths: []
+  - compiler:
+      spec: clang@=18.1.8
+      paths:
+        cc: /nobackup/projects/bddir20/kcollie/spack/opt/spack/linux-rocky9-neoverse_v2/gcc-11.4.1/llvm-18.1.8-3fhogazc5eao5a3sjfc73jjhcnfjcdi5/bin/clang
+        cxx: /nobackup/projects/bddir20/kcollie/spack/opt/spack/linux-rocky9-neoverse_v2/gcc-11.4.1/llvm-18.1.8-3fhogazc5eao5a3sjfc73jjhcnfjcdi5/bin/clang++
+        f77: /opt/software/builder/developers/compilers/gcc/14.2/1/default/bin/gfortran
+        fc: /opt/software/builder/developers/compilers/gcc/14.2/1/default/bin/gfortran
+      flags: {}
+      operating_system: rocky9
+      target: aarch64
+      modules: []
+      environment: {}
+      extra_rpaths: []
+  packages:
+    openmpi:
+      externals:
+      - spec: openmpi@4.1.6+cuda
+        prefix: /opt/software/builder/developers/libraries/openmpi/4.1.6/1/llvm-18.1.8-cuda-12.6.2
+    cuda:
+      externals:
+      - spec: cuda@12.6.2
+        prefix: /opt/software/builder/developers/compilers/cuda/12.6.2/1/default/
