@@ -25,6 +25,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get install 
     cmake \
     curl \
     doxygen \
+    gfortran \
     git \
     graphviz \
     ninja-build \
@@ -39,7 +40,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get install 
     libfreetype6-dev \
     libglew-dev \
     libglm-dev \
-    libhdf5-mpich-dev \
+    libhdf5-openmpi-dev \
     libnetcdf-dev \
     libomp-14-dev \
     libpng-dev \
@@ -133,7 +134,7 @@ RUN cmake .. \
     -DMFEM_USE_NETCDF=YES \
     -DMFEM_USE_CONDUIT=YES \
     -DCONDUIT_DIR=/$WORKDIR/conduit/build-install \
-    -DHDF5_DIR=/usr/lib/x86_64-linux-gnu/hdf5/mpich/ && \
+    -DHDF5_DIR=/usr/lib/x86_64-linux-gnu/hdf5/openmpi/ && \
     make -j$compile_cores
 
 # Build GLVis
