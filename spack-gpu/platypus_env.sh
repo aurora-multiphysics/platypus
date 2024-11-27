@@ -3,6 +3,10 @@ export HDF5_DIR=$(spack find --format "{prefix}" hdf5)
 export SLEPC_DIR=$(spack find --format "{prefix}" slepc)
 export PETSC_DIR=$(spack find --format "{prefix}" petsc)
 
+export BUILD_DIR_NAME=platypus_gpu_build
+export ROOT_PATH=/nobackup/projects/bddir20/$USER
+export BUILD_PATH=${ROOT_PATH}/${BUILD_DIR_NAME}
+
 export compile_cores=16
 export OMPI_CC=clang
 export OMPI_CXX=clang++
