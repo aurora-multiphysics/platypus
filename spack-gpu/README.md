@@ -66,22 +66,62 @@ Source env setup script:
 . platypus_env.sh
 ```
 
+Make the build directory:
+```bash
+mkdir -p "${BUILD_PATH}"
+```
+
 clone and build mfem:
 
 ```bash
-
+cd "${BUILD_PATH}"
+git clone https://github.com/mfem/mfem.git
+cd mfem
+git checkout master
+cmake -S . -B build \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DBUILD_SHARED_LIBS=YES \
+    -DMFEM_USE_OPENMP=NO \
+    -DMFEM_THREAD_SAFE=YES \
+    -DMFEM_ENABLE_EXAMPLES=YES \
+    -DMFEM_ENABLE_MINIAPPS=YES \
+    -DMFEM_USE_MPI=YES \
+    -DMFEM_USE_CUDA=YES \
+    -DCUDA_ARCH=sm_90 \
+    -DMFEM_USE_METIS_5=YES \
+    -DMFEM_USE_SUPERLU=YES \
+    -DMFEM_USE_NETCDF=YES \
+    -DMFEM_USE_GSLIB=YES \
+    -DGSLIB_DIR="${BUILD_PATH}/gslib/build" \
+    -DHDF5_DIR=${HDF5_DIR} \
+    -DSuperLUDist_DIR="${SLU_DIR}" \
+    -DSuperLUDist_VERSION_OK=YES
+cmake --build build -j"$compile_cores"
 ```
 
 build moose:
 
 ```bash
+cd "${BUILD_PATH}"
+git clone https://github.com/idaholab/moose
+cd moose
+./scripts/update_and_rebuild_libmesh.sh --with-mpi
+./scripts/update_and_rebuild_wasp.sh
 
+./configure --with-derivative-size=200
+cd framework
+make -j"$compile_cores"
+cd ../modules
+make -j"$compile_cores"
 ```
 
 build platypus:
 
 ```bash
-
+cd "${BUILD_PATH}"
+git clone https://github.com/aurora-multiphysics/platypus.git
+cd platypus
+make -j"$compile_cores"
 ```
 
 # Set up state again:
