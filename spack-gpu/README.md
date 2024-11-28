@@ -90,8 +90,8 @@ build platypus:
 module load llvm/18.1.8
 module load cuda/12.6.2
 module load openmpi/4.1.6
-spack env activate platypus
 . spack/share/spack/setup-env.sh
+spack env activate platypus
 . platypus_env.sh
 ```
 
