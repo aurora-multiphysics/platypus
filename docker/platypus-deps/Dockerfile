@@ -110,7 +110,7 @@ RUN cmake  ../src \
     -DENABLE_MPI=YES
 RUN make -j$compile_cores install
 
-# Build MFEM and miniapps
+# Build MFEM and common miniapp
 WORKDIR /$WORKDIR
 RUN git clone https://github.com/mfem/mfem.git
 WORKDIR /$WORKDIR/mfem 
@@ -119,7 +119,6 @@ WORKDIR /$WORKDIR/mfem/build
 RUN cmake .. \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_POSITION_INDEPENDENT_CODE=YES \
-    -DMFEM_ENABLE_MINIAPPS=YES \
     -DMFEM_USE_OPENMP=NO \
     -DMFEM_THREAD_SAFE=NO \
     -DHYPRE_DIR=/$WORKDIR/petsc/ \
@@ -136,6 +135,8 @@ RUN cmake .. \
     -DCONDUIT_DIR=/$WORKDIR/conduit/build-install \
     -DHDF5_DIR=/usr/lib/x86_64-linux-gnu/hdf5/openmpi/ && \
     make -j$compile_cores
+WORKDIR /$WORKDIR/mfem/build/miniapps/common
+RUN make -j$compile_cores
 
 # Build GLVis
 WORKDIR /$WORKDIR
