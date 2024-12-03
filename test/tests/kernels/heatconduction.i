@@ -24,11 +24,11 @@
 []
 
 [Functions]
-  [value_bottom]
+  [BottomValue]
     type = ParsedFunction
     expression = 1.0
   []
-  [value_top]
+  [TopValue]
     type = ParsedFunction
     expression = 0.0
   []
@@ -54,17 +54,6 @@
     type = MFEMGenericConstantMaterial
     prop_names = 'thermal_conductivity volumetric_heat_capacity'
     prop_values = '1.0 1.0'
-  []
-[]
-
-[Coefficients]
-  [TopValue]
-    type = MFEMFunctionCoefficient
-    function = value_top
-  []
-  [BottomValue]
-    type = MFEMFunctionCoefficient
-    function = value_bottom
   []
 []
 

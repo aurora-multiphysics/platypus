@@ -24,16 +24,9 @@
 []
 
 [Functions]
-  [value_bottom]
+  [BottomValue]
     type = ParsedFunction
     expression = 1.0
-  []
-[]
-
-[Coefficients]
-  [BottomValue]
-    type = MFEMFunctionCoefficient
-    function = value_bottom
   []
 []
 

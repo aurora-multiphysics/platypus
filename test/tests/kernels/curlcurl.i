@@ -27,7 +27,7 @@
 []
 
 [Functions]
-  [exact_e_field]
+  [TangentialECoefficient]
     type = ParsedVectorFunction
     expression_x = 'sin(kappa * y)'
     expression_y = 'sin(kappa * z)'
@@ -56,14 +56,6 @@
     vector_coefficient = TangentialECoefficient
   []
 []
-
-[VectorCoefficients]
-  [TangentialECoefficient]
-    type = MFEMVectorFunctionCoefficient
-    function = exact_e_field
-  []
-[]
-
 
 [Materials]
   [Substance]

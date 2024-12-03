@@ -1,6 +1,5 @@
 #pragma once
 #include "MFEMIntegratedBC.h"
-#include "MFEMVectorFunctionCoefficient.h"
 
 class MFEMVectorBoundaryIntegratedBC : public MFEMIntegratedBC
 {
@@ -18,5 +17,5 @@ public:
 
 protected:
   std::string _vec_coef_name;
-  MFEMVectorCoefficient * _vec_coef;
+  mfem::VectorCoefficient & _vec_coef;
 };
