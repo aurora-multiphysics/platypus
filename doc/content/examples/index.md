@@ -14,8 +14,14 @@ starting point for users to adapt:
   boundary parameterized by a heat transfer coefficient that exchanges heat with a thermal
   reservoir.
 
+## Mechanical Problems
+
+- [Linear Elasticity](examples/LinearElasticity.md): Solves a 3D linear elasticity problem for
+  the deformation of a multi-material cantiliver beam. This example
+  is based on [MFEM Example 2](https://mfem.org/examples/).
+
 ## Electromagnetic Problems
 
-- [DefiniteMaxwell](examples/DefiniteMaxwell.md): Solves a 3D electromagnetic diffusion problem for
+- [Definite Maxwell](examples/DefiniteMaxwell.md): Solves a 3D electromagnetic diffusion problem for
   the electric field on a cube missing an octant, discretized using $H(\mathrm{curl})$ conforming
   Nédélec elements. This example is based on [MFEM Example 3](https://mfem.org/examples/).
