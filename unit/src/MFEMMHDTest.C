@@ -18,6 +18,19 @@ LiMHDPreconditioner::ImplicitSolve(const double dt, const mfem::Vector & X, mfem
   Assemble();
 }
 
+void
+u_exact(const mfem::Vector & x, mfem::Vector & f)
+{
+  double u_max(1.0);
+  double y_max(1.0);
+  double z_max(1.0);
+  double y(x(1));
+  double z(x(2));
+  f(0) = (9.0 / 4.0) * u_max * (1 - (y * y) / (y_max * y_max)) * (1 - (z * z) / (z_max * z_max));
+  f(1) = 0.0;
+  f(2) = 0.0;
+}
+
 /**
  * Test MFEMMHDSolver
  */
@@ -40,8 +53,8 @@ TEST_F(MFEMMHDTest, MFEMMHDTestSolve)
 
   mfem::ParFiniteElementSpace d_fespace(pmesh.get(), fec_rt.get());
   mfem::ParFiniteElementSpace phi_fespace(pmesh.get(), fec_l2.get());
-  mfem::ParFiniteElementSpace v_fespace(pmesh.get(), fec_h1.get(), 3);
-  mfem::ParFiniteElementSpace q_fespace(pmesh.get(), fec_h1_o2.get());
+  mfem::ParFiniteElementSpace v_fespace(pmesh.get(), fec_h1_o2.get(), 3);
+  mfem::ParFiniteElementSpace q_fespace(pmesh.get(), fec_h1.get());
 
   mfem::ParGridFunction j_n(&d_fespace);
   mfem::ParGridFunction phi_n(&phi_fespace);
@@ -54,17 +67,41 @@ TEST_F(MFEMMHDTest, MFEMMHDTestSolve)
   mfem::ParGridFunction xi(&q_fespace);
   mfem::ParGridFunction eta(&q_fespace);
 
-  mfem::ParLinearForm r_j(&d_fespace);
-  mfem::ParLinearForm r_phi(&phi_fespace);
-  mfem::ParLinearForm r_u(&v_fespace);
-  mfem::ParLinearForm r_p(&q_fespace);
-
+  mfem::ConstantCoefficient zero(0.0);
   mfem::ConstantCoefficient one(1.0);
   mfem::ConstantCoefficient negone(1.0);
   mfem::ConstantCoefficient half(0.5);
   mfem::ConstantCoefficient reciprocal_Re(1 / 100.0);
   mfem::ConstantCoefficient alpha(0.5);
   mfem::VectorGridFunctionCoefficient ustar_coef(&ustar_n);
+  mfem::VectorFunctionCoefficient ucoef(3, u_exact);
+  mfem::Vector zero_vec(3);
+  zero_vec = 0.0;
+  mfem::VectorConstantCoefficient zero_vec_coef(zero_vec);
+
+  // Initial conditions
+  u_n.ProjectCoefficient(ucoef);
+  u_n_1.ProjectCoefficient(ucoef);
+  u_n_2.ProjectCoefficient(ucoef);
+  ubar_n.ProjectCoefficient(ucoef);
+  ustar_n.ProjectCoefficient(ucoef);
+  j_n.ProjectCoefficient(zero_vec_coef);
+  p_n.ProjectCoefficient(zero);
+  phi_n.ProjectCoefficient(zero);
+  xi.ProjectCoefficient(zero);
+  eta.ProjectCoefficient(zero);
+
+  mfem::ParLinearForm r_j(&d_fespace);
+  r_j.Assemble();
+
+  mfem::ParLinearForm r_phi(&phi_fespace);
+  r_phi.Assemble();
+
+  mfem::ParLinearForm r_u(&v_fespace);
+  r_u.Assemble();
+
+  mfem::ParLinearForm r_p(&q_fespace);
+  r_p.Assemble();
 
   // $(q, q')$ where $q, q'$ is in $H1$
   mfem::ParBilinearForm blf_M_p(&q_fespace);
@@ -190,6 +227,9 @@ TEST_F(MFEMMHDTest, MFEMMHDTestSolve)
   // Solve the F_k u_n = r_u - B^T p_n system with an additive Schwarz preconditioner
   mfem::Array<int> u_ess_dofs;
   v_fespace.GetBoundaryTrueDofs(u_ess_dofs);
+  // u_n.ProjectBdrCoefficient(*_vec_coef->getVectorCoefficient(), ess_bdrs);
+  // mfem::common::AttrToMarker(mesh.bdr_attributes.Max(), _bdr_attributes, ess_bdrs);
+
   {
     blf_B.AddMultTranspose(p_n, r_u, -1.0); // currently failing
     mfem::HypreParMatrix F_kappa;
