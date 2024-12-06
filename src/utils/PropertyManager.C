@@ -95,19 +95,19 @@ PropertyManager::declareMatrix(const std::string & name,
 }
 
 mfem::Coefficient &
-PropertyManager::getScalarProperty(const std::string name)
+PropertyManager::getScalarProperty(const std::string & name)
 {
   return this->_scalar_coeffs.getCoefficient(name);
 }
 
 mfem::VectorCoefficient &
-PropertyManager::getVectorProperty(const std::string name)
+PropertyManager::getVectorProperty(const std::string & name)
 {
   return this->_vector_coeffs.getCoefficient(name);
 }
 
 mfem::MatrixCoefficient &
-PropertyManager::getMatrixProperty(const std::string name)
+PropertyManager::getMatrixProperty(const std::string & name)
 {
   return this->_matrix_coeffs.getCoefficient(name);
 }
