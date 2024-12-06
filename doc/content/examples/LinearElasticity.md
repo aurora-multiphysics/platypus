@@ -15,7 +15,7 @@ This problem solves a linear elasticity problem for small deformations with stro
 \begin{split}
 -\partial_j \sigma_{ij} =0
 \,\,\,&\mathrm{on}\,\, \Omega \\
-\delta u_i = 0 \,\,\, &\mathrm{on}\,\, \Gamma_1 \\
+u_i = 0 \,\,\, &\mathrm{on}\,\, \Gamma_1 \\
 \sigma_{ij} \hat n_j= f_i \,\,\, &\mathrm{on}\,\, \Gamma_2
 \end{split}
 \end{equation}
