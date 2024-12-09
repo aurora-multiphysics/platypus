@@ -28,8 +28,8 @@ defined in the `ARCH` variable. If this is not desired, comment out the
 
 ### CPU-Only Platypus
 
-You may with to run Platypus using only the Sapphire Rapids nodes of CSD3,
-and do not wish to install dependencies associatedwith use of available GPUs.
+You may wish to run Platypus using only the Sapphire Rapids nodes of CSD3,
+and do not wish to install dependencies associated with use of available GPUs.
 In this case, copy the build script from
 `https://github.com/aurora-multiphysics/platypus/blob/main/scripts/build-platypus-csd3-sapphire.sh`
 and build Platypus using

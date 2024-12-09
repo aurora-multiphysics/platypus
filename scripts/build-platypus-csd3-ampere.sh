@@ -115,6 +115,9 @@ install_spack_deps() {
 
     echo "Adding python modules..."
 
+    spack install python@3.12.5
+    spack load python@3.12.5 arch=${ARCH}
+
     spack install py-pyaml
     spack load py-pyaml arch=${ARCH}
 
