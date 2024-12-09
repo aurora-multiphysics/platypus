@@ -25,3 +25,8 @@ starting point for users to adapt:
 - [Definite Maxwell](examples/DefiniteMaxwell.md): Solves a 3D electromagnetic diffusion problem for
   the electric field on a cube missing an octant, discretized using $H(\mathrm{curl})$ conforming
   Nédélec elements. This example is based on [MFEM Example 3](https://mfem.org/examples/).
+
+- [GradDiv](examples/GradDiv.md): Solves a diffusion problem for a vector field
+  on a cuboid domain, discretized using $H(\mathrm{div})$ conforming
+  Raviart-Thomas elements. This example is based on [MFEM Example 4](https://mfem.org/examples/)
+  and is relevant for solving Maxwell's equations using potentials without the Coulomb gauge.
