@@ -1,9 +1,11 @@
 #include "MFEMBoundaryCondition.h"
+#include "mesh_extras.hpp"
 
 InputParameters
 MFEMBoundaryCondition::validParams()
 {
   InputParameters params = MFEMGeneralUserObject::validParams();
+  params.addClassDescription("Base class for applying boundary conditions to MFEM problems.");
   params.registerBase("BoundaryCondition");
   // Create user-facing 'boundary' input for restricting inheriting object to boundaries
   params.addParam<std::vector<BoundaryName>>(

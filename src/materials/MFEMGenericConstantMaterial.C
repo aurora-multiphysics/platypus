@@ -6,8 +6,8 @@ InputParameters
 MFEMGenericConstantMaterial::validParams()
 {
   InputParameters params = MFEMMaterial::validParams();
-  params.addClassDescription(
-      "Declares material properties based on names and values prescribed by input parameters.");
+  params.addClassDescription("Declares constant material properties based on names and values "
+                             "prescribed by input parameters.");
   params.addRequiredParam<std::vector<std::string>>(
       "prop_names", "The names of the properties this material will have");
   params.addRequiredParam<std::vector<Real>>("prop_values",
@@ -32,7 +32,8 @@ MFEMGenericConstantMaterial::MFEMGenericConstantMaterial(const InputParameters &
   _num_props = num_names;
   for (unsigned int i = 0; i < _num_props; i++)
   {
-    _properties.declareScalar(_prop_names[i], _prop_values[i], subdomainsToStrings(_block_ids));
+    _properties.declareScalar<mfem::ConstantCoefficient>(
+        _prop_names[i], subdomainsToStrings(_block_ids), _prop_values[i]);
   }
 }
 

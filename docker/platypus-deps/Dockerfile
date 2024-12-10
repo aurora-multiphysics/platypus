@@ -22,8 +22,10 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get install 
     flex \
     clang-format \
     clang-tidy \
+    cmake \
     curl \
     doxygen \
+    gfortran \
     git \
     graphviz \
     ninja-build \
@@ -38,7 +40,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get install 
     libfreetype6-dev \
     libglew-dev \
     libglm-dev \
-    libhdf5-mpich-dev \
+    libhdf5-openmpi-dev \
     libnetcdf-dev \
     libomp-14-dev \
     libpng-dev \
@@ -49,25 +51,16 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get install 
     rm -rf /var/lib/apt/lists/*
 
 # Install pip packages
-RUN pip install --no-cache-dir packaging && \
-    pip install --no-cache-dir pyyaml && \
-    pip install --no-cache-dir setuptools && \
-    pip install --no-cache-dir xmltodict && \
-    pip install --no-cache-dir deepdiff && \
-    pip install --no-cache-dir jinja2 && \
-    pip install --no-cache-dir livereload && \
-    pip install --no-cache-dir pybtex && \
-    pip install --no-cache-dir pylatexenc
-
-# Install CMake
-WORKDIR /$WORKDIR
-RUN git clone https://github.com/Kitware/CMake.git
-WORKDIR /$WORKDIR/CMake
-RUN git checkout 78ae759 && \
-    ./bootstrap --parallel=$compile_cores && \
-    make -j$compile_cores && \
-    make install && \
-    alias cmake='/$WORKDIR/CMake/bin/cmake'
+RUN pip install --no-cache-dir \
+    deepdiff \
+    jinja2 \
+    livereload \
+    packaging \
+    pybtex \
+    pylatexenc \
+    pyyaml \
+    setuptools \
+    xmltodict
 
 # Download SuperLU
 WORKDIR /$WORKDIR
@@ -80,7 +73,7 @@ WORKDIR /$WORKDIR/petsc
 RUN curl -L -O http://ftp.mcs.anl.gov/pub/petsc/release-snapshots/petsc-3.19.3.tar.gz && \
     tar -xf petsc-3.19.3.tar.gz -C .
 
-# Build PETSc
+# Build and install PETSc
 WORKDIR /$WORKDIR/petsc/petsc-3.19.3
 RUN ./configure \
     --prefix=/$WORKDIR/petsc \
@@ -102,16 +95,20 @@ RUN ./configure \
     --download-scalapack=1 \
     --download-mumps=1 \
     --download-slepc=1 \
-    --with-64-bit-indices=1 \
-    PETSC_DIR="$(pwd)" PETSC_ARCH=arch-linux-c-opt && \
-    make
+    --with-64-bit-indices=1 && \
+    make && make install && make check
 
-# Install PETSc
-WORKDIR /$WORKDIR/petsc/petsc-3.19.3
-RUN make PETSC_DIR=/$WORKDIR/petsc/petsc-3.19.3 PETSC_ARCH=arch-linux-c-opt install && \
-    make PETSC_DIR=/$WORKDIR/petsc/petsc-3.19.3 PETSC_ARCH=arch-linux-c-opt check
+# Download and build Conduit
 WORKDIR /$WORKDIR
-RUN export PETSC_DIR=/$WORKDIR/petsc
+RUN git clone --recursive https://github.com/llnl/conduit.git
+WORKDIR /$WORKDIR/conduit
+RUN mkdir build
+WORKDIR /$WORKDIR/conduit/build
+RUN cmake  ../src \
+    -DCMAKE_INSTALL_PREFIX=/$WORKDIR/conduit/build-install \
+    -DCMAKE_BUILD_TYPE="Release" \
+    -DENABLE_MPI=YES
+RUN make -j$compile_cores install
 
 # Build MFEM and common miniapp
 WORKDIR /$WORKDIR
@@ -134,7 +131,9 @@ RUN cmake .. \
     -DMFEM_USE_SUPERLU=YES \
     -DSuperLUDist_DIR=/$WORKDIR/petsc/ \
     -DMFEM_USE_NETCDF=YES \
-    -DHDF5_DIR=/usr/lib/x86_64-linux-gnu/hdf5/mpich/ && \
+    -DMFEM_USE_CONDUIT=YES \
+    -DCONDUIT_DIR=/$WORKDIR/conduit/build-install \
+    -DHDF5_DIR=/usr/lib/x86_64-linux-gnu/hdf5/openmpi/ && \
     make -j$compile_cores
 WORKDIR /$WORKDIR/mfem/build/miniapps/common
 RUN make -j$compile_cores
@@ -150,27 +149,29 @@ RUN cmake -G Ninja -DMFEM_DIR=/$WORKDIR/mfem/build .. && \
 
 # Configure MOOSE
 WORKDIR /$WORKDIR
-RUN export MOOSE_JOBS=$compile_cores && \
-    git clone https://github.com/idaholab/moose
+RUN git clone https://github.com/idaholab/moose
 WORKDIR /$WORKDIR/moose
 RUN git checkout master && \
+    export MOOSE_JOBS=$compile_cores && \
     export PETSC_DIR=/$WORKDIR/petsc && \
-    export PETSC_ARCH=arch-linux-c-opt && \
     export CC=mpicc && \
     export CXX=mpicxx && \
-    export F90=mpif90 && \
-    export F77=mpif77 && \
     export FC=mpif90  && \
-    METHODS=opt ./scripts/update_and_rebuild_libmesh.sh --with-mpi && \
+    METHODS=opt ./scripts/update_and_rebuild_libmesh.sh && \
+    METHODS=opt ./scripts/update_and_rebuild_wasp.sh && \
     ./configure --with-derivative-size=200
-
-# Build WASP
-WORKDIR /$WORKDIR/moose/scripts
-RUN METHODS=opt ./update_and_rebuild_wasp.sh
 
 # Build MOOSE
 WORKDIR /$WORKDIR/moose/framework
 RUN METHOD=opt make -j$compile_cores
 
 WORKDIR /$WORKDIR/moose/test
+RUN METHOD=opt make -j$compile_cores
+
+# Build HEAT_TRANSFER module 
+WORKDIR /$WORKDIR/moose/modules/heat_transfer
+RUN METHOD=opt make -j$compile_cores
+
+# Build SOLID_MECHANICS module 
+WORKDIR /$WORKDIR/moose/modules/solid_mechanics
 RUN METHOD=opt make -j$compile_cores

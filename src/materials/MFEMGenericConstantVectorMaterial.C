@@ -6,8 +6,8 @@ InputParameters
 MFEMGenericConstantVectorMaterial::validParams()
 {
   InputParameters params = MFEMMaterial::validParams();
-  params.addClassDescription(
-      "Declares material properties based on names and values prescribed by input parameters.");
+  params.addClassDescription("Declares constant vector material properties based on names and "
+                             "values prescribed by input parameters.");
   params.addRequiredParam<std::vector<std::string>>(
       "prop_names", "The names of the properties this material will have");
   params.addRequiredParam<std::vector<Real>>("prop_values",
@@ -34,10 +34,10 @@ MFEMGenericConstantVectorMaterial::MFEMGenericConstantVectorMaterial(
   for (unsigned int i = 0; i < _num_props; i++)
   {
     const int j = i * LIBMESH_DIM;
-    _properties.declareVector(
+    _properties.declareVector<mfem::VectorConstantCoefficient>(
         _prop_names[i],
-        mfem::Vector({_prop_values[j], _prop_values[j + 1], _prop_values[j + 2]}),
-        subdomainsToStrings(_block_ids));
+        subdomainsToStrings(_block_ids),
+        mfem::Vector({_prop_values[j], _prop_values[j + 1], _prop_values[j + 2]}));
   }
 }
 
