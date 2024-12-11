@@ -1,34 +1,31 @@
 #!/bin/bash
 
-replace_in_file()
-{
+replace_in_file() {
     # First argument is the file
     # Second argument is the word to be replaced
     # Third argument is what it is to be replaced by
-    sed -i "s/@$2@/$3/" $1
+    sed -i "s/@$2@/$3/" "$1"
 }
 
-parse_options()
-{
-    for arg in "$@"
-    do
+parse_options() {
+    for arg in "$@"; do
         case $arg in
-            -g|--gpu)
+            -g | --gpu)
             GPU_BUILD=1
             ;;
-            -b=*|--gpu-backend=*)
+            -b=* | --gpu-backend=*)
             GPU_BACKEND="${arg#*=}"
             ;;
-            -a=*|--gpu-arch=*)
+            -a=* | --gpu-arch=*)
             GPU_ARCH="${arg#*=}"
             ;;
-            -t=*|--cpu-target=*)
+            -t=* | --cpu-target=*)
             CPU_TARGET="${arg#*=}"
             ;;
-            -p=*|--package=*)
+            -p=* | --package=*)
             PACKAGES+=("${arg#*=}")
             ;;
-            -c=*|--compiler=*)
+            -c=* | --compiler=*)
             COMPILERS+=("${arg#*=}")
             ;;
             *)
@@ -38,30 +35,29 @@ parse_options()
     done
 }
 
-load_spack()
-{
+load_spack() {
     git clone --depth=100 https://github.com/spack/spack.git
+    # shellcheck source=/dev/null
     . spack/share/spack/setup-env.sh
 }
 
-make_spack_env()
-{
+make_spack_env() {
 
     if [ "${GPU_BUILD}" -eq 1 ]; then
         printf "GPU build detected\n"
         replace_in_file ${SPACK_MOD} "gpu_aware_mpi" "+gpu-aware-mpi"
 
-        if [[ -z "${GPU_BACKEND}" || ( "${GPU_BACKEND}" != "cuda" && "${GPU_BACKEND}" != "rocm" ) ]]; then
+        if [[ -z ${GPU_BACKEND} || (${GPU_BACKEND} != "cuda" && ${GPU_BACKEND} != "rocm")         ]]; then
             printf "Please set the GPU backend with --gpu-backend=[...]. Options are cuda and rocm.\n"
             exit 1
         else
-            printf "GPU backend ${GPU_BACKEND} detected\n"
+            printf 'GPU backend %s detected\n' "${GPU_BACKEND}"
             replace_in_file ${SPACK_MOD} "gpu" "+${GPU_BACKEND}"
-            if [ ${GPU_BACKEND} = "cuda" ]; then
+            if [ "${GPU_BACKEND}" = "cuda" ]; then
                 replace_in_file ${SPACK_MOD} "blas" "+cublas"
                 replace_in_file ${SPACK_MOD} "amdgpu" ""
                 replace_in_file ${SPACK_MOD} "llvm_version" "18.1.8"
-            else 
+            else
                 replace_in_file ${SPACK_MOD} "blas" "+rocblas"
                 replace_in_file ${SPACK_MOD} "amdgpu" "-amdgpu"
                 replace_in_file ${SPACK_MOD} "llvm_version" "6.2.4"
@@ -73,8 +69,8 @@ make_spack_env()
             printf "GPU arch target not detected. Not set\n"
             replace_in_file ${SPACK_MOD} "gpu_arch" ""
         else
-            printf "GPU arch target ${GPU_ARCH} detected\n"
-            if [ ${GPU_BACKEND} = "cuda" ]; then
+            printf 'GPU arch target %s detected\n' "${GPU_ARCH}"
+            if [ "${GPU_BACKEND}" = "cuda" ]; then
                 replace_in_file ${SPACK_MOD} "gpu_arch" "cuda_arch=${GPU_ARCH}"
             else
                 replace_in_file ${SPACK_MOD} "gpu_arch" "amdgpu_target=${GPU_ARCH}"
@@ -93,7 +89,7 @@ make_spack_env()
     fi
 
     if [ -z "${CPU_TARGET}" ]; then
-        printf "CPU target architecture not detected. Spack will use local CPU architecture: $(spack arch -t)\n"
+        printf 'CPU target architecture not detected. Spack will use local CPU architecture: %s\n' "$(spack arch -t)"
         replace_in_file ${SPACK_MOD} "target" ""
     else
         replace_in_file ${SPACK_MOD} "target" "targets=${CPU_TARGET}"
@@ -109,49 +105,45 @@ add_package() {
     if grep -q "$1@$2" "${SPACK_MOD}"; then
         echo "$1 module found in spack environment"
     else
-        printf "    $1:\n      externals:\n      - spec: "$1@$2"\n        prefix: $3\n      buildable: False\n" >> "${SPACK_MOD}"
+        printf '    %s:\n      externals:\n      - spec: %s\n        prefix: %s\n      buildable: False\n' "$1" "$1@$2" "$3" >> "${SPACK_MOD}"
     fi
 }
 
-add_external_packages()
-{
+add_external_packages() {
     if [ -z "${PACKAGES}" ]; then
         printf "No external packages added\n"
     else
         printf "  packages:\n" >> ${SPACK_MOD}
-        for p in "${PACKAGES[@]}"
-        do
+        for p in "${PACKAGES[@]}"; do
             read -ra STR_ARRAY <<< "$p"
             printf "\nExternal package added\n"
-            printf "Name: ${STR_ARRAY[0]}\n"
-            printf "Version: ${STR_ARRAY[1]}\n"
-            printf "Path: ${STR_ARRAY[2]}\n"
-            add_package ${STR_ARRAY[0]} ${STR_ARRAY[1]} ${STR_ARRAY[2]}
+            printf 'Name: %s\n' "${STR_ARRAY[0]}"
+            printf 'Version: %s\n' "${STR_ARRAY[1]}"
+            printf 'Path: %s\n' "${STR_ARRAY[2]}"
+            add_package "${STR_ARRAY[0]}" "${STR_ARRAY[1]}" "${STR_ARRAY[2]}"
         done
     fi
 
 }
 
-parse_compiler_options()
-{
+parse_compiler_options() {
     CC_PATH=""
     CXX_PATH=""
     F77_PATH=""
     FC_PATH=""
 
-    for arg in "$@"
-    do
+    for arg in "$@"; do
         case $arg in
-            cc=*|CC=*)
+            cc=* | CC=*)
             CC_PATH="${arg#*=}"
             ;;
-            cxx=*|CXX=*)
+            cxx=* | CXX=*)
             CXX_PATH="${arg#*=}"
             ;;
-            f77=*|F77=*)
+            f77=* | F77=*)
             F77_PATH="${arg#*=}"
             ;;
-            fc=*|FC=*)
+            fc=* | FC=*)
             FC_PATH=("${arg#*=}")
             ;;
             *)
@@ -161,16 +153,14 @@ parse_compiler_options()
     done
 
     COMP_ARRAY=("${CC_PATH}" "${CXX_PATH}" "${F77_PATH}" "${FC_PATH}")
-    for arg in ${COMP_ARRAY[@]}
-    do
-        if [ -z $arg ]; then
-            $arg="None"
+    for arg in "${COMP_ARRAY[@]}"; do
+        if [ -z "$arg" ]; then
+            arg="None"
         fi
     done
 }
 
-add_compiler()
-{
+add_compiler() {
     # First argument is the package name
     # Second argument is the version
     # Third argument is the CC path
@@ -179,37 +169,34 @@ add_compiler()
     # Sixth argument is the FC path
 
     if grep -q "$1@$2" "${SPACK_MOD}"; then
-        echo "$1 compiler found in spack environment"
+        printf '%s compiler found in spack environment' "$1"
     else
-        printf "  - compiler:\n      spec: $1@=$2\n      operating_system: $(spack arch -o)\n      modules: []\n      paths:\n        cc: $3\n        cxx: $4\n        f77: $5\n        fc: $6\n" >> "${SPACK_MOD}"
+        printf '  - compiler:\n      spec: %s\n      operating_system: %s\n      modules: []\n      paths:\n        cc: %s\n        cxx: %s\n        f77: %s\n        fc: %s\n' "$1@=$2" "$(spack arch -o)" "$3" "$4" "$5" "$6" >> "${SPACK_MOD}"
     fi
 }
 
-add_external_compilers()
-{
+add_external_compilers() {
     if [ -z "${COMPILERS}" ]; then
         printf "No external compilers added\n"
     else
         printf "  compilers:\n" >> ${SPACK_MOD}
-        for c in "${COMPILERS[@]}"
-        do
+        for c in "${COMPILERS[@]}"; do
             read -ra STR_ARRAY <<< "$c"
             parse_compiler_options "${STR_ARRAY[@]}"
             printf "\nExternal compiler added\n"
-            printf "Name: ${STR_ARRAY[0]}\n"
-            printf "Version: ${STR_ARRAY[1]}\n"
-            printf "CC_PATH: ${CC_PATH}\n"
-            printf "CXX_PATH: ${CXX_PATH}\n"
-            printf "F77_PATH: ${F77_PATH}\n"
-            printf "FC_PATH: ${FC_PATH}\n"
-            add_compiler ${STR_ARRAY[0]} ${STR_ARRAY[1]} ${CC_PATH} ${CXX_PATH} ${F77_PATH} ${FC_PATH}
+            printf 'Name: %s\n' "${STR_ARRAY[0]}"
+            printf 'Version: %s\n' "${STR_ARRAY[1]}"
+            printf 'CC_PATH: %s\n' "${CC_PATH}"
+            printf 'CXX_PATH: %s\n' "${CXX_PATH}"
+            printf 'F77_PATH: %s\n' "${F77_PATH}"
+            printf 'FC_PATH: %s\n' "${FC_PATH}"
+            add_compiler "${STR_ARRAY[0]}" "${STR_ARRAY[1]}" "${CC_PATH}" "${CXX_PATH}" "${F77_PATH}" "${FC_PATH}"
         done
     fi
 
 }
 
-set_environment_vars()
-{
+set_environment_vars() {
     export SLU_DIR=$(spack location -i superlu-dist)
     export HDF5_DIR=$(spack location -i hdf5)
     export SLEPC_DIR=$(spack location -i slepc)
@@ -229,13 +216,13 @@ set_environment_vars()
     export LIBMESH_JOBS=$compile_cores
     export METHOD="opt"
 
-    if [ ${GPU_BACKEND} = "cuda" ]; then
+    if [ "${GPU_BACKEND}" = "cuda" ]; then
         export CUDA_MFEM="YES"
     else
         export CUDA_MFEM="NO"
     fi
 
-    if [ ${GPU_BACKEND} = "rocm" ]; then
+    if [ "${GPU_BACKEND}" = "rocm" ]; then
         export HIP_MFEM="YES"
     else
         export HIP_MFEM="NO"
@@ -243,11 +230,10 @@ set_environment_vars()
 
 }
 
-install_mfem()
-{
-    cd "${BUILD_PATH}"
+install_mfem() {
+    cd "${BUILD_PATH}" || exit 1
     git clone https://github.com/mfem/mfem.git
-    cd mfem
+    cd mfem || exit 1
     git checkout master
     cmake -S . -B build \
         -DCMAKE_BUILD_TYPE=Release \
@@ -275,23 +261,21 @@ install_mfem()
     cmake --build build -j"$compile_cores"
 }
 
-install_moose()
-{
-    cd "${BUILD_PATH}"
+install_moose() {
+    cd "${BUILD_PATH}" || exit 1
     git clone https://github.com/idaholab/moose
-    cd moose
+    cd moose || exit 1
     ./scripts/update_and_rebuild_libmesh.sh --with-mpi
     ./scripts/update_and_rebuild_wasp.sh
 
     ./configure --with-derivative-size=200
-    cd framework
+    cd framework || exit 1
     make -j"$compile_cores"
-    cd ../modules
+    cd ../modules || exit 1
     make -j"$compile_cores"
 }
 
-install_platypus()
-{
+install_platypus() {
     cd "${BUILD_PATH}" || exit 1
 
     echo "Building platypus..."
@@ -313,9 +297,9 @@ export BUILD_PATH=${ROOT_PATH}/${BUILD_DIR_NAME}
 mkdir -p "${BUILD_PATH}"
 
 # Create modifiable spack environment file
-cp ${SPACK_FILE} ${BUILD_PATH}/${SPACK_MOD}
+cp ${SPACK_FILE} "${BUILD_PATH}"/${SPACK_MOD}
 
-cd "${BUILD_PATH}"
+cd "${BUILD_PATH}" || exit 1
 
 GPU_BUILD=0
 GPU_BACKEND=""
