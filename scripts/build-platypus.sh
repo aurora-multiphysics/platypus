@@ -110,7 +110,7 @@ add_package() {
 }
 
 add_external_packages() {
-    if [ -z "${PACKAGES}" ]; then
+    if [ -z "${PACKAGES[*]}" ]; then
         printf "No external packages added\n"
     else
         printf "  packages:\n" >> ${SPACK_MOD}
@@ -152,7 +152,7 @@ parse_compiler_options() {
         esac
     done
 
-    COMP_ARRAY=("${CC_PATH}" "${CXX_PATH}" "${F77_PATH}" "${FC_PATH}")
+    COMP_ARRAY=("${CC_PATH[@]}" "${CXX_PATH[@]}" "${F77_PATH[@]}" "${FC_PATH[@]}")
     for arg in "${COMP_ARRAY[@]}"; do
         if [ -z "$arg" ]; then
             arg="None"
@@ -176,7 +176,7 @@ add_compiler() {
 }
 
 add_external_compilers() {
-    if [ -z "${COMPILERS}" ]; then
+    if [ -z "${COMPILERS[*]}" ]; then
         printf "No external compilers added\n"
     else
         printf "  compilers:\n" >> ${SPACK_MOD}
@@ -186,22 +186,27 @@ add_external_compilers() {
             printf "\nExternal compiler added\n"
             printf 'Name: %s\n' "${STR_ARRAY[0]}"
             printf 'Version: %s\n' "${STR_ARRAY[1]}"
-            printf 'CC_PATH: %s\n' "${CC_PATH}"
-            printf 'CXX_PATH: %s\n' "${CXX_PATH}"
-            printf 'F77_PATH: %s\n' "${F77_PATH}"
-            printf 'FC_PATH: %s\n' "${FC_PATH}"
-            add_compiler "${STR_ARRAY[0]}" "${STR_ARRAY[1]}" "${CC_PATH}" "${CXX_PATH}" "${F77_PATH}" "${FC_PATH}"
+            printf 'CC_PATH: %s\n' "${CC_PATH[*]}"
+            printf 'CXX_PATH: %s\n' "${CXX_PATH[*]}"
+            printf 'F77_PATH: %s\n' "${F77_PATH[*]}"
+            printf 'FC_PATH: %s\n' "${FC_PATH[*]}"
+            add_compiler "${STR_ARRAY[0]}" "${STR_ARRAY[1]}" "${CC_PATH[*]}" "${CXX_PATH[*]}" "${F77_PATH[*]}" "${FC_PATH[*]}"
         done
     fi
 
 }
 
 set_environment_vars() {
-    export SLU_DIR=$(spack location -i superlu-dist)
-    export HDF5_DIR=$(spack location -i hdf5)
-    export SLEPC_DIR=$(spack location -i slepc)
-    export PETSC_DIR=$(spack location -i petsc)
-    export CONDUIT_DIR=$(spack location -i conduit)
+    SLU_DIR=$(spack location -i superlu-dist)
+    HDF5_DIR=$(spack location -i hdf5)
+    SLEPC_DIR=$(spack location -i slepc)
+    PETSC_DIR=$(spack location -i petsc)
+    CONDUIT_DIR=$(spack location -i conduit)
+
+    export HDF5_DIR
+    export SLEPC_DIR
+    export PETSC_DIR
+    export CONDUIT_DIR
 
     export compile_cores=16
     export OMPI_CXX=clang++
@@ -286,13 +291,14 @@ install_platypus() {
 }
 
 # Template file for the spack environment
-SPACK_FILE="spack-env.yaml"
+SPACK_FILE="spack-env.txt"
 
 # Name of the file to be used for spack environment
 SPACK_MOD=".spack_env_platypus.yaml"
 
 export BUILD_DIR_NAME="platypus_gpu"
-export ROOT_PATH=$(pwd)
+ROOT_PATH=$(pwd)
+export ROOT_PATH
 export BUILD_PATH=${ROOT_PATH}/${BUILD_DIR_NAME}
 mkdir -p "${BUILD_PATH}"
 
