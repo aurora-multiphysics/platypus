@@ -5,7 +5,7 @@ registerMooseObject("PlatypusApp", MFEMCoefficient);
 libMesh::Point
 PointFromMFEMVector(const mfem::Vector & vec)
 {
-  return libMesh::Point(vec.Elem(0), vec.Elem(1), vec.Elem(2));
+  return (vec.Elem(0), vec.Elem(1), vec.Elem(2));
 }
 
 InputParameters
@@ -23,4 +23,4 @@ MFEMCoefficient::MFEMCoefficient(const InputParameters & parameters)
 {
 }
 
-MFEMCoefficient::~MFEMCoefficient() {}
+MFEMCoefficient::~MFEMCoefficient() = default;
