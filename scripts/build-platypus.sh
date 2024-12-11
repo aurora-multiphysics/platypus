@@ -1,0 +1,355 @@
+#!/bin/bash
+
+replace_in_file()
+{
+    # First argument is the file
+    # Second argument is the word to be replaced
+    # Third argument is what it is to be replaced by
+    sed -i "s/@$2@/$3/" $1
+}
+
+parse_options()
+{
+    for arg in "$@"
+    do
+        case $arg in
+            -g|--gpu)
+            GPU_BUILD=1
+            ;;
+            -b=*|--gpu-backend=*)
+            GPU_BACKEND="${arg#*=}"
+            ;;
+            -a=*|--gpu-arch=*)
+            GPU_ARCH="${arg#*=}"
+            ;;
+            -t=*|--cpu-target=*)
+            CPU_TARGET="${arg#*=}"
+            ;;
+            -p=*|--package=*)
+            PACKAGES+=("${arg#*=}")
+            ;;
+            -c=*|--compiler=*)
+            COMPILERS+=("${arg#*=}")
+            ;;
+            *)
+            OTHER_ARGUMENTS+=("${arg}")
+            ;;
+        esac
+    done
+}
+
+load_spack()
+{
+    git clone --depth=100 https://github.com/spack/spack.git
+    . spack/share/spack/setup-env.sh
+}
+
+make_spack_env()
+{
+
+    if [ "${GPU_BUILD}" -eq 1 ]; then
+        printf "GPU build detected\n"
+        replace_in_file ${SPACK_MOD} "gpu_aware_mpi" "+gpu-aware-mpi"
+
+        if [[ -z "${GPU_BACKEND}" || ( "${GPU_BACKEND}" != "cuda" && "${GPU_BACKEND}" != "rocm" ) ]]; then
+            printf "Please set the GPU backend with --gpu-backend=[...]. Options are cuda and rocm.\n"
+            exit 1
+        else
+            printf "GPU backend ${GPU_BACKEND} detected\n"
+            replace_in_file ${SPACK_MOD} "gpu" "+${GPU_BACKEND}"
+            if [ ${GPU_BACKEND} = "cuda" ]; then
+                replace_in_file ${SPACK_MOD} "blas" "+cublas"
+                replace_in_file ${SPACK_MOD} "amdgpu" ""
+                replace_in_file ${SPACK_MOD} "llvm_version" "18.1.8"
+            else 
+                replace_in_file ${SPACK_MOD} "blas" "+rocblas"
+                replace_in_file ${SPACK_MOD} "amdgpu" "-amdgpu"
+                replace_in_file ${SPACK_MOD} "llvm_version" "6.2.4"
+                replace_in_file ${SPACK_MOD} "rocm_extras" "- rocm-openmp-extras"
+            fi
+        fi
+
+        if [ -z "${GPU_ARCH}" ]; then
+            printf "GPU arch target not detected. Not set\n"
+            replace_in_file ${SPACK_MOD} "gpu_arch" ""
+        else
+            printf "GPU arch target ${GPU_ARCH} detected\n"
+            if [ ${GPU_BACKEND} = "cuda" ]; then
+                replace_in_file ${SPACK_MOD} "gpu_arch" "cuda_arch=${GPU_ARCH}"
+            else
+                replace_in_file ${SPACK_MOD} "gpu_arch" "amdgpu_target=${GPU_ARCH}"
+            fi
+        fi
+    else
+        printf "CPU build detected\n"
+
+        # Clean up all GPU options
+        replace_in_file ${SPACK_MOD} "gpu_aware_mpi" ""
+        replace_in_file ${SPACK_MOD} "gpu" ""
+        replace_in_file ${SPACK_MOD} "gpu_arch" ""
+        replace_in_file ${SPACK_MOD} "blas" ""
+        replace_in_file ${SPACK_MOD} "amdgpu" ""
+        replace_in_file ${SPACK_MOD} "llvm_version" "18.1.8"
+    fi
+
+    if [ -z "${CPU_TARGET}" ]; then
+        printf "CPU target architecture not detected. Spack will use local CPU architecture: $(spack arch -t)\n"
+        replace_in_file ${SPACK_MOD} "target" ""
+    else
+        replace_in_file ${SPACK_MOD} "target" "targets=${CPU_TARGET}"
+    fi
+}
+
+add_package() {
+
+    # First argument is the package name
+    # Second argument is the version
+    # Third argument is the path
+
+    if grep -q "$1@$2" "${SPACK_MOD}"; then
+        echo "$1 module found in spack environment"
+    else
+        printf "    $1:\n      externals:\n      - spec: "$1@$2"\n        prefix: $3\n      buildable: False\n" >> "${SPACK_MOD}"
+    fi
+}
+
+add_external_packages()
+{
+    if [ -z "${PACKAGES}" ]; then
+        printf "No external packages added\n"
+    else
+        printf "  packages:\n" >> ${SPACK_MOD}
+        for p in "${PACKAGES[@]}"
+        do
+            read -ra STR_ARRAY <<< "$p"
+            printf "\nExternal package added\n"
+            printf "Name: ${STR_ARRAY[0]}\n"
+            printf "Version: ${STR_ARRAY[1]}\n"
+            printf "Path: ${STR_ARRAY[2]}\n"
+            add_package ${STR_ARRAY[0]} ${STR_ARRAY[1]} ${STR_ARRAY[2]}
+        done
+    fi
+
+}
+
+parse_compiler_options()
+{
+    CC_PATH=""
+    CXX_PATH=""
+    F77_PATH=""
+    FC_PATH=""
+
+    for arg in "$@"
+    do
+        case $arg in
+            cc=*|CC=*)
+            CC_PATH="${arg#*=}"
+            ;;
+            cxx=*|CXX=*)
+            CXX_PATH="${arg#*=}"
+            ;;
+            f77=*|F77=*)
+            F77_PATH="${arg#*=}"
+            ;;
+            fc=*|FC=*)
+            FC_PATH=("${arg#*=}")
+            ;;
+            *)
+            OTHER_ARGUMENTS+=("${arg}")
+            ;;
+        esac
+    done
+
+    COMP_ARRAY=("${CC_PATH}" "${CXX_PATH}" "${F77_PATH}" "${FC_PATH}")
+    for arg in ${COMP_ARRAY[@]}
+    do
+        if [ -z $arg ]; then
+            $arg="None"
+        fi
+    done
+}
+
+add_compiler()
+{
+    # First argument is the package name
+    # Second argument is the version
+    # Third argument is the CC path
+    # Fourth argument is the CXX path
+    # Fifth argument is the F77 path
+    # Sixth argument is the FC path
+
+    if grep -q "$1@$2" "${SPACK_MOD}"; then
+        echo "$1 compiler found in spack environment"
+    else
+        printf "  - compiler:\n      spec: $1@=$2\n      operating_system: $(spack arch -o)\n      modules: []\n      paths:\n        cc: $3\n        cxx: $4\n        f77: $5\n        fc: $6\n" >> "${SPACK_MOD}"
+    fi
+}
+
+add_external_compilers()
+{
+    if [ -z "${COMPILERS}" ]; then
+        printf "No external compilers added\n"
+    else
+        printf "  compilers:\n" >> ${SPACK_MOD}
+        for c in "${COMPILERS[@]}"
+        do
+            read -ra STR_ARRAY <<< "$c"
+            parse_compiler_options "${STR_ARRAY[@]}"
+            printf "\nExternal compiler added\n"
+            printf "Name: ${STR_ARRAY[0]}\n"
+            printf "Version: ${STR_ARRAY[1]}\n"
+            printf "CC_PATH: ${CC_PATH}\n"
+            printf "CXX_PATH: ${CXX_PATH}\n"
+            printf "F77_PATH: ${F77_PATH}\n"
+            printf "FC_PATH: ${FC_PATH}\n"
+            add_compiler ${STR_ARRAY[0]} ${STR_ARRAY[1]} ${CC_PATH} ${CXX_PATH} ${F77_PATH} ${FC_PATH}
+        done
+    fi
+
+}
+
+set_environment_vars()
+{
+    export SLU_DIR=$(spack location -i superlu-dist)
+    export HDF5_DIR=$(spack location -i hdf5)
+    export SLEPC_DIR=$(spack location -i slepc)
+    export PETSC_DIR=$(spack location -i petsc)
+    export CONDUIT_DIR=$(spack location -i conduit)
+
+    export compile_cores=16
+    export OMPI_CXX=clang++
+    export OMPI_CC=clang
+    export CXX=mpic++
+    export CC=mpicc
+    export F90=mpif90
+    export F77=mpif77
+    export FC=mpif90
+    export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${BUILD_PATH}/mfem/build:${BUILD_PATH}/mfem/build/miniapps/common
+    export MOOSE_JOBS=$compile_cores
+    export LIBMESH_JOBS=$compile_cores
+    export METHOD="opt"
+
+    if [ ${GPU_BACKEND} = "cuda" ]; then
+        export CUDA_MFEM="YES"
+    else
+        export CUDA_MFEM="NO"
+    fi
+
+    if [ ${GPU_BACKEND} = "rocm" ]; then
+        export HIP_MFEM="YES"
+    else
+        export HIP_MFEM="NO"
+    fi
+
+}
+
+install_mfem()
+{
+    cd "${BUILD_PATH}"
+    git clone https://github.com/mfem/mfem.git
+    cd mfem
+    git checkout master
+    cmake -S . -B build \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DBUILD_SHARED_LIBS=YES \
+        -DMFEM_USE_OPENMP=NO \
+        -DMFEM_THREAD_SAFE=YES \
+        -DMFEM_ENABLE_EXAMPLES=YES \
+        -DMFEM_ENABLE_MINIAPPS=YES \
+        -DMFEM_USE_MPI=YES \
+        -DMFEM_USE_CUDA="${CUDA_MFEM}" \
+        -DMFEM_USE_HIP="${HIP_MFEM}" \
+        -DCUDA_ARCH=sm_"${GPU_ARCH}" \
+        -DHIP_ARCH="${GPU_ARCH}" \
+        -DMFEM_USE_METIS_5=YES \
+        -DMFEM_USE_SUPERLU=YES \
+        -DMFEM_USE_NETCDF=YES \
+        -DMFEM_USE_GSLIB=YES \
+        -DMFEM_USE_CONDUIT=YES \
+        -DGSLIB_DIR="${GSLIB_DIR}" \
+        -DCONDUIT_DIR="${CONDUIT_DIR}" \
+        -DHDF5_DIR="${HDF5_DIR}" \
+        -DSuperLUDist_DIR="${SLU_DIR}" \
+        -DSuperLUDist_VERSION_OK=YES \
+        -DHYPRE_VERSION=23200
+    cmake --build build -j"$compile_cores"
+}
+
+install_moose()
+{
+    cd "${BUILD_PATH}"
+    git clone https://github.com/idaholab/moose
+    cd moose
+    ./scripts/update_and_rebuild_libmesh.sh --with-mpi
+    ./scripts/update_and_rebuild_wasp.sh
+
+    ./configure --with-derivative-size=200
+    cd framework
+    make -j"$compile_cores"
+    cd ../modules
+    make -j"$compile_cores"
+}
+
+install_platypus()
+{
+    cd "${BUILD_PATH}" || exit 1
+
+    echo "Building platypus..."
+    git clone https://github.com/aurora-multiphysics/platypus.git
+    cd platypus || exit 1
+    make -j"$compile_cores"
+    ./run_tests -j"$compile_cores"
+}
+
+# Template file for the spack environment
+SPACK_FILE="spack-env.yaml"
+
+# Name of the file to be used for spack environment
+SPACK_MOD=".spack_env_platypus.yaml"
+
+export BUILD_DIR_NAME="platypus_gpu"
+export ROOT_PATH=$(pwd)
+export BUILD_PATH=${ROOT_PATH}/${BUILD_DIR_NAME}
+mkdir -p "${BUILD_PATH}"
+
+# Create modifiable spack environment file
+cp ${SPACK_FILE} ${BUILD_PATH}/${SPACK_MOD}
+
+cd "${BUILD_PATH}"
+
+GPU_BUILD=0
+GPU_BACKEND=""
+GPU_ARCH=""
+CPU_TARGET=""
+PACKAGES=()
+COMPILERS=()
+OTHER_ARGUMENTS=()
+
+parse_options "$@"
+load_spack
+make_spack_env
+add_external_packages
+add_external_compilers
+
+spack install bzip2
+spack load bzip2
+
+printf "Creating spack environment\n"
+spack env create platypus ${SPACK_MOD}
+spack env activate platypus
+
+# Will try to find a pre-installed gcc. If no compilers are found, you might need to add them manually
+spack compiler find
+spack concretize -f
+
+# Using vim instead of emacs to avoid a parsing bug in the autoconf installation
+EMACS=vim spack install
+spack load petsc
+
+# Cleaning intermediary files to use less space
+spack clean -a
+
+set_environment_vars
+install_mfem
+install_moose
+install_platypus
