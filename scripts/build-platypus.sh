@@ -40,16 +40,19 @@ parse_options() {
 export_config_file() {
 
     INV_COMMAND="$*"
-    printf 'Invocation command:\n\n ./%s %s\n\n' "$(basename "$0")" "${INV_COMMAND}" >> ${CONFIG_FILE}
-    printf 'Unused arguments:\n\n'                >> ${CONFIG_FILE}
-    for u in "${OTHER_ARGUMENTS[@]}"; do
-        printf '%s\n' "${u}"                      >> ${CONFIG_FILE}
-    done
-    printf '\nOptions:\n\n'                       >> ${CONFIG_FILE}
-    printf 'GPU_BUILD = %s\n' "${GPU_BUILD}"      >> ${CONFIG_FILE}
-    printf 'GPU_BACKEND = %s\n' "${GPU_BACKEND}"  >> ${CONFIG_FILE}
-    printf 'GPU_ARCH = %s\n' "${GPU_ARCH}"        >> ${CONFIG_FILE}
-    printf 'CPU_TARGET = %s\n\n' "${CPU_TARGET}"  >> ${CONFIG_FILE}
+    {
+        printf 'Invocation command:\n\n ./%s %s\n\n' "$(basename "$0")" "${INV_COMMAND}"
+        printf 'Unused arguments:\n\n'
+        for u in "${OTHER_ARGUMENTS[@]}"; do
+            printf '%s\n' "${u}"
+        done
+
+        printf '\nOptions:\n\n'
+        printf 'GPU_BUILD = %s\n' "${GPU_BUILD}"
+        printf 'GPU_BACKEND = %s\n' "${GPU_BACKEND}"
+        printf 'GPU_ARCH = %s\n' "${GPU_ARCH}"
+        printf 'CPU_TARGET = %s\n\n' "${CPU_TARGET}"
+    } >> ${CONFIG_FILE}
 
 }
 
