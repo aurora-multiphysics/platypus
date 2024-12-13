@@ -79,7 +79,6 @@ make_spack_env() {
                 replace_in_file ${SPACK_MOD} "blas" "+rocblas"
                 replace_in_file ${SPACK_MOD} "amdgpu" "-amdgpu"
                 replace_in_file ${SPACK_MOD} "llvm_version" "6.2.4"
-                replace_in_file ${SPACK_MOD} "rocm_extras" "- rocm-openmp-extras"
             fi
         fi
 
@@ -136,7 +135,7 @@ add_external_packages() {
         for p in "${PACKAGES[@]}"; do
             read -ra STR_ARRAY <<< "$p"
             printf "\nExternal package added"
-            printf '\nName: %s\n' "${STR_ARRAY[0]}"    | tee -a ${CONFIG_FILE}
+            printf '\nName: %s\n' "${STR_ARRAY[0]}"  | tee -a ${CONFIG_FILE}
             printf 'Version: %s\n' "${STR_ARRAY[1]}" | tee -a ${CONFIG_FILE}
             printf 'Path: %s\n' "${STR_ARRAY[2]}"    | tee -a ${CONFIG_FILE}
             add_package "${STR_ARRAY[0]}" "${STR_ARRAY[1]}" "${STR_ARRAY[2]}"
@@ -233,8 +232,8 @@ set_environment_vars() {
     export LDFLAGS="${LDFLAGS} -L${TIRPC_DIR}/lib"
 
     if [[ ${GPU_BUILD} -eq 1 && ${GPU_BACKEND} == "rocm"    ]]; then
-        OMPI_CXX=$(spack location -i llvm-amdgpu)/bin/amdclang
-        OMPI_CC=$(spack location -i llvm-amdgpu)/bin/amdclang++
+        OMPI_CXX=$(spack location -i llvm-amdgpu)/bin/amdclang++
+        OMPI_CC=$(spack location -i llvm-amdgpu)/bin/amdclang
     else
         OMPI_CXX=clang++
         OMPI_CC=clang

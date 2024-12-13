@@ -28,7 +28,6 @@ spack:
   - slepc @gpu@ @gpu_arch@
   - conduit
   - llvm@amdgpu@@@llvm_version@
-  @rocm_extras@
   view: true
   concretizer:
     unify: true
