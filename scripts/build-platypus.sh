@@ -33,6 +33,24 @@ parse_options() {
             ;;
         esac
     done
+
+    export_config_file "$@"
+}
+
+export_config_file() {
+
+    INV_COMMAND="$*"
+    printf 'Invocation command:\n\n ./%s %s\n\n' "$(basename "$0")" "${INV_COMMAND}" >> ${CONFIG_FILE}
+    printf 'Unused arguments:\n\n'                >> ${CONFIG_FILE}
+    for u in "${OTHER_ARGUMENTS[@]}"; do
+        printf '%s\n' "${u}"                      >> ${CONFIG_FILE}
+    done
+    printf '\nOptions:\n\n'                       >> ${CONFIG_FILE}
+    printf 'GPU_BUILD = %s\n' "${GPU_BUILD}"      >> ${CONFIG_FILE}
+    printf 'GPU_BACKEND = %s\n' "${GPU_BACKEND}"  >> ${CONFIG_FILE}
+    printf 'GPU_ARCH = %s\n' "${GPU_ARCH}"        >> ${CONFIG_FILE}
+    printf 'CPU_TARGET = %s\n\n' "${CPU_TARGET}"  >> ${CONFIG_FILE}
+
 }
 
 load_spack() {
@@ -89,7 +107,7 @@ make_spack_env() {
     fi
 
     if [ -z "${CPU_TARGET}" ]; then
-        printf 'CPU target architecture not detected. Spack will use local CPU architecture: %s\n' "$(spack arch -t)"
+        printf 'CPU target architecture not detected. Build will use local CPU architecture.'
         replace_in_file ${SPACK_MOD} "target" ""
     else
         replace_in_file ${SPACK_MOD} "target" "targets=${CPU_TARGET}"
@@ -113,13 +131,14 @@ add_external_packages() {
     if [ -z "${PACKAGES[*]}" ]; then
         printf "No external packages added\n"
     else
-        printf "  packages:\n" >> ${SPACK_MOD}
+        printf "  packages:\n"          >> ${SPACK_MOD}
+        printf 'External packages:\n' >> ${CONFIG_FILE}
         for p in "${PACKAGES[@]}"; do
             read -ra STR_ARRAY <<< "$p"
-            printf "\nExternal package added\n"
-            printf 'Name: %s\n' "${STR_ARRAY[0]}"
-            printf 'Version: %s\n' "${STR_ARRAY[1]}"
-            printf 'Path: %s\n' "${STR_ARRAY[2]}"
+            printf "\nExternal package added"
+            printf '\nName: %s\n' "${STR_ARRAY[0]}"    | tee -a ${CONFIG_FILE}
+            printf 'Version: %s\n' "${STR_ARRAY[1]}" | tee -a ${CONFIG_FILE}
+            printf 'Path: %s\n' "${STR_ARRAY[2]}"    | tee -a ${CONFIG_FILE}
             add_package "${STR_ARRAY[0]}" "${STR_ARRAY[1]}" "${STR_ARRAY[2]}"
         done
     fi
@@ -180,16 +199,17 @@ add_external_compilers() {
         printf "No external compilers added\n"
     else
         printf "  compilers:\n" >> ${SPACK_MOD}
+        printf '\nExternal compilers:\n' >> ${CONFIG_FILE}
         for c in "${COMPILERS[@]}"; do
             read -ra STR_ARRAY <<< "$c"
             parse_compiler_options "${STR_ARRAY[@]}"
-            printf "\nExternal compiler added\n"
-            printf 'Name: %s\n' "${STR_ARRAY[0]}"
-            printf 'Version: %s\n' "${STR_ARRAY[1]}"
-            printf 'CC_PATH: %s\n' "${CC_PATH[*]}"
-            printf 'CXX_PATH: %s\n' "${CXX_PATH[*]}"
-            printf 'F77_PATH: %s\n' "${F77_PATH[*]}"
-            printf 'FC_PATH: %s\n' "${FC_PATH[*]}"
+            printf "\nExternal compiler added"
+            printf '\nName: %s\n' "${STR_ARRAY[0]}"  | tee -a ${CONFIG_FILE}
+            printf 'Version: %s\n' "${STR_ARRAY[1]}" | tee -a ${CONFIG_FILE}
+            printf 'CC_PATH: %s\n' "${CC_PATH[*]}"   | tee -a ${CONFIG_FILE}
+            printf 'CXX_PATH: %s\n' "${CXX_PATH[*]}" | tee -a ${CONFIG_FILE}
+            printf 'F77_PATH: %s\n' "${F77_PATH[*]}" | tee -a ${CONFIG_FILE}
+            printf 'FC_PATH: %s\n' "${FC_PATH[*]}"   | tee -a ${CONFIG_FILE}
             add_compiler "${STR_ARRAY[0]}" "${STR_ARRAY[1]}" "${CC_PATH[*]}" "${CXX_PATH[*]}" "${F77_PATH[*]}" "${FC_PATH[*]}"
         done
     fi
@@ -202,15 +222,28 @@ set_environment_vars() {
     SLEPC_DIR=$(spack location -i slepc)
     PETSC_DIR=$(spack location -i petsc)
     CONDUIT_DIR=$(spack location -i conduit)
+    TIRPC_DIR=$(spack location -i libtirpc)
 
     export HDF5_DIR
     export SLEPC_DIR
     export PETSC_DIR
     export CONDUIT_DIR
 
+    export CPPFLAGS="${CPPFLAGS} -I${TIRPC_DIR}/include/tirpc"
+    export LDFLAGS="${LDFLAGS} -L${TIRPC_DIR}/lib"
+
+    if [[ ${GPU_BUILD} -eq 1 && ${GPU_BACKEND} == "rocm"    ]]; then
+        OMPI_CXX=$(spack location -i llvm-amdgpu)/bin/amdclang
+        OMPI_CC=$(spack location -i llvm-amdgpu)/bin/amdclang++
+    else
+        OMPI_CXX=clang++
+        OMPI_CC=clang
+    fi
+
+    export OMPI_CXX
+    export OMPI_CC
+
     export compile_cores=16
-    export OMPI_CXX=clang++
-    export OMPI_CC=clang
     export CXX=mpic++
     export CC=mpicc
     export F90=mpif90
@@ -240,6 +273,7 @@ install_mfem() {
     git clone https://github.com/mfem/mfem.git
     cd mfem || exit 1
     git checkout master
+    spack load cmake
     cmake -S . -B build \
         -DCMAKE_BUILD_TYPE=Release \
         -DBUILD_SHARED_LIBS=YES \
@@ -296,7 +330,10 @@ SPACK_FILE="spack-env.txt"
 # Name of the file to be used for spack environment
 SPACK_MOD=".spack_env_platypus.yaml"
 
-export BUILD_DIR_NAME="platypus_gpu"
+# Name of the config file where we print the invocation options
+CONFIG_FILE="build_platypus_config.txt"
+
+export BUILD_DIR_NAME="platypus_build"
 ROOT_PATH=$(pwd)
 export ROOT_PATH
 export BUILD_PATH=${ROOT_PATH}/${BUILD_DIR_NAME}
@@ -316,10 +353,10 @@ COMPILERS=()
 OTHER_ARGUMENTS=()
 
 parse_options "$@"
-load_spack
-make_spack_env
 add_external_packages
 add_external_compilers
+load_spack
+make_spack_env
 
 spack install bzip2
 spack load bzip2
