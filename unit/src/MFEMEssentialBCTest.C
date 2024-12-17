@@ -124,7 +124,7 @@ TEST_F(MFEMEssentialBCTest, MFEMScalarFunctionDirichletBC)
   // Construct boundary condition
   InputParameters bc_params = _factory.getValidParams("MFEMScalarFunctionDirichletBC");
   bc_params.set<std::string>("variable") = "test_variable_name";
-  bc_params.set<FunctionName>("function") = "func1";
+  bc_params.set<std::string>("coefficient") = "func1";
   bc_params.set<std::vector<BoundaryName>>("boundary") = {"1"};
   auto & essential_bc =
       addObject<MFEMScalarFunctionDirichletBC>("MFEMScalarFunctionDirichletBC", "bc1", bc_params);
@@ -190,7 +190,7 @@ TEST_F(MFEMEssentialBCTest, MFEMVectorFunctionDirichletBC)
   // Construct boundary condition
   InputParameters bc_params = _factory.getValidParams("MFEMVectorFunctionDirichletBC");
   bc_params.set<std::string>("variable") = "test_variable_name";
-  bc_params.set<FunctionName>("function") = "func2";
+  bc_params.set<std::string>("vector_coefficient") = "func2";
   bc_params.set<std::vector<BoundaryName>>("boundary") = {"1"};
   auto & essential_bc =
       addObject<MFEMVectorFunctionDirichletBC>("MFEMVectorFunctionDirichletBC", "bc1", bc_params);
@@ -265,7 +265,7 @@ TEST_F(MFEMEssentialBCTest, MFEMVectorFunctionNormalDirichletBC)
   // Construct boundary condition
   InputParameters bc_params = _factory.getValidParams("MFEMVectorFunctionNormalDirichletBC");
   bc_params.set<std::string>("variable") = "test_variable_name";
-  bc_params.set<FunctionName>("function") = "func2";
+  bc_params.set<std::string>("vector_coefficient") = "func2";
   bc_params.set<std::vector<BoundaryName>>("boundary") = {"1"};
   auto & essential_bc = addObject<MFEMVectorFunctionNormalDirichletBC>(
       "MFEMVectorFunctionNormalDirichletBC", "bc1", bc_params);
@@ -342,7 +342,7 @@ TEST_F(MFEMEssentialBCTest, MFEMVectorFunctionTangentialDirichletBC)
   // Construct boundary condition
   InputParameters bc_params = _factory.getValidParams("MFEMVectorFunctionTangentialDirichletBC");
   bc_params.set<std::string>("variable") = "test_variable_name";
-  bc_params.set<FunctionName>("function") = "func2";
+  bc_params.set<std::string>("vector_coefficient") = "func2";
   bc_params.set<std::vector<BoundaryName>>("boundary") = {"1"};
   auto & essential_bc = addObject<MFEMVectorFunctionTangentialDirichletBC>(
       "MFEMVectorFunctionTangentialDirichletBC", "bc1", bc_params);
