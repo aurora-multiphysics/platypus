@@ -16,12 +16,13 @@ MFEMVectorFEDomainLFKernel::validParams()
 
 MFEMVectorFEDomainLFKernel::MFEMVectorFEDomainLFKernel(const InputParameters & parameters)
   : MFEMKernel(parameters),
-    _vec_coef(getMFEMProblem().getVectorFunctionCoefficient(getParam<FunctionName>("function")))
+    _vec_coef(
+        getMFEMProblem().getProperties().getVectorProperty(getParam<FunctionName>("function")))
 {
 }
 
 mfem::LinearFormIntegrator *
 MFEMVectorFEDomainLFKernel::createIntegrator()
 {
-  return new mfem::VectorFEDomainLFIntegrator(*_vec_coef);
+  return new mfem::VectorFEDomainLFIntegrator(_vec_coef);
 }
