@@ -1,5 +1,31 @@
 #!/bin/bash
 
+help() {
+    printf "\n This bash script utilises spack to build and install Platypus and its dependencies, including MOOSE and MFEM.\n"
+    printf "\nUsage: ./build-platypus [options]\n"
+    printf "\n Available options:\n"
+    printf "\n -h, --help\n Displays this help message.\n"
+    printf "\n -g, --gpu\n Defines a GPU build. If this option is not added, a CPU build is assumed.\n"
+    printf "\n -b=[...], --gpu-backend=[...]\n Defines the GPU backend to be used. Options are cuda and rocm for NVIDIA and AMD GPUs, respectively.\n"
+    printf "\n -a=[...], --gpu-arch=[...]\n Defines the target GPU architecture. For CUDA backends, use only the number. For instance, to target a GPU whose arch code is sm_80, you would add -a=80\n"
+    printf "\n -t=[...], --cpu-target=[...]\n Defines the target CPU architecture in case we are cross-compiling. If left empty, the native architecture will be used.\n"
+    printf "\n -mpicxx=[<path>], --ompi-cxx=[<path>]\n Path to a C++ compiler binary in case you wish to wrap the MPI compiler with one that is different to the one it was built with for the MFEM, MOOSE and Platypus builds.\n"
+    printf "\n -mpicc=[<path>], --ompi-cc=[<path>]\n Path to a C compiler binary in case you wish to wrap the MPI compiler with one that is different to the one it was built with for the MFEM, MOOSE and Platypus builds.\n"
+    printf "\n -p=[<name> <version> <path>], --package=[<name> <version> <path>]\n Adds an external package to the spack environment so that it is not built by spack. It is possible to add any number of packages.\n"
+    printf "\n -c=[<name> <version> <options>], --compiler=[<name> <version> <options>]\n Adds an external compiler to the spack environment. It is possible to add any number of compilers. In <options>, one would include the path to CC, CXX, F77, and FC compilers. It is not necessary to fill them all. See example below.\n"
+    printf "\n Example usage:\n"
+
+    printf "\n ./build-platypus -g \\ \n"
+    printf "                  -b=rocm \\ \n"
+    printf "                  -a=gfx942 \\ \n"
+    printf "                  -mpicxx=/opt/rocm/bin/amdclang++ \\ \n"
+    printf "                  -mpicc=/opt/rocm-6.2.4/bin/amdclang \\ \n"
+    printf "                  -p=\"hip 6.2.4 /opt/rocm-6.2.4/\" \\ \n"
+    printf "                  -p=\"rocrand 6.2.4 /opt/rocm-6.2.4/\" \\ \n"
+    printf "                  -c=\"clang 16.0.0 CXX=/opt/llvm/bin/clang++ CC=/opt/llvm/bin/clang F77=/opt/llvm/bin/flang\" \n\n"
+    exit 0
+}
+
 replace_in_file() {
     # First argument is the file
     # Second argument is the word to be replaced
@@ -10,6 +36,9 @@ replace_in_file() {
 parse_options() {
     for arg in "$@"; do
         case $arg in
+            -h | --help)
+            help
+            ;;
             -g | --gpu)
             GPU_BUILD=1
             ;;
@@ -347,17 +376,6 @@ SPACK_MOD=".spack_env_platypus.yaml"
 # Name of the config file where we print the invocation options
 CONFIG_FILE="build_platypus_config.txt"
 
-export BUILD_DIR_NAME="platypus_build"
-ROOT_PATH=$(pwd)
-export ROOT_PATH
-export BUILD_PATH=${ROOT_PATH}/${BUILD_DIR_NAME}
-mkdir -p "${BUILD_PATH}"
-
-# Create modifiable spack environment file
-cp ${SPACK_FILE} "${BUILD_PATH}"/${SPACK_MOD}
-
-cd "${BUILD_PATH}" || exit 1
-
 GPU_BUILD=0
 GPU_BACKEND=""
 GPU_ARCH=""
@@ -369,6 +387,18 @@ COMPILERS=()
 OTHER_ARGUMENTS=()
 
 parse_options "$@"
+
+export BUILD_DIR_NAME="platypus_build"
+ROOT_PATH=$(pwd)
+export ROOT_PATH
+export BUILD_PATH=${ROOT_PATH}/${BUILD_DIR_NAME}
+mkdir -p "${BUILD_PATH}"
+
+# Create modifiable spack environment file
+cp ${SPACK_FILE} "${BUILD_PATH}"/${SPACK_MOD}
+
+cd "${BUILD_PATH}" || exit 1
+
 add_external_packages
 add_external_compilers
 load_spack
