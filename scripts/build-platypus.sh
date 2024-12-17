@@ -28,6 +28,12 @@ parse_options() {
             -c=* | --compiler=*)
             COMPILERS+=("${arg#*=}")
             ;;
+            -mpicxx=* | --ompi-cxx=*)
+            OMPICXX="${arg#*=}"
+            ;;
+            -mpicc=* | --ompi-cc=*)
+            OMPICC="${arg#*=}"
+            ;;
             *)
             OTHER_ARGUMENTS+=("${arg}")
             ;;
@@ -52,6 +58,8 @@ export_config_file() {
         printf 'GPU_BACKEND = %s\n' "${GPU_BACKEND}"
         printf 'GPU_ARCH = %s\n' "${GPU_ARCH}"
         printf 'CPU_TARGET = %s\n\n' "${CPU_TARGET}"
+        printf 'OMPI_CXX = %s\n' "${OMPICXX}"
+        printf 'OMPI_CC = %s\n\n' "${OMPICC}"
     } >> ${CONFIG_FILE}
 
 }
@@ -234,12 +242,16 @@ set_environment_vars() {
     export CPPFLAGS="${CPPFLAGS} -I${TIRPC_DIR}/include/tirpc"
     export LDFLAGS="${LDFLAGS} -L${TIRPC_DIR}/lib"
 
-    if [[ ${GPU_BUILD} -eq 1 && ${GPU_BACKEND} == "rocm"    ]]; then
-        OMPI_CXX=$(spack location -i llvm-amdgpu)/bin/amdclang++
-        OMPI_CC=$(spack location -i llvm-amdgpu)/bin/amdclang
-    else
+    if [ -z "${OMPICXX}" ]; then
         OMPI_CXX=clang++
+    else
+        OMPI_CXX=${OMPICXX}
+    fi
+
+    if [ -z "${OMPICC}" ]; then
         OMPI_CC=clang
+    else
+        OMPI_CC=${OMPICC}
     fi
 
     export OMPI_CXX
@@ -350,6 +362,8 @@ GPU_BUILD=0
 GPU_BACKEND=""
 GPU_ARCH=""
 CPU_TARGET=""
+OMPICXX=""
+OMPICC=""
 PACKAGES=()
 COMPILERS=()
 OTHER_ARGUMENTS=()
