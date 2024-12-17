@@ -16,5 +16,5 @@ public:
   virtual mfem::BilinearFormIntegrator * createBFIntegrator();
 
 protected:
-  std::shared_ptr<mfem::VectorFunctionCoefficient> _vec_coef;
+  mfem::VectorCoefficient & _vec_coef;
 };

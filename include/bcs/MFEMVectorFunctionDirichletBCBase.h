@@ -11,5 +11,5 @@ public:
 
 protected:
   MFEMVectorFunctionDirichletBCBase(const InputParameters & parameters);
-  std::shared_ptr<mfem::VectorCoefficient> _vec_coef{nullptr};
+  mfem::VectorCoefficient & _vec_coef;
 };

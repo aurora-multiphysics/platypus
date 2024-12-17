@@ -13,6 +13,7 @@ MFEMVectorFunctionDirichletBCBase::validParams()
 MFEMVectorFunctionDirichletBCBase::MFEMVectorFunctionDirichletBCBase(
     const InputParameters & parameters)
   : MFEMEssentialBC(parameters),
-    _vec_coef(getMFEMProblem().getVectorFunctionCoefficient(getParam<FunctionName>("function")))
+    _vec_coef(
+        getMFEMProblem().getProperties().getVectorProperty(getParam<FunctionName>("function")))
 {
 }
