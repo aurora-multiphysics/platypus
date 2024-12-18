@@ -16,8 +16,8 @@ MFEMVectorFunctorNormalIntegratedBC::validParams()
 MFEMVectorFunctorNormalIntegratedBC::MFEMVectorFunctorNormalIntegratedBC(
     const InputParameters & parameters)
   : MFEMIntegratedBC(parameters),
-    _vec_coef(
-        getVectorProperty(getParam<platypus::MFEMVectorCoefficientName>("vector_coefficient")))
+    _vec_coef_name(getParam<platypus::MFEMVectorCoefficientName>("vector_coefficient")),
+    _vec_coef(getVectorProperty(_vec_coef_name))
 {
 }
 
