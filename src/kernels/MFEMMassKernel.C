@@ -18,7 +18,7 @@ MFEMMassKernel::validParams()
 MFEMMassKernel::MFEMMassKernel(const InputParameters & parameters)
   : MFEMKernel(parameters),
     _coef_name(getParam<platypus::MFEMScalarCoefficientName>("coefficient")),
-    _coef(getMFEMProblem().getProperties().getScalarProperty(_coef_name))
+    _coef(getScalarProperty(_coef_name))
 {
 }
 
