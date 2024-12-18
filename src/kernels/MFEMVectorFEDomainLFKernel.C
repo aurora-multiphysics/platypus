@@ -17,8 +17,8 @@ MFEMVectorFEDomainLFKernel::validParams()
 
 MFEMVectorFEDomainLFKernel::MFEMVectorFEDomainLFKernel(const InputParameters & parameters)
   : MFEMKernel(parameters),
-    _vec_coef(
-        getVectorProperty(getParam<platypus::MFEMVectorCoefficientName>("vector_coefficient")))
+    _vec_coef_name(getParam<platypus::MFEMVectorCoefficientName>("vector_coefficient")),
+    _vec_coef(getVectorProperty(_vec_coef_name))
 {
 }
 
