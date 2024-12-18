@@ -19,8 +19,8 @@ public:
   virtual mfem::BilinearFormIntegrator * createBFIntegrator() override;
 
 protected:
-  std::string _lambda_name;
-  std::string _mu_name;
+  const platypus::MFEMScalarCoefficientName & _lambda_name;
+  const platypus::MFEMScalarCoefficientName & _mu_name;
   mfem::Coefficient & _lambda;
   mfem::Coefficient & _mu;
 };

@@ -15,6 +15,6 @@ public:
   virtual mfem::BilinearFormIntegrator * createBFIntegrator() override;
 
 protected:
-  std::string _coef_name;
+  const platypus::MFEMScalarCoefficientName & _coef_name;
   mfem::Coefficient & _coef;
 };
