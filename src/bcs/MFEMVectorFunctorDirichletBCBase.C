@@ -14,7 +14,7 @@ MFEMVectorFunctorDirichletBCBase::validParams()
 MFEMVectorFunctorDirichletBCBase::MFEMVectorFunctorDirichletBCBase(
     const InputParameters & parameters)
   : MFEMEssentialBC(parameters),
-    _vec_coef(getMFEMProblem().getProperties().getVectorProperty(
-        getParam<platypus::MFEMVectorCoefficientName>("vector_coefficient")))
+    _vec_coef(
+        getVectorProperty(getParam<platypus::MFEMVectorCoefficientName>("vector_coefficient")))
 {
 }
