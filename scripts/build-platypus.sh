@@ -392,6 +392,9 @@ add_external_compilers
 load_spack
 make_spack_env
 
+# Will try to find a pre-installed compiler. If no compilers are found, you might need to add them manually
+spack compiler find
+
 spack install bzip2
 spack load bzip2
 
@@ -399,8 +402,6 @@ printf "Creating spack environment\n"
 spack env create platypus ${SPACK_MOD}
 spack env activate platypus
 
-# Will try to find a pre-installed gcc. If no compilers are found, you might need to add them manually
-spack compiler find
 spack concretize -f
 
 # Using vim instead of emacs to avoid a parsing bug in the autoconf installation
