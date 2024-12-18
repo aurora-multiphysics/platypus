@@ -6,14 +6,14 @@ InputParameters
 MFEMScalarFunctorDirichletBC::validParams()
 {
   InputParameters params = MFEMEssentialBC::validParams();
-  params.addRequiredParam<std::string>(
+  params.addRequiredParam<platypus::MFEMScalarCoefficientName>(
       "coefficient", "The coefficient setting the values on the essential boundary.");
   return params;
 }
 
 MFEMScalarFunctorDirichletBC::MFEMScalarFunctorDirichletBC(const InputParameters & parameters)
   : MFEMEssentialBC(parameters),
-    _coef_name(getParam<std::string>("coefficient")),
+    _coef_name(getParam<platypus::MFEMScalarCoefficientName>("coefficient")),
     _coef(getMFEMProblem().getProperties().getScalarProperty(_coef_name))
 {
 }

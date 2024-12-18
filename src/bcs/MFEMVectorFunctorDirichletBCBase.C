@@ -4,7 +4,7 @@ InputParameters
 MFEMVectorFunctorDirichletBCBase::validParams()
 {
   InputParameters params = MFEMEssentialBC::validParams();
-  params.addRequiredParam<std::string>(
+  params.addRequiredParam<platypus::MFEMVectorCoefficientName>(
       "vector_coefficient",
       "The vector coefficient specifying the values variable takes on the boundary.");
   return params;
@@ -15,6 +15,6 @@ MFEMVectorFunctorDirichletBCBase::MFEMVectorFunctorDirichletBCBase(
     const InputParameters & parameters)
   : MFEMEssentialBC(parameters),
     _vec_coef(getMFEMProblem().getProperties().getVectorProperty(
-        getParam<std::string>("vector_coefficient")))
+        getParam<platypus::MFEMVectorCoefficientName>("vector_coefficient")))
 {
 }
