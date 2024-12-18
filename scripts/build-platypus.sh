@@ -7,7 +7,6 @@ help() {
     printf "\n -h, --help\n Displays this help message.\n"
     printf "\n -g, --gpu\n Defines a GPU build. If this option is not added, a CPU build is assumed.\n"
     printf "\n -b=[...], --gpu-backend=[...]\n Defines the GPU backend to be used. Options are cuda and rocm for NVIDIA and AMD GPUs, respectively.\n"
-    printf "\n -a=[...], --gpu-arch=[...]\n Defines the target GPU architecture. For CUDA backends, use only the number. For instance, to target a GPU whose arch code is sm_80, you would add -a=80\n"
     printf "\n -t=[...], --cpu-target=[...]\n Defines the target CPU architecture in case we are cross-compiling. If left empty, the native architecture will be used.\n"
     printf "\n -mpicxx=[<path>], --ompi-cxx=[<path>]\n Path to a C++ compiler binary in case you wish to wrap the MPI compiler with one that is different to the one it was built with for the MFEM, MOOSE and Platypus builds.\n"
     printf "\n -mpicc=[<path>], --ompi-cc=[<path>]\n Path to a C compiler binary in case you wish to wrap the MPI compiler with one that is different to the one it was built with for the MFEM, MOOSE and Platypus builds.\n"
@@ -48,9 +47,6 @@ parse_options() {
             -a=* | --gpu-arch=*)
             GPU_ARCH="${arg#*=}"
             ;;
-            -t=* | --cpu-target=*)
-            CPU_TARGET="${arg#*=}"
-            ;;
             -p=* | --package=*)
             PACKAGES+=("${arg#*=}")
             ;;
@@ -86,7 +82,6 @@ export_config_file() {
         printf 'GPU_BUILD = %s\n' "${GPU_BUILD}"
         printf 'GPU_BACKEND = %s\n' "${GPU_BACKEND}"
         printf 'GPU_ARCH = %s\n' "${GPU_ARCH}"
-        printf 'CPU_TARGET = %s\n\n' "${CPU_TARGET}"
         printf 'OMPI_CXX = %s\n' "${OMPICXX}"
         printf 'OMPI_CC = %s\n\n' "${OMPICC}"
     } >> ${CONFIG_FILE}
@@ -145,12 +140,6 @@ make_spack_env() {
         replace_in_file ${SPACK_MOD} "llvm_version" "18.1.8"
     fi
 
-    if [ -z "${CPU_TARGET}" ]; then
-        printf 'CPU target architecture not detected. Build will use local CPU architecture.'
-        replace_in_file ${SPACK_MOD} "target" ""
-    else
-        replace_in_file ${SPACK_MOD} "target" "targets=${CPU_TARGET}"
-    fi
 }
 
 add_package() {
@@ -379,7 +368,6 @@ CONFIG_FILE="build_platypus_config.txt"
 GPU_BUILD=0
 GPU_BACKEND=""
 GPU_ARCH=""
-CPU_TARGET=""
 OMPICXX=""
 OMPICC=""
 PACKAGES=()
