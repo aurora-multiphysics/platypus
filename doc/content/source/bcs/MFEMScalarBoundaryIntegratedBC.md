@@ -1,8 +1,8 @@
-# MFEMScalarBoundaryIntegratedBC
+# MFEMScalarFunctorBoundaryIntegratedBC
 
 ## Summary
 
-!syntax description /BCs/MFEMScalarBoundaryIntegratedBC
+!syntax description /BCs/MFEMScalarFunctorBoundaryIntegratedBC
 
 ## Overview
 
@@ -14,8 +14,8 @@ Adds the boundary integrator for integrating the linear form
 where the test variable $v \in H^1$ and $f$ is a scalar coefficient. Often used for representing
 Neumann-type boundary conditions.
 
-!syntax parameters /BCs/MFEMScalarBoundaryIntegratedBC
+!syntax parameters /BCs/MFEMScalarFunctorBoundaryIntegratedBC
 
-!syntax inputs /BCs/MFEMScalarBoundaryIntegratedBC
+!syntax inputs /BCs/MFEMScalarFunctorBoundaryIntegratedBC
 
-!syntax children /BCs/MFEMScalarBoundaryIntegratedBC
+!syntax children /BCs/MFEMScalarFunctorBoundaryIntegratedBC
