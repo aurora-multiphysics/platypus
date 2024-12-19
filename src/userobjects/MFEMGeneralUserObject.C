@@ -15,3 +15,21 @@ MFEMGeneralUserObject::MFEMGeneralUserObject(const InputParameters & parameters)
   : GeneralUserObject(parameters), _mfem_problem(static_cast<MFEMProblem &>(_fe_problem))
 {
 }
+
+mfem::Coefficient &
+MFEMGeneralUserObject::getScalarProperty(const std::string & name)
+{
+  return getMFEMProblem().getProperties().getScalarProperty(name);
+}
+
+mfem::VectorCoefficient &
+MFEMGeneralUserObject::getVectorProperty(const std::string & name)
+{
+  return getMFEMProblem().getProperties().getVectorProperty(name);
+}
+
+mfem::MatrixCoefficient &
+MFEMGeneralUserObject::getMatrixProperty(const std::string & name)
+{
+  return getMFEMProblem().getProperties().getMatrixProperty(name);
+}
