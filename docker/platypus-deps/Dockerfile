@@ -30,37 +30,24 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get install 
     graphviz \
     ninja-build \
     pre-commit \
-    python3 \
-    python3-dev \
-    python3-distutils \
+    python3-deepdiff \
+    python3-jinja2 \
+    python3-livereload \
+    python3-packaging \
+    python3-pybtex \
+    python3-pylatexenc \
+    python3-xmltodict \
     python-is-python3 \
-    python3-pip \
     libboost-all-dev \
     libfontconfig1-dev \
-    libfreetype6-dev \
     libglew-dev \
     libglm-dev \
     libhdf5-openmpi-dev \
     libnetcdf-dev \
-    libomp-14-dev \
-    libpng-dev \
     libsdl2-dev \
-    libssl-dev \
     rsync \
     xxd && \
     rm -rf /var/lib/apt/lists/*
-
-# Install pip packages
-RUN pip install --no-cache-dir \
-    deepdiff \
-    jinja2 \
-    livereload \
-    packaging \
-    pybtex \
-    pylatexenc \
-    pyyaml \
-    setuptools \
-    xmltodict
 
 # Download SuperLU
 WORKDIR /$WORKDIR
