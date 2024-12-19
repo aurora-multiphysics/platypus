@@ -92,10 +92,10 @@ WORKDIR /$WORKDIR/conduit
 RUN mkdir build
 WORKDIR /$WORKDIR/conduit/build
 RUN cmake  ../src \
-    -DCMAKE_INSTALL_PREFIX=/$WORKDIR/conduit/build-install \
+    -DCMAKE_INSTALL_PREFIX=/$WORKDIR/conduit/installed \
     -DCMAKE_BUILD_TYPE="Release" \
     -DENABLE_MPI=YES
-RUN make -j$compile_cores install
+RUN make install -j$compile_cores
 
 # Build MFEM and common miniapp
 WORKDIR /$WORKDIR
@@ -104,6 +104,7 @@ WORKDIR /$WORKDIR/mfem
 RUN git checkout master && mkdir build
 WORKDIR /$WORKDIR/mfem/build
 RUN cmake .. \
+    -DCMAKE_INSTALL_PREFIX=/$WORKDIR/mfem/installed \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_POSITION_INDEPENDENT_CODE=YES \
     -DMFEM_USE_OPENMP=NO \
@@ -119,11 +120,11 @@ RUN cmake .. \
     -DSuperLUDist_DIR=/$WORKDIR/petsc/ \
     -DMFEM_USE_NETCDF=YES \
     -DMFEM_USE_CONDUIT=YES \
-    -DCONDUIT_DIR=/$WORKDIR/conduit/build-install \
+    -DCONDUIT_DIR=/$WORKDIR/conduit/installed \
     -DHDF5_DIR=/usr/lib/x86_64-linux-gnu/hdf5/openmpi/ && \
-    make -j$compile_cores
+    make install -j$compile_cores
 WORKDIR /$WORKDIR/mfem/build/miniapps/common
-RUN make -j$compile_cores
+RUN make install -j$compile_cores
 
 # Build GLVis
 WORKDIR /$WORKDIR
