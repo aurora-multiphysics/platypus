@@ -1,6 +1,6 @@
 # Build and test Platypus image
 # Get base image
-FROM alexanderianblair/platypus-deps:main
+FROM alexanderianblair/platypus-deps:nmnobre-dockerfile
 
 # By default four cores are used to compile
 ARG compile_cores=4
