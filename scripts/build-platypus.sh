@@ -47,6 +47,15 @@ parse_options() {
             -a=* | --gpu-arch=*)
             GPU_ARCH="${arg#*=}"
             ;;
+            -ompi-v=* | --openmpi-version=*)
+            OPENMPI_VER="${arg#*=}"
+            ;;
+            -llvm-v=* | --llvm-version=*)
+            LLVM_VER="${arg#*=}"
+            ;;
+            -amdllvm-v=* | --llvm-amdgpu-version=*)
+            AMDLLVM_VER="${arg#*=}"
+            ;;
             -p=* | --package=*)
             PACKAGES+=("${arg#*=}")
             ;;
@@ -107,13 +116,13 @@ make_spack_env() {
             printf 'GPU backend %s detected\n' "${GPU_BACKEND}"
             replace_in_file ${SPACK_MOD} "gpu" "+${GPU_BACKEND}"
             if [ "${GPU_BACKEND}" = "cuda" ]; then
+                export LLVM_TYPE="llvm"
                 replace_in_file ${SPACK_MOD} "blas" "+cublas"
-                replace_in_file ${SPACK_MOD} "amdgpu" ""
-                replace_in_file ${SPACK_MOD} "llvm_version" "18.1.8"
+                replace_in_file ${SPACK_MOD} "llvm_version" "@${LLVM_VER}"
             else
+                export LLVM_TYPE="llvm-amdgpu"
                 replace_in_file ${SPACK_MOD} "blas" "+rocblas"
-                replace_in_file ${SPACK_MOD} "amdgpu" "-amdgpu"
-                replace_in_file ${SPACK_MOD} "llvm_version" "6.2.4"
+                replace_in_file ${SPACK_MOD} "llvm_version" "@${AMDLLVM_VER}"
             fi
         fi
 
@@ -131,14 +140,18 @@ make_spack_env() {
     else
         printf "CPU build detected\n"
 
+        export LLVM_TYPE="llvm"
+
         # Clean up all GPU options
         replace_in_file ${SPACK_MOD} "gpu_aware_mpi" ""
         replace_in_file ${SPACK_MOD} "gpu" ""
         replace_in_file ${SPACK_MOD} "gpu_arch" ""
         replace_in_file ${SPACK_MOD} "blas" ""
-        replace_in_file ${SPACK_MOD} "amdgpu" ""
-        replace_in_file ${SPACK_MOD} "llvm_version" "18.1.8"
+        replace_in_file ${SPACK_MOD} "llvm_version" "@${LLVM_VER}"
     fi
+
+    replace_in_file ${SPACK_MOD} "openmpi_version" "@${OPENMPI_VER}"
+    replace_in_file ${SPACK_MOD} "llvm" ${LLVM_TYPE}
 
 }
 
@@ -168,6 +181,19 @@ add_external_packages() {
             printf 'Version: %s\n' "${STR_ARRAY[1]}" | tee -a ${CONFIG_FILE}
             printf 'Path: %s\n' "${STR_ARRAY[2]}"    | tee -a ${CONFIG_FILE}
             add_package "${STR_ARRAY[0]}" "${STR_ARRAY[1]}" "${STR_ARRAY[2]}"
+
+            case ${STR_ARRAY[0]} in
+                openmpi)
+                export OPENMPI_VER=${STR_ARRAY[1]}
+                ;;
+                llvm)
+                export LLVM_VER=${STR_ARRAY[1]}
+                ;;
+                llvm-amdgpu)
+                export AMDLLVM_VER=${STR_ARRAY[1]}
+                ;;
+            esac
+
         done
     fi
 
@@ -261,13 +287,13 @@ set_environment_vars() {
     export LDFLAGS="${LDFLAGS} -L${TIRPC_DIR}/lib"
 
     if [ -z "${OMPICXX}" ]; then
-        OMPI_CXX=clang++
+        OMPI_CXX=$(spack location -i ${LLVM_TYPE})/bin/clang++
     else
         OMPI_CXX=${OMPICXX}
     fi
 
     if [ -z "${OMPICC}" ]; then
-        OMPI_CC=clang
+        OMPI_CC=$(spack location -i ${LLVM_TYPE})/bin/clang
     else
         OMPI_CC=${OMPICC}
     fi
@@ -354,6 +380,8 @@ install_platypus() {
     echo "Building platypus..."
     git clone https://github.com/aurora-multiphysics/platypus.git
     cd platypus || exit 1
+    # This is only here until the PR is merged since it is needed for AMD builds
+    git switch HenriqueBR/build_script
     make -j"$compile_cores"
     ./run_tests -j"$compile_cores"
 }
@@ -370,6 +398,9 @@ CONFIG_FILE="build_platypus_config.txt"
 GPU_BUILD=0
 GPU_BACKEND=""
 GPU_ARCH=""
+LLVM_VER="18.1.8"
+AMDLLVM_VER="6.2.4"
+OPENMPI_VER="5.0.6"
 OMPICXX=""
 OMPICC=""
 PACKAGES=()
@@ -395,7 +426,7 @@ load_spack
 make_spack_env
 
 # Will try to find a pre-installed compiler. If no compilers are found, you might need to add them manually
-spack compiler find
+#spack compiler find
 
 spack install bzip2
 spack load bzip2

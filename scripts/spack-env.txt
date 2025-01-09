@@ -6,6 +6,7 @@ spack:
   # add package specs to the `specs` list
   specs:
   - cmake@3.27
+  - readline@8.1
   - libpng
   - gslib cflags="-O3 -fPIC"
   - libtirpc
@@ -21,13 +22,13 @@ spack:
   - zlib
   - python@3.12.5
   - petsc +batch +fortran +hdf5 +hypre +metis +mpi +superlu-dist @gpu@ @gpu_arch@
-  - openmpi
+  - openmpi@openmpi_version@
   - hdf5 +cxx +fortran +hl +mpi +shared
   - hypre@2.32.0 +mpi +shared +superlu-dist @blas@ +fortran @gpu_aware_mpi@ @gpu@ @gpu_arch@
   - superlu-dist +parmetis +shared @gpu@ @gpu_arch@
   - slepc @gpu@ @gpu_arch@
   - conduit
-  - llvm@amdgpu@@@llvm_version@
+  - @llvm@@llvm_version@
   view: true
   concretizer:
     unify: true
