@@ -335,7 +335,7 @@ install_mfem() {
     spack load cmake
     cmake -S . -B build \
         -DCMAKE_BUILD_TYPE=Release \
-        -DCMAKE_INSTALL_PREFIX=${BUILD_PATH}/mfem/installed \
+        -DCMAKE_INSTALL_PREFIX="${BUILD_PATH}"/mfem/installed \
         -DBUILD_SHARED_LIBS=YES \
         -DMFEM_USE_OPENMP=NO \
         -DMFEM_THREAD_SAFE=YES \
@@ -357,7 +357,7 @@ install_mfem() {
         -DSuperLUDist_DIR="${SLU_DIR}" \
         -DSuperLUDist_VERSION_OK=YES \
         -DHYPRE_VERSION=23200
-    cd build
+    cd build || exit
     make install -j $compile_cores
 }
 
