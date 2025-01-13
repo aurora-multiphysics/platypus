@@ -1,4 +1,4 @@
-MFEM_DIR ?= $(APPLICATION_DIR)/../mfem/installed
+MFEM_DIR ?= $(APPLICATION_DIR)/../mfem/build
 
 include $(MFEM_DIR)/mfem/config.mk
 
