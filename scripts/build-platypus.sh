@@ -14,14 +14,14 @@ help() {
     printf "\n -c=[<name> <version> <options>], --compiler=[<name> <version> <options>]\n Adds an external compiler to the spack environment. It is possible to add any number of compilers. In <options>, one would include the path to CC, CXX, F77, and FC compilers. It is not necessary to fill them all. See example below.\n"
     printf "\n Example usage:\n"
 
-    printf "\n ./build-platypus -g \\ \n"
-    printf "                  -b=rocm \\ \n"
-    printf "                  -a=gfx942 \\ \n"
-    printf "                  -mpicxx=/opt/rocm/bin/amdclang++ \\ \n"
-    printf "                  -mpicc=/opt/rocm-6.2.4/bin/amdclang \\ \n"
-    printf "                  -p=\"hip 6.2.4 /opt/rocm-6.2.4/\" \\ \n"
-    printf "                  -p=\"rocrand 6.2.4 /opt/rocm-6.2.4/\" \\ \n"
-    printf "                  -c=\"clang 16.0.0 CXX=/opt/llvm/bin/clang++ CC=/opt/llvm/bin/clang F77=/opt/llvm/bin/flang\" \n\n"
+    printf "\n ./scripts/build-platypus -g \\ \n"
+    printf "                          -b=rocm \\ \n"
+    printf "                          -a=gfx942 \\ \n"
+    printf "                          -mpicxx=/opt/rocm/bin/amdclang++ \\ \n"
+    printf "                          -mpicc=/opt/rocm-6.2.4/bin/amdclang \\ \n"
+    printf "                          -p=\"hip 6.2.4 /opt/rocm-6.2.4/\" \\ \n"
+    printf "                          -p=\"rocrand 6.2.4 /opt/rocm-6.2.4/\" \\ \n"
+    printf "                          -c=\"clang 16.0.0 CXX=/opt/llvm/bin/clang++ CC=/opt/llvm/bin/clang F77=/opt/llvm/bin/flang\" \n\n"
     exit 0
 }
 
@@ -307,7 +307,8 @@ set_environment_vars() {
     export F90=mpif90
     export F77=mpif77
     export FC=mpif90
-    export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${BUILD_PATH}/mfem/build:${BUILD_PATH}/mfem/build/miniapps/common
+    export MFEM_DIR=${BUILD_PATH}/mfem
+    export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${MFEM_DIR}/build:${MFEM_DIR}/build/miniapps/common
     export MOOSE_JOBS=$compile_cores
     export LIBMESH_JOBS=$compile_cores
     export METHOD="opt"
@@ -375,11 +376,9 @@ install_moose() {
 }
 
 install_platypus() {
-    cd "${BUILD_PATH}" || exit 1
+    cd "${ROOT_PATH}" || exit 1
 
     echo "Building platypus..."
-    git clone https://github.com/aurora-multiphysics/platypus.git
-    cd platypus || exit 1
     # This is only here until the PR is merged since it is needed for AMD builds
     git switch HenriqueBR/build_script
     make -j"$compile_cores"
@@ -387,7 +386,7 @@ install_platypus() {
 }
 
 # Template file for the spack environment
-SPACK_FILE="spack-env.txt"
+SPACK_FILE="scripts/spack-env.txt"
 
 # Name of the file to be used for spack environment
 SPACK_MOD=".spack_env_platypus.yaml"
@@ -409,7 +408,7 @@ OTHER_ARGUMENTS=()
 
 parse_options "$@"
 
-export BUILD_DIR_NAME="platypus_build"
+export BUILD_DIR_NAME="deps"
 ROOT_PATH=$(pwd)
 export ROOT_PATH
 export BUILD_PATH=${ROOT_PATH}/${BUILD_DIR_NAME}
