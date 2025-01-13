@@ -1,6 +1,6 @@
 MFEM_DIR ?= $(APPLICATION_DIR)/../mfem/installed
 
-include $(MFEM_DIR)/share/mfem/config.mk
+include $(MFEM_DIR)/mfem/config.mk
 
 # Remove cmake CXX flags
 NEW_MFEM_INCFLAGS = $(shell echo "$(MFEM_INCFLAGS)" | sed -E 's/COMPILE_LANGUAGE:CXX>:SHELL:[^>]*>//g')
