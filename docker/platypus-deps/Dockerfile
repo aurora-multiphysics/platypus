@@ -30,37 +30,24 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get install 
     graphviz \
     ninja-build \
     pre-commit \
-    python3 \
-    python3-dev \
-    python3-distutils \
+    python3-deepdiff \
+    python3-jinja2 \
+    python3-livereload \
+    python3-packaging \
+    python3-pybtex \
+    python3-pylatexenc \
+    python3-xmltodict \
     python-is-python3 \
-    python3-pip \
     libboost-all-dev \
     libfontconfig1-dev \
-    libfreetype6-dev \
     libglew-dev \
     libglm-dev \
     libhdf5-openmpi-dev \
     libnetcdf-dev \
-    libomp-14-dev \
-    libpng-dev \
     libsdl2-dev \
-    libssl-dev \
     rsync \
     xxd && \
     rm -rf /var/lib/apt/lists/*
-
-# Install pip packages
-RUN pip install --no-cache-dir \
-    deepdiff \
-    jinja2 \
-    livereload \
-    packaging \
-    pybtex \
-    pylatexenc \
-    pyyaml \
-    setuptools \
-    xmltodict
 
 # Download SuperLU
 WORKDIR /$WORKDIR
@@ -105,10 +92,10 @@ WORKDIR /$WORKDIR/conduit
 RUN mkdir build
 WORKDIR /$WORKDIR/conduit/build
 RUN cmake  ../src \
-    -DCMAKE_INSTALL_PREFIX=/$WORKDIR/conduit/build-install \
+    -DCMAKE_INSTALL_PREFIX=/$WORKDIR/conduit/installed \
     -DCMAKE_BUILD_TYPE="Release" \
     -DENABLE_MPI=YES
-RUN make -j$compile_cores install
+RUN make install -j$compile_cores
 
 # Build MFEM and common miniapp
 WORKDIR /$WORKDIR
@@ -117,6 +104,7 @@ WORKDIR /$WORKDIR/mfem
 RUN git checkout master && mkdir build
 WORKDIR /$WORKDIR/mfem/build
 RUN cmake .. \
+    -DCMAKE_INSTALL_PREFIX=/$WORKDIR/mfem/installed \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_POSITION_INDEPENDENT_CODE=YES \
     -DMFEM_USE_OPENMP=NO \
@@ -132,11 +120,11 @@ RUN cmake .. \
     -DSuperLUDist_DIR=/$WORKDIR/petsc/ \
     -DMFEM_USE_NETCDF=YES \
     -DMFEM_USE_CONDUIT=YES \
-    -DCONDUIT_DIR=/$WORKDIR/conduit/build-install \
+    -DCONDUIT_DIR=/$WORKDIR/conduit/installed \
     -DHDF5_DIR=/usr/lib/x86_64-linux-gnu/hdf5/openmpi/ && \
-    make -j$compile_cores
+    make install -j$compile_cores
 WORKDIR /$WORKDIR/mfem/build/miniapps/common
-RUN make -j$compile_cores
+RUN make install -j$compile_cores
 
 # Build GLVis
 WORKDIR /$WORKDIR
