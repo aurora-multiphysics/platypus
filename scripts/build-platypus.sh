@@ -7,7 +7,7 @@ help() {
     printf "\n -h, --help\n Displays this help message.\n"
     printf "\n -g, --gpu\n Defines a GPU build. If this option is not added, a CPU build is assumed.\n"
     printf "\n -b=[...], --gpu-backend=[...]\n Defines the GPU backend to be used. Options are cuda and rocm for NVIDIA and AMD GPUs, respectively.\n"
-    printf "\n -a=[...], --gpu-arch=[...]\n Defines the target GPU architecture. For CUDA backends, use only the number. For instance, to target a GPU whose arch code is sm_80, you would add -a=80\n"
+    printf "\n -a=[...], --gpu-arch=[...]\n Defines the target GPU architecture. For CUDA backends, use only the number. For instance, to target a GPU whose arch code is sm_80, you would add -a=80.\n"
     printf "\n -mpicxx=[<path>], --ompi-cxx=[<path>]\n Path to a C++ compiler binary in case you wish to wrap the MPI compiler with one that is different to the one it was built with for the MFEM, MOOSE and Platypus builds.\n"
     printf "\n -mpicc=[<path>], --ompi-cc=[<path>]\n Path to a C compiler binary in case you wish to wrap the MPI compiler with one that is different to the one it was built with for the MFEM, MOOSE and Platypus builds.\n"
     printf "\n -p=[<name> <version> <path>], --package=[<name> <version> <path>]\n Adds an external package to the spack environment so that it is not built by spack. It is possible to add any number of packages.\n"
