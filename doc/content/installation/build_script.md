@@ -31,3 +31,4 @@ As an example, should we wish to build Platypus on a system with AMD GPUs and wi
                          -c="clang 16.0.0 CXX=/opt/llvm/bin/clang++ CC=/opt/llvm/bin/clang F77=/opt/llvm/bin/flang"
 ```
 
+The build script will build and install an instance of spack and all necessary dependencies in a newly-created directory `deps` within Platypus. The script also saves a text file called `build_platypus_config.txt` which lays out the invocation command and all options set by the user.
