@@ -27,19 +27,18 @@ RUN make -j$compile_cores coverage=$coverage
 
 # Build Platypus docs
 WORKDIR /$WORKDIR/platypus
-RUN make -j$compile_cores
 RUN doxygen doc/content/doxygen/Doxyfile
 WORKDIR /$WORKDIR/platypus/doc
 RUN ./moosedocs.py build
 
 # Test Platypus regression tests
 WORKDIR /$WORKDIR/platypus 
-RUN make test linkcoverage=$coverage
+RUN make test
 
 # Build Platypus unit tests
 WORKDIR /$WORKDIR/platypus/unit
-RUN make -j$compile_cores coverage=$coverage
+RUN make -j$compile_cores
 
 # Test Platypus unit tests
 WORKDIR /$WORKDIR/platypus/unit
-RUN make test linkcoverage=$coverage
+RUN make test
