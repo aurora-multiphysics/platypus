@@ -1,24 +1,29 @@
 ## Using the generic build script
 
-Platypus contains a build script which can be used to install all of its dependencies and Platypus itself on any machine, according to user-defined preferences. To make use of it, first make sure you are building on the machine where you intend to run, as cross-compiling is currently not supported. Then, navigate to Platypus' root directory and run
+Platypus contains a build script which can be used to install all of its dependencies and Platypus itself on any machine,  
+according to user-defined preferences. To make use of it, first make sure you are building on the machine where you intend  
+to run, as cross-compiling is currently not supported. Then, navigate to Platypus' root directory and run  
 
 ``` {.sh}
 ./scripts/build-platypus.sh
 ```
-followed by flags defining the specifics of the build. The `-h` or `--help` flag can be used to show all options. They are also listed here:
+followed by flags defining the specifics of the build. The `-h` or `--help` flag can be used to show all options. They are  
+also listed here:  
 
 | Flag | Description |
 | ----------- | ----------- |
-| `-h`, `--help` | Shows the script usage manual. |
-|  `-g`, `--gpu` | Defines a GPU build. If this option is not added, a CPU build is assumed. |
-|  `-b=[...]`, `--gpu-backend=[...]` | Defines the GPU backend to be used. Options are `cuda` and `rocm` for NVIDIA and AMD GPUs, respectively. |
-|  `-a=[...]`, `--gpu-arch=[...]` | Defines the target GPU architecture. For CUDA backends, use only the number. For instance, to target a GPU whose arch code is sm_80, you would add `-a=80` |
-|  `-mpicxx=[<path>]`, `--ompi-cxx=[<path>]` | Path to a C++ compiler binary in case you wish to wrap the MPI compiler with one that is different to the one it was built with for the MFEM, MOOSE and Platypus builds. |
-|  `-mpicc=[<path>]`, `--ompi-cc=[<path>]` | Path to a C compiler binary in case you wish to wrap the MPI compiler with one that is different to the one it was built with for the MFEM, MOOSE and Platypus builds. |
-| `-p=[<name> <version> <path>]`,` --package=[<name> <version> <path>]` | Adds an external package to the spack environment so that it is not built by spack. It is possible to add any number of packages. |
-| `-c=[<name> <version> <options>]`,` --compiler=[<name> <version> <options>]` | Adds an external compiler to the spack environment. It is possible to add any number of compilers. In `<options>`, one would include the path to CC, CXX, F77, and FC compilers. It is not necessary to fill them all. See example below. |
+| `-h`,<br />`--help` | Shows the script usage manual. |
+|  `-g`,<br />`--gpu` | Defines a GPU build. If this option is not added, a CPU build is<br />assumed. |
+|  `-b=[...]`,<br />`--gpu-backend=[...]` | Defines the GPU backend to be used. Options are `cuda` and `rocm`<br />for NVIDIA and AMD GPUs, respectively. |
+|  `-a=[...]`,<br />`--gpu-arch=[...]` | Defines the target GPU architecture. For CUDA backends, use<br />only the number. For instance, to target a GPU whose arch code<br />is `sm_80`, you would add `-a=80` |
+|  `-mpicxx=[<path>]`,<br />`--ompi-cxx=[<path>]` | Path to a C++ compiler binary in case you wish to wrap the<br />MPI compiler with one that is different to the one it was built<br />with for the MFEM, MOOSE and Platypus builds. |
+|  `-mpicc=[<path>]`,<br />`--ompi-cc=[<path>]` | Path to a C compiler binary in case you wish to wrap the<br />MPI compiler with one that is different to the one it was<br />built with for the MFEM, MOOSE and Platypus builds. |
+| `-p=[<name> <version> <path>]`,<br />`--package=[<name> <version> <path>]` | Adds an external package to the spack environment so that<br />it is not built by spack. It is possible to add any number of packages. |
+| `-c=[<name> <version> <options>]`,<br />`--compiler=[<name> <version> <options>]` | Adds an external compiler to the spack environment. It is possible<br />to add any number of compilers. In `<options>`, one would include<br />the path to CC, CXX, F77, and FC compilers. It is not necessary to<br />fill them all. See example below. |
 
-As an example, should we wish to build Platypus on a system with AMD GPUs and with some pre-defined compilers and packages already present on the machine, one possible invocation command would be:
+
+As an example, should we wish to build Platypus on a system with AMD GPUs and with some pre-defined compilers and packages  
+already present on the machine, one possible invocation command would be:  
 
 ``` {.sh}
 ./scripts/build-platypus -g \
@@ -31,4 +36,7 @@ As an example, should we wish to build Platypus on a system with AMD GPUs and wi
                          -c="clang 16.0.0 CXX=/opt/llvm/bin/clang++ CC=/opt/llvm/bin/clang F77=/opt/llvm/bin/flang"
 ```
 
-The build script will build and install an instance of spack and all necessary dependencies in a newly-created directory `deps` within Platypus. The script also saves a text file called `build_platypus_config.txt` which lays out the invocation command and all options set by the user.
+
+The build script will build and install an instance of spack and all necessary dependencies in a newly-created directory `deps`  
+within Platypus. The script also saves a text file called `build_platypus_config.txt` which lays out the invocation command  
+and all options set by the user.  

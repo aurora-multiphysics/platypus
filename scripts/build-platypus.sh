@@ -93,7 +93,7 @@ export_config_file() {
         printf 'GPU_ARCH = %s\n' "${GPU_ARCH}"
         printf 'OMPI_CXX = %s\n' "${OMPICXX}"
         printf 'OMPI_CC = %s\n\n' "${OMPICC}"
-    } >> ${BUILD_PATH}/${CONFIG_FILE}
+    } >> "${BUILD_PATH}"/${CONFIG_FILE}
 
 }
 
