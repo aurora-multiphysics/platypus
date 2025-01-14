@@ -2,7 +2,7 @@
 # hadolint global ignore=DL3008,DL3013
 
 # Get base image
-FROM ubuntu:22.04
+FROM ubuntu:24.04
 
 # This is needed or it mpiexec complains because docker runs as root
 # Discussion on this issue https://github.com/open-mpi/ompi/issues/4451
@@ -33,7 +33,6 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get install 
     python3-deepdiff \
     python3-jinja2 \
     python3-livereload \
-    python3-packaging \
     python3-pybtex \
     python3-pylatexenc \
     python3-xmltodict \
@@ -45,6 +44,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get install 
     libhdf5-openmpi-dev \
     libnetcdf-dev \
     libsdl2-dev \
+    libtirpc-dev \
     rsync \
     xxd && \
     rm -rf /var/lib/apt/lists/*
