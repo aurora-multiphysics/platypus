@@ -307,8 +307,9 @@ set_environment_vars() {
     export F90=mpif90
     export F77=mpif77
     export FC=mpif90
-    export MFEM_DIR=${BUILD_PATH}/mfem
-    export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${MFEM_DIR}/build:${MFEM_DIR}/build/miniapps/common
+    export MOOSE_DIR=${BUILD_PATH}/moose
+    export MFEM_DIR=${BUILD_PATH}/mfem/installed
+    export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${MFEM_DIR}/lib
     export MOOSE_JOBS=$compile_cores
     export LIBMESH_JOBS=$compile_cores
     export METHOD="opt"
