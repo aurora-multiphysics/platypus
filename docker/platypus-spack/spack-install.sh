@@ -41,9 +41,11 @@ cmake -S . -B build \
     -DMFEM_USE_METIS_5=YES \
     -DMFEM_USE_SUPERLU=YES \
     -DMFEM_USE_NETCDF=YES \
+    -DMFEM_USE_CONDUIT=YES \
     -DHYPRE_DIR="$SPACK_VIEW" \
     -DSuperLUDist_DIR="$SPACK_VIEW" \
     -DHDF5_DIR="$SPACK_VIEW" \
+    -DCONDUIT_DIR="$SPACK_VIEW" \
     -DCMAKE_EXPORT_COMPILE_COMMANDS=YES \
     -DCMAKE_INSTALL_PREFIX=./installed
 cmake --build build -j "$compile_cores" --verbose
