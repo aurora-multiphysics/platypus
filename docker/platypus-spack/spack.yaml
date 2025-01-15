@@ -7,6 +7,7 @@ spack:
   specs:
   - bear
   - cmake@3.27
+  - conduit
   - hdf5+hl
   - libpng
   - libtirpc

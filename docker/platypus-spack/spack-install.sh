@@ -44,9 +44,11 @@ cmake -S . -B build \
     -DHYPRE_DIR="$SPACK_VIEW" \
     -DSuperLUDist_DIR="$SPACK_VIEW" \
     -DHDF5_DIR="$SPACK_VIEW" \
-    -DCMAKE_EXPORT_COMPILE_COMMANDS=YES
+    -DCMAKE_EXPORT_COMPILE_COMMANDS=YES \
+    -DCMAKE_INSTALL_PREFIX=./installed
 cmake --build build -j "$compile_cores" --verbose
 cmake --build build/miniapps/common/ -j "$compile_cores" --verbose
+cmake --install build
 cd ..
 
 # build libmesh, wasp and moose
