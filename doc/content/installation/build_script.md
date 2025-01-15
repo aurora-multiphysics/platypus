@@ -22,7 +22,7 @@ also listed here:
 | `-c=[<name> <version> <options>]`,<br />`--compiler=[<name> <version> <options>]` | Adds an external compiler to the spack environment. It is possible<br />to add any number of compilers. In `<options>`, one would include<br />the path to CC, CXX, F77, and FC compilers. It is not necessary to<br />fill them all. See example below. |
 
 
-As an example, should we wish to build Platypus on a system with AMD GPUs and with some pre-defined compilers and packages  
+As an example, should we wish to build Platypus on a system with AMD GPUs and with some predefined compilers and packages  
 already present on the machine, one possible invocation command would be:  
 
 ``` {.sh}
