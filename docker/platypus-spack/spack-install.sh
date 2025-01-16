@@ -51,6 +51,7 @@ cmake -S . -B build \
 cmake --build build -j "$compile_cores" --verbose
 cmake --build build/miniapps/common/ -j "$compile_cores" --verbose
 cmake --install build
+cmake --install build/miniapps/common/
 cd ..
 
 # build libmesh, wasp and moose
