@@ -407,8 +407,6 @@ PACKAGES=()
 COMPILERS=()
 OTHER_ARGUMENTS=()
 
-parse_options "$@"
-
 export BUILD_DIR_NAME="deps"
 ROOT_PATH=$(pwd)
 export ROOT_PATH
@@ -420,6 +418,7 @@ cp ${SPACK_FILE} "${BUILD_PATH}"/${SPACK_MOD}
 
 cd "${BUILD_PATH}" || exit 1
 
+parse_options "$@"
 add_external_packages
 add_external_compilers
 load_spack
