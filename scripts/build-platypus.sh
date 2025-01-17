@@ -114,16 +114,20 @@ make_spack_env() {
             exit 1
         else
             printf 'GPU backend %s detected\n' "${GPU_BACKEND}"
-            replace_in_file ${SPACK_MOD} "gpu" "+${GPU_BACKEND}"
             if [ "${GPU_BACKEND}" = "cuda" ]; then
                 export LLVM_TYPE="llvm"
                 replace_in_file ${SPACK_MOD} "blas" "+cublas"
                 replace_in_file ${SPACK_MOD} "llvm_version" "@${LLVM_VER}"
+                replace_in_file ${SPACK_MOD} "openmpi" "openmpi@openmpi_version@ @gpu@ @gpu_arch@"
+                replace_in_file ${SPACK_MOD} "ucx" "ucx @gpu@ @gpu_arch@ +gdrcopy +rdmacm"
             else
                 export LLVM_TYPE="llvm-amdgpu"
                 replace_in_file ${SPACK_MOD} "blas" "+rocblas"
                 replace_in_file ${SPACK_MOD} "llvm_version" "@${AMDLLVM_VER}"
+                replace_in_file ${SPACK_MOD} "openmpi" "openmpi@openmpi_version@"
+                replace_in_file ${SPACK_MOD} "ucx" "ucx +cm"
             fi
+            replace_in_file ${SPACK_MOD} "gpu" "+${GPU_BACKEND}"
         fi
 
         if [ -z "${GPU_ARCH}" ]; then
@@ -424,8 +428,8 @@ add_external_compilers
 load_spack
 make_spack_env
 
-# Will try to find a pre-installed compiler. If no compilers are found, you might need to add them manually
-#spack compiler find
+# Will try to find a pre-installed compiler. Some version of gcc is required for this build
+spack compiler find
 
 spack install bzip2
 spack load bzip2
