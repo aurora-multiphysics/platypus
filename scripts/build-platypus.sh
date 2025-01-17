@@ -147,6 +147,8 @@ make_spack_env() {
         export LLVM_TYPE="llvm"
 
         # Clean up all GPU options
+        replace_in_file ${SPACK_MOD} "openmpi" "openmpi@openmpi_version@"
+        replace_in_file ${SPACK_MOD} "ucx" "ucx +cm"
         replace_in_file ${SPACK_MOD} "gpu_aware_mpi" ""
         replace_in_file ${SPACK_MOD} "gpu" ""
         replace_in_file ${SPACK_MOD} "gpu_arch" ""
