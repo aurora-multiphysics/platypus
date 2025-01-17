@@ -119,13 +119,13 @@ make_spack_env() {
                 replace_in_file ${SPACK_MOD} "blas" "+cublas"
                 replace_in_file ${SPACK_MOD} "llvm_version" "@${LLVM_VER}"
                 replace_in_file ${SPACK_MOD} "openmpi" "openmpi@openmpi_version@ @gpu@ @gpu_arch@"
-                replace_in_file ${SPACK_MOD} "ucx" "ucx @gpu@ @gpu_arch@ +gdrcopy +rdmacm"
+                replace_in_file ${SPACK_MOD} "ucx" "ucx @gpu@ @gpu_arch@ +gdrcopy"
             else
                 export LLVM_TYPE="llvm-amdgpu"
                 replace_in_file ${SPACK_MOD} "blas" "+rocblas"
                 replace_in_file ${SPACK_MOD} "llvm_version" "@${AMDLLVM_VER}"
                 replace_in_file ${SPACK_MOD} "openmpi" "openmpi@openmpi_version@"
-                replace_in_file ${SPACK_MOD} "ucx" "ucx%gcc +cm"
+                replace_in_file ${SPACK_MOD} "ucx" "ucx%gcc @gpu@ @gpu_arch@"
             fi
             replace_in_file ${SPACK_MOD} "gpu" "+${GPU_BACKEND}"
         fi
@@ -148,7 +148,7 @@ make_spack_env() {
 
         # Clean up all GPU options
         replace_in_file ${SPACK_MOD} "openmpi" "openmpi@openmpi_version@"
-        replace_in_file ${SPACK_MOD} "ucx" "ucx +cm"
+        replace_in_file ${SPACK_MOD} "ucx" "ucx"
         replace_in_file ${SPACK_MOD} "gpu_aware_mpi" ""
         replace_in_file ${SPACK_MOD} "gpu" ""
         replace_in_file ${SPACK_MOD} "gpu_arch" ""
