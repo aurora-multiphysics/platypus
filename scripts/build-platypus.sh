@@ -125,7 +125,7 @@ make_spack_env() {
                 replace_in_file ${SPACK_MOD} "blas" "+rocblas"
                 replace_in_file ${SPACK_MOD} "llvm_version" "@${AMDLLVM_VER}"
                 replace_in_file ${SPACK_MOD} "openmpi" "openmpi@openmpi_version@"
-                replace_in_file ${SPACK_MOD} "ucx" "ucx +cm"
+                replace_in_file ${SPACK_MOD} "ucx" "ucx%gcc +cm"
             fi
             replace_in_file ${SPACK_MOD} "gpu" "+${GPU_BACKEND}"
         fi

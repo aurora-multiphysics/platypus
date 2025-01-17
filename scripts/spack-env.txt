@@ -23,7 +23,7 @@ spack:
   - python@3.12.5
   - petsc +batch +fortran +hdf5 +hypre +metis +mpi +superlu-dist @gpu@ @gpu_arch@
   - @openmpi@ fabrics=xpmem,knem,ucx +internal-pmix +internal-hwloc
-  - @ucx@%gcc +knem +xpmem +cma +rc +ud +dc +mlx5_dv +ib_hw_tm +dm ^knem%gcc ^xpmem%gcc
+  - @ucx@ +knem +xpmem +cma +rc +ud +dc +mlx5_dv +ib_hw_tm +dm ^knem%gcc ^xpmem%gcc
   - hdf5 +cxx +fortran +hl +mpi +shared
   - hypre@2.32.0 +mpi +shared +superlu-dist @blas@ +fortran @gpu_aware_mpi@ @gpu@ @gpu_arch@
   - superlu-dist +parmetis +shared @gpu@ @gpu_arch@
