@@ -57,6 +57,7 @@ public:
   virtual void BuildLinearForms();
   virtual void BuildBilinearForms();
   virtual void BuildMixedBilinearForms();
+  virtual void UpdateEquationSystem();
   virtual void BuildEquationSystem();
 
   // Form linear system, with essential boundary conditions accounted for
@@ -219,7 +220,7 @@ public:
   void AddTrialVariableNameIfMissing(const std::string & trial_var_name) override;
 
   virtual void SetTimeStep(double dt);
-  virtual void UpdateEquationSystem();
+  virtual void RebuildEquationSystem();
   mfem::ConstantCoefficient _dt_coef; // Coefficient for timestep scaling
   std::vector<std::string> _trial_var_time_derivative_names;
 
