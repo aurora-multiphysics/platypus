@@ -1,18 +1,20 @@
-#include "MFEMVectorFunctionDirichletBCBase.h"
+#include "MFEMVectorFunctorDirichletBCBase.h"
 
 InputParameters
-MFEMVectorFunctionDirichletBCBase::validParams()
+MFEMVectorFunctorDirichletBCBase::validParams()
 {
   InputParameters params = MFEMEssentialBC::validParams();
-  params.addRequiredParam<FunctionName>("function",
-                                        "The values the components must take on the boundary.");
+  params.addRequiredParam<platypus::MFEMVectorCoefficientName>(
+      "vector_coefficient",
+      "The vector coefficient specifying the values variable takes on the boundary.");
   return params;
 }
 
 // TODO: Currently assumes the vector function coefficient is 3D
-MFEMVectorFunctionDirichletBCBase::MFEMVectorFunctionDirichletBCBase(
+MFEMVectorFunctorDirichletBCBase::MFEMVectorFunctorDirichletBCBase(
     const InputParameters & parameters)
   : MFEMEssentialBC(parameters),
-    _vec_coef(getMFEMProblem().getVectorFunctionCoefficient(getParam<FunctionName>("function")))
+    _vec_coef_name(getParam<platypus::MFEMVectorCoefficientName>("vector_coefficient")),
+    _vec_coef(getVectorProperty(_vec_coef_name))
 {
 }

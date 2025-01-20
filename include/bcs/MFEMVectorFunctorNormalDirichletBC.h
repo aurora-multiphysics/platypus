@@ -1,12 +1,12 @@
 #pragma once
 
-#include "MFEMVectorFunctionDirichletBCBase.h"
+#include "MFEMVectorFunctorDirichletBCBase.h"
 
-class MFEMVectorFunctionNormalDirichletBC : public MFEMVectorFunctionDirichletBCBase
+class MFEMVectorFunctorNormalDirichletBC : public MFEMVectorFunctorDirichletBCBase
 {
 public:
   static InputParameters validParams();
-  MFEMVectorFunctionNormalDirichletBC(const InputParameters & parameters);
-  ~MFEMVectorFunctionNormalDirichletBC() override = default;
+  MFEMVectorFunctorNormalDirichletBC(const InputParameters & parameters);
+  ~MFEMVectorFunctorNormalDirichletBC() override = default;
   void ApplyBC(mfem::GridFunction & gridfunc, mfem::Mesh * mesh_) override;
 };

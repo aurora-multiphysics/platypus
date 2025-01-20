@@ -1,25 +1,27 @@
-#include "MFEMScalarFunctionDirichletBC.h"
+#include "MFEMScalarFunctorDirichletBC.h"
 
-registerMooseObject("PlatypusApp", MFEMScalarFunctionDirichletBC);
+registerMooseObject("PlatypusApp", MFEMScalarFunctorDirichletBC);
 
 InputParameters
-MFEMScalarFunctionDirichletBC::validParams()
+MFEMScalarFunctorDirichletBC::validParams()
 {
   InputParameters params = MFEMEssentialBC::validParams();
-  params.addRequiredParam<FunctionName>("function", "The forcing function.");
+  params.addRequiredParam<platypus::MFEMScalarCoefficientName>(
+      "coefficient", "The coefficient setting the values on the essential boundary.");
   return params;
 }
 
-MFEMScalarFunctionDirichletBC::MFEMScalarFunctionDirichletBC(const InputParameters & parameters)
+MFEMScalarFunctorDirichletBC::MFEMScalarFunctorDirichletBC(const InputParameters & parameters)
   : MFEMEssentialBC(parameters),
-    _coef(getMFEMProblem().getScalarFunctionCoefficient(getParam<FunctionName>("function")))
+    _coef_name(getParam<platypus::MFEMScalarCoefficientName>("coefficient")),
+    _coef(getScalarProperty(_coef_name))
 {
 }
 
 void
-MFEMScalarFunctionDirichletBC::ApplyBC(mfem::GridFunction & gridfunc, mfem::Mesh * mesh_)
+MFEMScalarFunctorDirichletBC::ApplyBC(mfem::GridFunction & gridfunc, mfem::Mesh * mesh_)
 {
   mfem::Array<int> ess_bdrs(mesh_->bdr_attributes.Max());
   ess_bdrs = GetMarkers(*mesh_);
-  gridfunc.ProjectBdrCoefficient(*_coef, ess_bdrs);
+  gridfunc.ProjectBdrCoefficient(_coef, ess_bdrs);
 }

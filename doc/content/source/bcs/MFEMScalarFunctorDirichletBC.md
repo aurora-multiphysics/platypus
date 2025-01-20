@@ -1,8 +1,8 @@
-# MFEMScalarFunctionDirichletBC
+# MFEMScalarFunctorDirichletBC
 
 ## Summary
 
-!syntax description /BCs/MFEMScalarFunctionDirichletBC
+!syntax description /BCs/MFEMScalarFunctorDirichletBC
 
 ## Overview
 
@@ -12,8 +12,8 @@ scalar function on the boundary.
 
 ## Example Input File Syntax
 
-!syntax parameters /BCs/MFEMScalarFunctionDirichletBC
+!syntax parameters /BCs/MFEMScalarFunctorDirichletBC
 
-!syntax inputs /BCs/MFEMScalarFunctionDirichletBC
+!syntax inputs /BCs/MFEMScalarFunctorDirichletBC
 
-!syntax children /BCs/MFEMScalarFunctionDirichletBC
+!syntax children /BCs/MFEMScalarFunctorDirichletBC

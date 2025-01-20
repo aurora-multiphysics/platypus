@@ -1,12 +1,12 @@
 #pragma once
 #include "MFEMIntegratedBC.h"
 
-class MFEMVectorFunctionBoundaryIntegratedBC : public MFEMIntegratedBC
+class MFEMVectorFunctorBoundaryIntegratedBC : public MFEMIntegratedBC
 {
 public:
   static InputParameters validParams();
 
-  MFEMVectorFunctionBoundaryIntegratedBC(const InputParameters & parameters);
+  MFEMVectorFunctorBoundaryIntegratedBC(const InputParameters & parameters);
 
   // Create a new MFEM integrator to apply to the RHS of the weak form. Ownership managed by the
   // caller.
@@ -16,5 +16,5 @@ public:
   virtual mfem::BilinearFormIntegrator * createBilinearFormIntegrator();
 
 protected:
-  std::shared_ptr<mfem::VectorCoefficient> _vec_coef{nullptr};
+  mfem::VectorCoefficient & _vec_coef;
 };

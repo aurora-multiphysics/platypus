@@ -1,6 +1,6 @@
 #pragma once
 #include <map>
-#include "mfem/miniapps/common/pfem_extras.hpp"
+#include "../common/pfem_extras.hpp"
 #include "ExternalProblem.h"
 #include "MFEMProblemData.h"
 #include "MFEMMesh.h"
@@ -22,12 +22,12 @@ public:
   static InputParameters validParams();
 
   MFEMProblem(const InputParameters & params);
-  virtual ~MFEMProblem() {}
+  virtual ~MFEMProblem(){};
 
   virtual void initialSetup() override;
-  virtual void externalSolve() override {}
-  virtual bool nlConverged(const unsigned int) override { return true; }
-  virtual void syncSolutions(Direction) override {}
+  virtual void externalSolve() override{};
+  virtual bool nlConverged(const unsigned int nl_sys_num) override { return true; };
+  virtual void syncSolutions(Direction direction) override{};
 
   /**
    * Overwritten mesh() method from base MooseMesh to retrieve the correct mesh type, in this case
@@ -182,18 +182,6 @@ public:
   }
 
   /**
-   * Method to get the MFEM scalar coefficient object corresponding to the named function.
-   */
-  virtual std::shared_ptr<mfem::FunctionCoefficient>
-  getScalarFunctionCoefficient(const std::string & name);
-
-  /**
-   * Method to get the MFEM vector coefficient object corresponding to the named function.
-   */
-  virtual std::shared_ptr<mfem::VectorFunctionCoefficient>
-  getVectorFunctionCoefficient(const std::string & name);
-
-  /**
    * Displace the mesh, if mesh displacement is enabled.
    */
   void displaceMesh();
@@ -226,6 +214,4 @@ protected:
   }
 
   MFEMProblemData _problem_data;
-  std::map<std::string, std::shared_ptr<mfem::FunctionCoefficient>> _scalar_functions;
-  std::map<std::string, std::shared_ptr<mfem::VectorFunctionCoefficient>> _vector_functions;
 };

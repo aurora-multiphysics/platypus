@@ -1,16 +1,16 @@
-#include "MFEMVectorFunctionDirichletBC.h"
+#include "MFEMVectorFunctorDirichletBC.h"
 
-registerMooseObject("PlatypusApp", MFEMVectorFunctionDirichletBC);
+registerMooseObject("PlatypusApp", MFEMVectorFunctorDirichletBC);
 
-MFEMVectorFunctionDirichletBC::MFEMVectorFunctionDirichletBC(const InputParameters & parameters)
-  : MFEMVectorFunctionDirichletBCBase(parameters)
+MFEMVectorFunctorDirichletBC::MFEMVectorFunctorDirichletBC(const InputParameters & parameters)
+  : MFEMVectorFunctorDirichletBCBase(parameters)
 {
 }
 
 void
-MFEMVectorFunctionDirichletBC::ApplyBC(mfem::GridFunction & gridfunc, mfem::Mesh * mesh_)
+MFEMVectorFunctorDirichletBC::ApplyBC(mfem::GridFunction & gridfunc, mfem::Mesh * mesh_)
 {
   mfem::Array<int> ess_bdrs(mesh_->bdr_attributes.Max());
   ess_bdrs = GetMarkers(*mesh_);
-  gridfunc.ProjectBdrCoefficient(*_vec_coef, ess_bdrs);
+  gridfunc.ProjectBdrCoefficient(_vec_coef, ess_bdrs);
 }

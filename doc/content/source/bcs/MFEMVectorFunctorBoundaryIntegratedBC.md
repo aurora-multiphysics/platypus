@@ -1,8 +1,8 @@
-# MFEMVectorFunctionBoundaryIntegratedBC
+# MFEMVectorFunctorBoundaryIntegratedBC
 
 ## Summary
 
-!syntax description /BCs/MFEMVectorFunctionBoundaryIntegratedBC
+!syntax description /BCs/MFEMVectorFunctorBoundaryIntegratedBC
 
 ## Overview
 
@@ -15,8 +15,8 @@ where $v \in \vec H^1$ and $\vec f$ is a vector function of the same dimension.
 
 ## Example Input File Syntax
 
-!syntax parameters /BCs/MFEMVectorFunctionBoundaryIntegratedBC
+!syntax parameters /BCs/MFEMVectorFunctorBoundaryIntegratedBC
 
-!syntax inputs /BCs/MFEMVectorFunctionBoundaryIntegratedBC
+!syntax inputs /BCs/MFEMVectorFunctorBoundaryIntegratedBC
 
-!syntax children /BCs/MFEMVectorFunctionBoundaryIntegratedBC
+!syntax children /BCs/MFEMVectorFunctorBoundaryIntegratedBC

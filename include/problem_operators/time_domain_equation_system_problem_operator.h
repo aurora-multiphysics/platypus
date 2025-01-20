@@ -1,5 +1,5 @@
 #pragma once
-#include "mfem/miniapps/common/pfem_extras.hpp"
+#include "../common/pfem_extras.hpp"
 #include "time_domain_problem_operator.h"
 #include "problem_operator_interface.h"
 #include "equation_system_interface.h"

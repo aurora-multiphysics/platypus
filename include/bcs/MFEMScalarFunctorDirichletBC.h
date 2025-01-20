@@ -1,15 +1,16 @@
 #pragma once
 #include "MFEMEssentialBC.h"
 
-class MFEMScalarFunctionDirichletBC : public MFEMEssentialBC
+class MFEMScalarFunctorDirichletBC : public MFEMEssentialBC
 {
 public:
   static InputParameters validParams();
 
-  MFEMScalarFunctionDirichletBC(const InputParameters & parameters);
+  MFEMScalarFunctorDirichletBC(const InputParameters & parameters);
 
   void ApplyBC(mfem::GridFunction & gridfunc, mfem::Mesh * mesh_) override;
 
 protected:
-  std::shared_ptr<mfem::FunctionCoefficient> _coef{nullptr};
+  const platypus::MFEMScalarCoefficientName & _coef_name;
+  mfem::Coefficient & _coef;
 };
