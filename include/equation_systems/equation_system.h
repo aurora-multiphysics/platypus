@@ -71,6 +71,7 @@ public:
   virtual void BuildLinearForms(platypus::BCMap & bc_map);
   virtual void BuildBilinearForms(platypus::BCMap & bc_map);
   virtual void BuildMixedBilinearForms();
+  virtual void UpdateEquationSystem(platypus::BCMap & bc_map);
   virtual void BuildEquationSystem(platypus::BCMap & bc_map);
 
   // Form linear system, with essential boundary conditions accounted for
@@ -156,7 +157,7 @@ public:
   void AddTrialVariableNameIfMissing(const std::string & trial_var_name) override;
 
   virtual void SetTimeStep(double dt);
-  virtual void UpdateEquationSystem(platypus::BCMap & bc_map);
+  virtual void RebuildEquationSystem(platypus::BCMap & bc_map);
   mfem::ConstantCoefficient _dt_coef; // Coefficient for timestep scaling
   std::vector<std::string> _trial_var_time_derivative_names;
 

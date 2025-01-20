@@ -372,6 +372,37 @@ EquationSystem::BuildMixedBilinearForms()
 }
 
 void
+EquationSystem::UpdateEquationSystem(platypus::BCMap & bc_map)
+{
+  // Apply boundary conditions
+  ApplyBoundaryConditions(bc_map);
+
+  for (int i = 0; i < _test_var_names.size(); i++)
+  {
+    auto test_var_name = _test_var_names.at(i);
+
+    // Assemble linear and bilinear forms for this test variable
+    auto lf = _lfs.Get(test_var_name);
+    auto blf = _blfs.Get(test_var_name);
+    lf->Assemble();
+    blf->Assemble();
+
+    // Loop through and assemble mixed bilinear forms for this test variable
+    for (int j = 0; j < _test_var_names.size(); j++)
+    {
+      auto trial_var_name = _test_var_names.at(j);
+      if (_mblf_kernels_map_map.Has(test_var_name) &&
+          _mblf_kernels_map_map.Get(test_var_name)->Has(trial_var_name))
+      {
+        auto mblf = std::make_shared<mfem::ParMixedBilinearForm>(_test_pfespaces.at(j),
+                                                                 _test_pfespaces.at(i));
+        mblf->Assemble();
+      }
+    }
+  }
+}
+
+void
 EquationSystem::BuildEquationSystem(platypus::BCMap & bc_map)
 {
   BuildBilinearForms(bc_map);
@@ -563,7 +594,7 @@ TimeDependentEquationSystem::FormSystem(mfem::OperatorHandle & op,
 }
 
 void
-TimeDependentEquationSystem::UpdateEquationSystem(platypus::BCMap & bc_map)
+TimeDependentEquationSystem::RebuildEquationSystem(platypus::BCMap & bc_map)
 {
   BuildBilinearForms(bc_map);
   BuildMixedBilinearForms();
