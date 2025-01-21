@@ -59,8 +59,8 @@ public:
   /**
    * @param app_name The name of client's application
    */
-  MFEMObjectUnitTest(const std::string & app_name, const std::string& mesh_file_name = "data/beam-tet.mesh" )
-    : _app(Moose::createMooseApp(app_name, 0, nullptr)), _factory(_app->getFactory()), _mesh_file_name("data/beam-tet.mesh")
+  MFEMObjectUnitTest(const std::string & app_name)
+    : _app(Moose::createMooseApp(app_name, 0, nullptr)), _factory(_app->getFactory())
   {
     buildObjects();
   }
@@ -69,7 +69,7 @@ protected:
   void buildObjects()
   {
     InputParameters mesh_params = _factory.getValidParams("MFEMMesh");
-    mesh_params.set<MeshFileName>("file") = _mesh_file_name;
+    mesh_params.set<MeshFileName>("file") = "data/beam-tet.mesh";
     _mfem_mesh_ptr = _factory.createUnique<MFEMMesh>("MFEMMesh", "moose_mesh", mesh_params);
     _mfem_mesh_ptr->setMeshBase(_mfem_mesh_ptr->buildMeshBaseObject());
     _mfem_mesh_ptr->buildMesh();
@@ -89,8 +89,6 @@ protected:
   std::shared_ptr<MooseApp> _app;
   Factory & _factory;
   std::shared_ptr<MFEMProblem> _mfem_problem;
-
-  std::string _mesh_file_name;
 };
 
 template <typename T>
