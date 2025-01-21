@@ -383,7 +383,9 @@ EquationSystem::UpdateEquationSystem()
     // Assemble linear and bilinear forms for this test variable
     auto lf  = _lfs.Get(test_var_name);
     auto blf = _blfs.Get(test_var_name);
+    lf->Update();
     lf->Assemble();
+    blf->Update();
     blf->Assemble();
 
     // Loop through and assemble mixed bilinear forms for this test variable
@@ -395,6 +397,7 @@ EquationSystem::UpdateEquationSystem()
       {
         auto mblf = std::make_shared<mfem::ParMixedBilinearForm>(_test_pfespaces.at(j),
                                                                  _test_pfespaces.at(i));
+        mblf->Update();
         mblf->Assemble();
       }
     }
