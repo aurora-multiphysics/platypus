@@ -224,6 +224,13 @@ MMSTestBase::CaculateElementVolume( mfem::ParMesh* pmesh )
   area->AddBoundaryIntegrator(new mfem::MassIntegrator(), bdr_markers);
   area->Assemble();
 
+  double averageMeshElementSize = vol->InnerProduct(x, x) / pmesh->GetNE();
+
+  delete fec;
+  delete fespace;
+  delete vol;
+  delete area;
+
   // return total vol divided by number of elements
-  return vol->InnerProduct(x, x) / pmesh->GetNE();
+  return averageMeshElementSize;
 }
