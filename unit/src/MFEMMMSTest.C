@@ -23,8 +23,8 @@ public:
     {
       // solver params!
       InputParameters solver_params          = _factory.getValidParams("MFEMHypreBoomerAMG");
-      solver_params.set<double>("l_tol")     = 1e-16; // HypreBoomerAMG cannot set absolute tolerance
-      solver_params.set<int>("l_max_its")    = 25;
+      solver_params.set<double>("l_tol")     = _tol; // HypreBoomerAMG cannot set absolute tolerance
+      solver_params.set<int>("l_max_its")    = _max_iters;
       MFEMHypreBoomerAMG & solver =
           addObject<MFEMHypreBoomerAMG>("MFEMHypreBoomerAMG", "solver" + i, solver_params);
       

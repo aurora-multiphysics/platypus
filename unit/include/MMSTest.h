@@ -7,6 +7,7 @@
 #include "AppFactory.h"
 #include "MooseMain.h"
 
+// GetNE() on parmesh returns number of elements
 
 /**
  *
@@ -22,9 +23,9 @@ class MMSTestBase : public ::testing::Test
 {
 public:
   //! Provide arguments
-  MMSTestBase(const std::string & app_name="PlatypusApp", const std::string& mesh_file_name = "data/mug.e")
+  MMSTestBase(const std::string & app_name="PlatypusApp", const std::string& mesh_file_name = "data/simple-cube-multi-element-order2.e")
     : _app(Moose::createMooseApp(app_name, 0, nullptr)), _factory(_app->getFactory()),
-      _mesh_file_name(mesh_file_name)
+      _mesh_file_name(mesh_file_name), _element_order(2), _dimension(3)
   {
     BuildObjects();
   }
@@ -45,9 +46,13 @@ public:
   static constexpr double     _tol       = 1e-16;
   static constexpr int        _max_iters = 100;
 
-  //! Overwrite these for different forcing/exact functions
+  //! Override these for different forcing/exact functions
   virtual std::function<double(const mfem::Vector& x)> GetUExact();
   virtual std::function<double(const mfem::Vector& x)> GetFExact();
+
+  //! Calculate the average volume of a mesh element by calculating the
+  //! entire mesh volume and dividing by the total number of elements
+  virtual double CaculateElementVolume( mfem::ParMesh* ) final;
 
 protected:
   std::unique_ptr<MFEMMesh>    _mfem_mesh_ptr;
@@ -56,8 +61,11 @@ protected:
   std::shared_ptr<MFEMProblem> _mfem_problem;
   std::string                  _mesh_file_name;
 
-  std::list<double>   _mesh_element_sizes;
-  std::list<double>   _l2_errors;
+  std::list<double>            _mesh_element_sizes;
+  std::list<double>            _l2_errors;
+
+  int _element_order;
+  int _dimension;
 
   void BuildObjects();
 
@@ -103,21 +111,19 @@ void MMSTestBase::TestDiffusionSolve(mfem::Solver & solver)
 {
   int rank;
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-  const int ne = 4;
-  int dim      = 3;
 
   // create parmesh from regular mesh
   mfem::ParMesh pmesh( _mfem_mesh_ptr->getMFEMParMesh() );
 
-  _mesh_element_sizes.push_front( pmesh.GetElementSize(0) );
+  _mesh_element_sizes.push_front(
+    CaculateElementVolume( &pmesh )
+  );
 
-  int order = 2;
-
-  // this is "re" - defining the FE space
-  mfem::H1_FECollection fec(order, dim);
+  // define the FE space
+  mfem::H1_FECollection       fec(_element_order, _dimension);
   mfem::ParFiniteElementSpace fespace(&pmesh, &fec);
 
-  // FROM HERE ONWARDS IS SETTING DIRICHLET BOUNDARY CONDITIONS
+  // Set the dirichlet boundary conditions
   mfem::Array<int> ess_tdof_list, ess_bdr;
 
   if (pmesh.bdr_attributes.Size())
@@ -140,7 +146,7 @@ void MMSTestBase::TestDiffusionSolve(mfem::Solver & solver)
 
   mfem::ParGridFunction x(&fespace);
 
-  // create coeff called "u exact"
+  // exact solution
   mfem::FunctionCoefficient uex( GetUExact() );
   x = 0.0;
 
@@ -148,9 +154,8 @@ void MMSTestBase::TestDiffusionSolve(mfem::Solver & solver)
   x.ProjectBdrCoefficient(uex, ess_bdr);
 
   mfem::OperatorPtr A;
-  mfem::Vector B, X;
+  mfem::Vector      B, X;
   a.FormLinearSystem(ess_tdof_list, x, b, A, X, B);
-
 
   solver.SetOperator(*A);
   solver.Mult(B, X); // this is the actual solve!
@@ -167,12 +172,13 @@ void MMSTestBase::TestDiffusionSolve(mfem::Solver & solver)
   // store the error we calculated
   _l2_errors.push_front( x.ComputeL2Error( uex ) );
 
-
   // Finally - refine the mesh before the next time we call this function again!
   _mfem_mesh_ptr->getMFEMParMesh().UniformRefinement();
-
 }
 
+// Crudely estimate the slope of a log-log plot by working out the gradient of the line
+// that joins the finest datapoint with the coarsest
+// Finest goes at the front of the list since we push_front()
 double
 MMSTestBase::EstimateConvergenceRate()
 {
@@ -193,3 +199,31 @@ MMSTestBase::addObject(const std::string & type,
   return *objects[0];
 }
 
+double
+MMSTestBase::CaculateElementVolume( mfem::ParMesh* pmesh )
+{
+  // Set the space for the high-order mesh nodes.
+  mfem::FiniteElementCollection *fec = new mfem::H1_FECollection(2, pmesh->Dimension());
+  mfem::FiniteElementSpace nodal_fes(pmesh, fec, pmesh->SpaceDimension());
+
+  mfem::FiniteElementSpace *fespace = new mfem::FiniteElementSpace(pmesh, fec);
+
+  mfem::FunctionCoefficient func([](const mfem::Vector &x) { return 1.0; });
+
+  mfem::GridFunction x(fespace);
+  x.ProjectCoefficient(func);
+
+  mfem::BilinearForm *vol = new mfem::BilinearForm(fespace);
+  vol->AddDomainIntegrator(new mfem::MassIntegrator());
+  vol->Assemble();
+
+  mfem::Array<int> bdr_markers(1);
+  bdr_markers[0] = 1;
+
+  mfem::BilinearForm *area = new mfem::BilinearForm(fespace);
+  area->AddBoundaryIntegrator(new mfem::MassIntegrator(), bdr_markers);
+  area->Assemble();
+
+  // return total vol divided by number of elements
+  return vol->InnerProduct(x, x) / pmesh->GetNE();
+}
