@@ -204,6 +204,11 @@ public:
   getVectorFunctionCoefficient(const std::string & name);
 
   /**
+   * Update the FESpaces and everything derived from them. Used after changes to mesh.
+   */
+  void updateFESpaces();
+
+  /**
    * Displace the mesh, if mesh displacement is enabled.
    */
   void displaceMesh();
