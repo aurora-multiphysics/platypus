@@ -1,4 +1,5 @@
 #include "MFEMSteady.h"
+#include "MFEMProblem.h"
 
 registerMooseObject("PlatypusApp", MFEMSteady);
 
