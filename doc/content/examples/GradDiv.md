@@ -14,7 +14,7 @@ This problem solves a grad-div equation with strong form:
 
 \begin{equation}
 \begin{split}
-\vec\nabla \left( \alpha \vec\nabla \cdot \vec F \right) + \beta \vec F = \vec f \,\,\,&\mathrm{on}\,\, \Omega \\
+-\vec\nabla \left( \alpha \vec\nabla \cdot \vec F \right) + \beta \vec F = \vec f \,\,\,&\mathrm{on}\,\, \Omega \\
 \vec F \cdot \hat n= \vec g \,\,\, &\mathrm{on}\,\, \partial\Omega
 \end{split}
 \end{equation}
@@ -33,7 +33,7 @@ where
 In this example, we solve this using the weak form
 
 !equation
-(\alpha \vec\nabla \cdot \vec F , \vec\nabla \cdot \vec v)_\Omega + (\beta \vec F, \vec F)_\Omega
+(\alpha \vec\nabla \cdot \vec F , \vec\nabla \cdot \vec v)_\Omega + (\beta \vec F, \vec v)_\Omega
 = (\vec f, \vec v)_\Omega \,\,\, \forall \vec v \in V
 
 where
