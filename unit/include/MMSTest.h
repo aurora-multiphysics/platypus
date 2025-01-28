@@ -7,6 +7,34 @@
 #include "AppFactory.h"
 #include "MooseMain.h"
 
+
+
+/*
+
+
+
+  BETTER IDEA - DO EACH ELEMENT ORDER AND THEN REFINE THE MESH AFTER
+
+
+
+
+
+
+
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
 // GetNE() on parmesh returns number of elements
 
 /**
@@ -17,21 +45,26 @@
  * 
  * For now - must be able to construct with no arguments!
  *
+ * Following the fenics book, we expect that if we run the refined
+ * mesh test for various fe element orders, we should see that the
+ * slope of the log-log plot in each case is proportional to 
+ * the mesh element order
+ * 
+ * 
  */
 
 class MMSTestBase : public ::testing::Test
 {
 public:
   //! Provide arguments
-  MMSTestBase(const std::string & app_name="PlatypusApp", const std::string& mesh_file_name = "data/simple-cube-multi-element-order2.e")
-    : _app(Moose::createMooseApp(app_name, 0, nullptr)), _factory(_app->getFactory()),
-      _mesh_file_name(mesh_file_name), _element_order(2), _dimension(3)
-  {
-    BuildObjects();
-  }
+  MMSTestBase(const std::string & app_name="PlatypusApp", const std::string& mesh_file_name = "data/beam-tet.mesh")
+    : _mfem_mesh_ptr(nullptr), _app(Moose::createMooseApp(app_name, 0, nullptr)), _factory(_app->getFactory()),
+      _mesh_file_name(mesh_file_name), _dimension(3), _num_refinements(5),
+      _refinement_level(0), _max_mesh_order(3), _mesh_order(1)
 
-  //! Function for uExact; override this in child class if needs be
-  // virtual void 
+  {
+    // BuildObjects();
+  }
 
   // maybe should be static
   double EstimateConvergenceRate();
@@ -40,11 +73,15 @@ public:
   //! We don't want this to be overridden!
   virtual void TestDiffusionSolve(mfem::Solver & solver) final;
 
-  //! Pure virtual setup method
-  virtual void RunConvergenceTest() = 0;
+  //! Virtual setup method - we don't want this to be overridden!
+  virtual void RunConvergenceTest() final;
 
-  static constexpr double     _tol       = 1e-16;
-  static constexpr int        _max_iters = 100;
+  //! Pure virtual method to set up solver
+  virtual mfem::Solver & SetUpSolver() = 0;
+
+  static constexpr double _tol               = 1e-16;
+  static constexpr int    _max_iters         = 100;
+  static constexpr int    _lowest_mesh_order = 1;
 
   //! Override these for different forcing/exact functions
   virtual std::function<double(const mfem::Vector& x)> GetUExact();
@@ -61,11 +98,26 @@ protected:
   std::shared_ptr<MFEMProblem> _mfem_problem;
   std::string                  _mesh_file_name;
 
+  // doesn't need to be list. Just wanted to push_front
   std::list<double>            _mesh_element_sizes;
   std::list<double>            _l2_errors;
+  std::list<double>            _log_log_gradients;
 
-  int _element_order;
-  int _dimension;
+  const int _dimension;
+
+  //! parameter to describe how many times to refine the mesh for any given finite element
+  //! order. Defaults to 3 in the constructor
+  int _num_refinements;
+  
+  //! current refinement level
+  int _refinement_level;
+
+  //! How many finite element orders to test? We start the finite element order at 1
+  //! and increase it this many times...
+  int _max_mesh_order;
+
+  //! Current finite element order ( 1 <= _mesh_order <= _max_mesh_order )
+  int _mesh_order;
 
   void BuildObjects();
 
@@ -85,7 +137,7 @@ std::function<double(const mfem::Vector& x)>
 MMSTestBase::GetFExact()
 {
   return [](const mfem::Vector& x)
-    {return 8 * M_PI * M_PI * sin( 2* M_PI * x(0) ) * sin( 2* M_PI * x(1) ) * sin( 2* M_PI * x(2) );};
+    {return 12 * M_PI * M_PI * sin( 2* M_PI * x(0) ) * sin( 2* M_PI * x(1) ) * sin( 2* M_PI * x(2) );};
 }
 
 
@@ -93,16 +145,17 @@ MMSTestBase::GetFExact()
 void
 MMSTestBase::BuildObjects()
 {
-  InputParameters mesh_params = _factory.getValidParams("MFEMMesh");
+  InputParameters mesh_params           = _factory.getValidParams("MFEMMesh");
   mesh_params.set<MeshFileName>("file") = _mesh_file_name;
-  _mfem_mesh_ptr = _factory.createUnique<MFEMMesh>("MFEMMesh", "moose_mesh", mesh_params);
+  _mfem_mesh_ptr = _factory.createUnique<MFEMMesh>("MFEMMesh", "moose_mesh" + std::to_string(_mesh_order), mesh_params);
   _mfem_mesh_ptr->setMeshBase(_mfem_mesh_ptr->buildMeshBaseObject());
   _mfem_mesh_ptr->buildMesh();
 
-  InputParameters problem_params = _factory.getValidParams("MFEMProblem");
-  problem_params.set<MooseMesh *>("mesh") = _mfem_mesh_ptr.get();
+  InputParameters problem_params                  = _factory.getValidParams("MFEMProblem");
+  problem_params.set<MooseMesh *>("mesh")         = _mfem_mesh_ptr.get();
   problem_params.set<std::string>("_object_name") = "name2";
-  _mfem_problem = _factory.create<MFEMProblem>("MFEMProblem", "problem", problem_params);
+ 
+  _mfem_problem = _factory.create<MFEMProblem>("MFEMProblem", "problem" + std::to_string(_mesh_order), problem_params);
 
   _app->actionWarehouse().problemBase() = _mfem_problem;
 }
@@ -116,11 +169,11 @@ void MMSTestBase::TestDiffusionSolve(mfem::Solver & solver)
   mfem::ParMesh pmesh( _mfem_mesh_ptr->getMFEMParMesh() );
 
   _mesh_element_sizes.push_front(
-    CaculateElementVolume( &pmesh )
+    std::pow( CaculateElementVolume( &pmesh ), 1./_dimension )
   );
 
   // define the FE space
-  mfem::H1_FECollection       fec(_element_order, _dimension);
+  mfem::H1_FECollection       fec(_mesh_order, _dimension);
   mfem::ParFiniteElementSpace fespace(&pmesh, &fec);
 
   // Set the dirichlet boundary conditions
@@ -166,14 +219,13 @@ void MMSTestBase::TestDiffusionSolve(mfem::Solver & solver)
 
   mfem::ParGridFunction uexact(&fespace);
   uexact.ProjectCoefficient( uex ); // every quadrature point / dof / node(!) will have the uexact value
-  x = X;
+
+  x.SetFromTrueDofs(X);
   x.ComputeL2Error( uex );
 
   // store the error we calculated
   _l2_errors.push_front( x.ComputeL2Error( uex ) );
 
-  // Finally - refine the mesh before the next time we call this function again!
-  _mfem_mesh_ptr->getMFEMParMesh().UniformRefinement();
 }
 
 // Crudely estimate the slope of a log-log plot by working out the gradient of the line
@@ -182,10 +234,23 @@ void MMSTestBase::TestDiffusionSolve(mfem::Solver & solver)
 double
 MMSTestBase::EstimateConvergenceRate()
 {
-  return
-    _mesh_element_sizes.size() <= 1 or _l2_errors.size() <= 1 ?
-    -1 :
-    std::log( _l2_errors.back() / _l2_errors.front() ) / std::log( _mesh_element_sizes.back() / _mesh_element_sizes.front() );
+  if ( _mesh_element_sizes.size() <= 1 or _l2_errors.size() <= 1 )
+    return -1;
+
+  // get the errors for the finest mesh and second-finest
+  double l2_error_0 = _l2_errors.front(); _l2_errors.pop_front();
+  double l2_error_1 = _l2_errors.front(); _l2_errors.pop_front();
+
+  // ditto for volumes
+  double h_0 = _mesh_element_sizes.front(); _mesh_element_sizes.pop_front();
+  double h_1 = _mesh_element_sizes.front(); _mesh_element_sizes.pop_front();
+
+  double output = std::log( l2_error_1 / l2_error_0 ) / std::log( h_1 / h_0 );
+
+  _mesh_element_sizes.clear();
+  _l2_errors.clear();
+
+  return output;
 }
 
 template <typename T>
@@ -233,4 +298,36 @@ MMSTestBase::CaculateElementVolume( mfem::ParMesh* pmesh )
 
   // return total vol divided by number of elements
   return averageMeshElementSize;
+}
+
+// for each mesh element order, we wanna run the test with refined mesh and calculate
+// gradient. Look at the ratio of each
+void
+MMSTestBase::RunConvergenceTest()
+{
+  // for mesh element order
+  for (int mesh_order=_lowest_mesh_order; mesh_order <= _max_mesh_order; mesh_order++)
+  {
+    // set the element order member variable
+    _mesh_order = mesh_order;
+
+    BuildObjects();
+
+    // another loop; each time we need to further refine the mesh
+    for (int r=0; r<_num_refinements; r++)
+    {
+      // set the member variable so that the current solver object gets a unique name
+      _refinement_level = r;
+
+      TestDiffusionSolve(
+        SetUpSolver()
+      );
+
+      // Finally - refine the mesh before the next time we call this function again!
+      _mfem_mesh_ptr->getMFEMParMesh().UniformRefinement();
+    }
+
+    _log_log_gradients.push_back( EstimateConvergenceRate() );
+  }
+
 }
