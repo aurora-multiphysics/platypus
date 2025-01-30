@@ -98,16 +98,6 @@ TEST_F( MFEMGMRESMMSTest, MMSTest )
     ASSERT_NEAR( *iter, 1.0 +(double)i , 0.02 );
 }
 
-TEST_F( MFEMHypreGMRESMMSTest, MMSTest )
-{
-  RunConvergenceTest();
-
-  auto iter = _log_log_gradients.begin();
-
-  for ( int i=_lowest_fe_order; i<=_max_fe_order; i++, iter++ )
-    ASSERT_NEAR( *iter, 1.0 +(double)i , 0.02 );
-}
-
 
 TEST_F( MFEMHyprePCGMMSTest, MMSTest )
 {
@@ -119,3 +109,13 @@ TEST_F( MFEMHyprePCGMMSTest, MMSTest )
     ASSERT_NEAR( *iter, 1.0 +(double)i , 0.02 );
 }
 
+
+TEST_F( MFEMHypreGMRESMMSTest, MMSTest )
+{
+  RunConvergenceTest();
+
+  auto iter = _log_log_gradients.begin();
+
+  for ( int i=_lowest_fe_order; i<=_max_fe_order; i++, iter++ )
+    ASSERT_NEAR( *iter, 1.0 +(double)i , 0.02 );
+}

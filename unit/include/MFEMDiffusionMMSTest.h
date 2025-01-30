@@ -42,7 +42,7 @@ public:
   virtual double EstimateConvergenceRate() override;
 
   //! Runs one loop of the problem and refines the mesh at the end
-  void TestDiffusionSolve(mfem::Solver & solver);
+  void TestDiffusionSolve(mfem::Solver & solver, int num_refinements);
 
   //! Virtual setup method - we don't want this to be overridden!
   virtual void RunConvergenceTest() override;
@@ -59,6 +59,12 @@ public:
   //! and increase it this many times...
   int _max_fe_order;
 
+  //! current refinement level. Only needed so that each solver object gets  unique name
+  int _refinement_level;
+
+protected:
+  //! Stores average volume of a mesh element
+  std::list<double>            _mesh_element_sizes;
 
 };
 
@@ -80,13 +86,16 @@ MMSDiffusionTestBase::GetFExact()
 }
 
 
-void MMSDiffusionTestBase::TestDiffusionSolve(mfem::Solver & solver)
+void MMSDiffusionTestBase::TestDiffusionSolve(mfem::Solver & solver, int num_refinements)
 {
   int rank;
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
   // create parmesh from regular mesh
   mfem::ParMesh pmesh( _mfem_mesh_ptr->getMFEMParMesh() );
+
+  for (int i=0; i<num_refinements; i++)
+    pmesh.UniformRefinement();
 
   _mesh_element_sizes.push_front(
     std::pow( CaculateElementVolume( &pmesh ), 1./_dimension )
@@ -221,26 +230,22 @@ MMSDiffusionTestBase::RunConvergenceTest()
     // set the element order member variable
     _fe_order = fe_order;
 
-    BuildObjects();
 
     // we only want to test the finest mesh, and the second finest.
     // So let's start by refining a few times
 
-    // refines 3 times
-    for (int r=0; r<_num_refinements-2; r++) _mfem_mesh_ptr->getMFEMParMesh().UniformRefinement();
-    
     // another loop; each time we need to further refine the mesh
     for (int r=_num_refinements-2; r<_num_refinements; r++)
     {
-      // set the member variable so that the current solver object gets a unique name
+      // set the member variable so that we can give the
+      // solver object a unique name
       _refinement_level = r;
 
       TestDiffusionSolve(
-        SetUpSolver()
+        SetUpSolver(),
+        r
       );
 
-      // Finally - refine the mesh before the next time we call this function again!
-      _mfem_mesh_ptr->getMFEMParMesh().UniformRefinement();
     }
 
     _log_log_gradients.push_back( EstimateConvergenceRate() );

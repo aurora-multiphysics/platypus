@@ -20,9 +20,10 @@ public:
   //! Provide arguments
   MMSTestBase(const std::string & app_name="PlatypusApp", const std::string& mesh_file_name = "data/beam-tet.mesh")
     : _mfem_mesh_ptr(nullptr), _app(Moose::createMooseApp(app_name, 0, nullptr)), _factory(_app->getFactory()),
-      _mesh_file_name(mesh_file_name), _dimension(3), _num_refinements(5),
-      _refinement_level(0)
-  {}
+      _mesh_file_name(mesh_file_name), _dimension(3), _num_refinements(5)
+  {
+    BuildObjects();
+  }
 
   static constexpr double _tol               = 1e-16;
   static constexpr int    _max_iters         = 25;
@@ -51,8 +52,6 @@ protected:
   std::shared_ptr<MFEMProblem> _mfem_problem;
   std::string                  _mesh_file_name;
 
-  //! Stores average volume of a mesh element
-  std::list<double>            _mesh_element_sizes;
   //! Stores l2 errors for each level of refinement
   std::list<double>            _l2_errors;
   //! Stores estimated gradients of the log-log plots, one for each finite element order, starting
@@ -62,13 +61,9 @@ protected:
   //! Dimensions of the problem; 3 by default  
   const int _dimension;
 
-  //! parameter to describe how many times to refine the mesh for any given finite element
-  //! order. Defaults to 5 in the constructor
+  //! parameter to describe how many times to refine the mesh size (for spatial problems) or time step size
+  //! (for temporal problems)
   int _num_refinements;
-
-  //! current refinement level
-  int _refinement_level;
-
 
   //! Current finite element order ( 1 <= _fe_order <= _max_fe_order )
   int _fe_order;
@@ -81,7 +76,7 @@ MMSTestBase::BuildObjects()
 {
   InputParameters mesh_params           = _factory.getValidParams("MFEMMesh");
   mesh_params.set<MeshFileName>("file") = _mesh_file_name;
-  _mfem_mesh_ptr = _factory.createUnique<MFEMMesh>("MFEMMesh", "moose_mesh" + std::to_string(_fe_order), mesh_params);
+  _mfem_mesh_ptr = _factory.createUnique<MFEMMesh>("MFEMMesh", "moose_mesh", mesh_params);
   _mfem_mesh_ptr->setMeshBase(_mfem_mesh_ptr->buildMeshBaseObject());
   _mfem_mesh_ptr->buildMesh();
 
@@ -89,7 +84,7 @@ MMSTestBase::BuildObjects()
   problem_params.set<MooseMesh *>("mesh")         = _mfem_mesh_ptr.get();
   problem_params.set<std::string>("_object_name") = "name2";
  
-  _mfem_problem = _factory.create<MFEMProblem>("MFEMProblem", "problem" + std::to_string(_fe_order), problem_params);
+  _mfem_problem = _factory.create<MFEMProblem>("MFEMProblem", "problem", problem_params);
 
   _app->actionWarehouse().problemBase() = _mfem_problem;
 }
