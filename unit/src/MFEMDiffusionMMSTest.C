@@ -15,10 +15,9 @@
 #include "MFEMHypreGMRES.h"
 #include "MFEMHyprePCG.h"
 
-#include "MMSTest.h"
+#include "MFEMDiffusionMMSTest.h"
 
-
-class MFEMGMRESMMSTest : public MMSTestBase
+class MFEMGMRESMMSTest : public MMSDiffusionTestBase
 {
 public:
   virtual mfem::Solver & SetUpSolver() override
@@ -32,7 +31,7 @@ public:
       // We need a unique name every time we make a new solver object. So we bodge it by
       // appending the finite element order and the current refinement level to the name here
 
-      addObject<MFEMGMRESSolver>("MFEMGMRESSolver", "solver" + std::to_string(_refinement_level) + std::to_string(_mesh_order), solver_params);
+      addObject<MFEMGMRESSolver>("MFEMGMRESSolver", "solver" + std::to_string(_refinement_level) + std::to_string(_fe_order), solver_params);
     
     // Test MFEMSolver returns an solver of the expected type
     auto solver_downcast = std::dynamic_pointer_cast<mfem::GMRESSolver>(solver.getSolver());
@@ -43,7 +42,7 @@ public:
 };
 
 
-class MFEMHypreGMRESMMSTest : public MMSTestBase
+class MFEMHypreGMRESMMSTest : public MMSDiffusionTestBase
 {
 public:
   virtual mfem::Solver & SetUpSolver() override
@@ -55,7 +54,7 @@ public:
 
     // Construct kernel
     MFEMHypreGMRES & solver = 
-      addObject<MFEMHypreGMRES>("MFEMHypreGMRES", "solver1" + std::to_string(_refinement_level) + std::to_string(_mesh_order), solver_params);
+      addObject<MFEMHypreGMRES>("MFEMHypreGMRES", "solver1" + std::to_string(_refinement_level) + std::to_string(_fe_order), solver_params);
 
     // Test MFEMKernel returns an integrator of the expected type
     auto solver_downcast = std::dynamic_pointer_cast<mfem::HypreGMRES>(solver.getSolver());
@@ -66,7 +65,7 @@ public:
 };
 
 
-class MFEMHyprePCGMMSTest : public MMSTestBase
+class MFEMHyprePCGMMSTest : public MMSDiffusionTestBase
 {
 public:
   virtual mfem::Solver & SetUpSolver() override
@@ -78,7 +77,7 @@ public:
 
     // Construct kernel
     MFEMHyprePCG & solver = 
-      addObject<MFEMHyprePCG>("MFEMHyprePCG", "solver1" + std::to_string(_refinement_level) + std::to_string(_mesh_order), solver_params);
+      addObject<MFEMHyprePCG>("MFEMHyprePCG", "solver1" + std::to_string(_refinement_level) + std::to_string(_fe_order), solver_params);
 
     // Test MFEMKernel returns an integrator of the expected type
     auto solver_downcast = std::dynamic_pointer_cast<mfem::HyprePCG>(solver.getSolver());
@@ -95,7 +94,7 @@ TEST_F( MFEMGMRESMMSTest, MMSTest )
 
   auto iter = _log_log_gradients.begin();
 
-  for ( int i=_lowest_mesh_order; i<=_max_mesh_order; i++, iter++ )
+  for ( int i=_lowest_fe_order; i<=_max_fe_order; i++, iter++ )
     ASSERT_NEAR( *iter, 1.0 +(double)i , 0.02 );
 }
 
@@ -105,7 +104,7 @@ TEST_F( MFEMHypreGMRESMMSTest, MMSTest )
 
   auto iter = _log_log_gradients.begin();
 
-  for ( int i=_lowest_mesh_order; i<=_max_mesh_order; i++, iter++ )
+  for ( int i=_lowest_fe_order; i<=_max_fe_order; i++, iter++ )
     ASSERT_NEAR( *iter, 1.0 +(double)i , 0.02 );
 }
 
@@ -116,7 +115,7 @@ TEST_F( MFEMHyprePCGMMSTest, MMSTest )
 
   auto iter = _log_log_gradients.begin();
 
-  for ( int i=_lowest_mesh_order; i<=_max_mesh_order; i++, iter++ )
+  for ( int i=_lowest_fe_order; i<=_max_fe_order; i++, iter++ )
     ASSERT_NEAR( *iter, 1.0 +(double)i , 0.02 );
 }
 
