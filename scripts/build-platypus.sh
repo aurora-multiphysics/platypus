@@ -125,7 +125,7 @@ make_spack_env() {
                 replace_in_file ${SPACK_MOD} "blas" "+rocblas"
                 replace_in_file ${SPACK_MOD} "llvm_version" "@${AMDLLVM_VER}"
                 replace_in_file ${SPACK_MOD} "openmpi" "openmpi@openmpi_version@"
-                replace_in_file ${SPACK_MOD} "ucx" "ucx%gcc @gpu@ @gpu_arch@"
+                replace_in_file ${SPACK_MOD} "ucx" "ucx%gcc @gpu@"
             fi
             replace_in_file ${SPACK_MOD} "gpu" "+${GPU_BACKEND}"
         fi
@@ -283,11 +283,13 @@ set_environment_vars() {
     PETSC_DIR=$(spack location -i petsc)
     CONDUIT_DIR=$(spack location -i conduit)
     TIRPC_DIR=$(spack location -i libtirpc)
+    CEED_DIR=$(spack location -i libceed)
 
     export HDF5_DIR
     export SLEPC_DIR
     export PETSC_DIR
     export CONDUIT_DIR
+    export CEED_DIR
 
     export CPPFLAGS="${CPPFLAGS} -I${TIRPC_DIR}/include/tirpc"
     export LDFLAGS="${LDFLAGS} -L${TIRPC_DIR}/lib"
@@ -358,9 +360,11 @@ install_mfem() {
         -DMFEM_USE_NETCDF=YES \
         -DMFEM_USE_GSLIB=YES \
         -DMFEM_USE_CONDUIT=YES \
+        -DMFEM_USE_CEED=YES \
         -DGSLIB_DIR="${GSLIB_DIR}" \
         -DCONDUIT_DIR="${CONDUIT_DIR}" \
         -DHDF5_DIR="${HDF5_DIR}" \
+        -DCEED_DIR="${CEED_DIR}" \
         -DSuperLUDist_DIR="${SLU_DIR}" \
         -DSuperLUDist_VERSION_OK=YES \
         -DHYPRE_VERSION=23200

@@ -21,6 +21,7 @@ spack:
   - py-pip
   - zlib
   - python@3.12.5
+  - libceed @gpu@ @gpu_arch@
   - petsc +batch +fortran +hdf5 +hypre +metis +mpi +superlu-dist @gpu@ @gpu_arch@
   - @openmpi@ fabrics=xpmem,knem,ucx +internal-pmix +internal-hwloc
   - @ucx@ +rdmacm +knem +xpmem +cma +rc +ud +dc +mlx5_dv +ib_hw_tm +dm
