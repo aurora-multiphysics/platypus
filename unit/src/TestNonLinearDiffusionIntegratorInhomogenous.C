@@ -81,28 +81,13 @@ class NLOperator : public mfem::Operator
 {
 private:
   // The FE-spaces and operators
-  int nBlocks;
   mfem::ParFiniteElementSpace * feSpace = NULL; // FE-Spaces
   mfem::Operator * NLForm = NULL;               // Operators used for E(U)
-  mfem::BilinearForm * a = NULL;
-  mfem::OperatorPtr A;
-
-  // Forms used for Forcing vector (b)
-  mfem::ParLinearForm * LForm = NULL; // Linear forms
-
-  // Array of constrainedNodes
-  mfem::Array<int> bdr_tDofs;
-
-  // vectors
-  mutable mfem::Vector b_vec, x_Dirch; // BC vectors
-  mutable mfem::Vector z_vec, w_vec;   // Temporary vectors
 
 public:
   // Creates my block non-linear form
   NLOperator(mfem::ParFiniteElementSpace * feSpace_,
-             mfem::ParNonlinearForm * NLForm_,
-             mfem::ParLinearForm * LForms_,
-             const mfem::MemoryType deviceMT);
+             mfem::ParNonlinearForm * NLForm_);
 
   // Destroys my block linear form
   ~NLOperator();
@@ -119,21 +104,9 @@ public:
 };
 
 NLOperator::NLOperator(mfem::ParFiniteElementSpace * feSpace_,
-                             mfem::ParNonlinearForm * NLForm_,
-                             mfem::ParLinearForm * LForms_,
-                             const mfem::MemoryType deviceMT)
-  : Operator(feSpace_->TrueVSize()), NLForm(NLForm_), LForm(LForms_)
-{
-  feSpace = new mfem::ParFiniteElementSpace(*feSpace_);
-  b_vec = mfem::Vector(feSpace_->TrueVSize(), deviceMT);
-  b_vec = 0.0;
-  x_Dirch = mfem::Vector(feSpace_->TrueVSize(), deviceMT);
-  x_Dirch = 0.0;
-  z_vec = mfem::Vector(feSpace_->TrueVSize(), deviceMT);
-  z_vec = 0.0;
-  w_vec = mfem::Vector(feSpace_->TrueVSize(), deviceMT);
-  w_vec = 0.0;
-}
+                       mfem::ParNonlinearForm * NLForm_)
+  : Operator(feSpace_->TrueVSize()), NLForm(NLForm_)
+{}
 
 NLOperator::~NLOperator() {};
 
@@ -155,7 +128,7 @@ TEST(CheckData, TestNonLinearDiffusionIntegratorInhomogenous)
   // 1. Parse command line options
 
   int order = 1;
-  bool nonzero_rhs = true;
+  bool nonzero_rhs = false;
 
   // 2. Read the mesh from the given mesh file, and refine once uniformly.
   mfem::Mesh mesh =
@@ -202,21 +175,25 @@ TEST(CheckData, TestNonLinearDiffusionIntegratorInhomogenous)
 
   // 8. Get true dof vectors and set essential BCs on rhs.
   mfem::Vector X(fespace.GetTrueVSize()), B(fespace.GetTrueVSize());
+  B = 0.0;
   u1.GetTrueDofs(X);
   b.ParallelAssemble(B);
   n.SetEssentialBC(ess_bdr, &B);
+
+  NLOperator myOp(&fespace, &n);
 
   // 9. Set up the Newton solver. Each Newton iteration requires a linear
   //    solve. Here we use UMFPack as a direct solver for these systems.
   mfem::CGSolver solver(MPI_COMM_WORLD);
   mfem::NewtonSolver newton(MPI_COMM_WORLD);
-  newton.SetOperator(n);
+  newton.SetOperator(myOp);
   newton.SetSolver(solver);
   newton.SetPrintLevel(1);
   newton.SetRelTol(1e-10);
   newton.SetMaxIter(20);
 
   // 10. Solve the nonlinear system.
+  X.SetSubVector(ess_tdof_list, 5.0); 
   newton.Mult(B, X);
   u1.Distribute(X);
 
@@ -227,8 +204,11 @@ TEST(CheckData, TestNonLinearDiffusionIntegratorInhomogenous)
     a.AddDomainIntegrator(new mfem::MassIntegrator);
     a.Assemble();
 
+    mfem::ConstantCoefficient dbcCoef(5.0);
+
     mfem::OperatorPtr A;
     mfem::Vector C, Y;
+    u2.ProjectBdrCoefficient(dbcCoef, ess_bdr);
     a.FormLinearSystem(ess_tdof_list, u2, b, A, Y, C);
     mfem::GSSmoother M((mfem::SparseMatrix &)(*A));
     mfem::PCG(*A, M, C, Y, 1, 500, 1e-12, 0.0);
