@@ -86,8 +86,7 @@ private:
 
 public:
   // Creates my block non-linear form
-  NLOperator(mfem::ParFiniteElementSpace * feSpace_,
-             mfem::ParNonlinearForm * NLForm_);
+  NLOperator(mfem::ParFiniteElementSpace * feSpace_, mfem::ParNonlinearForm * NLForm_);
 
   // Destroys my block linear form
   ~NLOperator();
@@ -103,10 +102,10 @@ public:
   virtual void SetOperator(const mfem::Operator & op) {};
 };
 
-NLOperator::NLOperator(mfem::ParFiniteElementSpace * feSpace_,
-                       mfem::ParNonlinearForm * NLForm_)
+NLOperator::NLOperator(mfem::ParFiniteElementSpace * feSpace_, mfem::ParNonlinearForm * NLForm_)
   : Operator(feSpace_->TrueVSize()), NLForm(NLForm_)
-{}
+{
+}
 
 NLOperator::~NLOperator() {};
 
@@ -193,7 +192,7 @@ TEST(CheckData, TestNonLinearDiffusionIntegratorInhomogenous)
   newton.SetMaxIter(20);
 
   // 10. Solve the nonlinear system.
-  X.SetSubVector(ess_tdof_list, 5.0); 
+  X.SetSubVector(ess_tdof_list, 5.0);
   newton.Mult(B, X);
   u1.Distribute(X);
 
