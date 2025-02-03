@@ -77,7 +77,79 @@ public:
   }
 };
 
-TEST(CheckData, TestNonLinearDiffusionIntegratorInhomogenous)                
+class NLOperator : public mfem::Operator
+{
+private:
+  // The FE-spaces and operators
+  int nBlocks;
+  mfem::ParFiniteElementSpace * feSpace = NULL; // FE-Spaces
+  mfem::Operator * NLForm = NULL;               // Operators used for E(U)
+  mfem::BilinearForm * a = NULL;
+  mfem::OperatorPtr A;
+
+  // Forms used for Forcing vector (b)
+  mfem::ParLinearForm * LForm = NULL; // Linear forms
+
+  // Array of constrainedNodes
+  mfem::Array<int> bdr_tDofs;
+
+  // vectors
+  mutable mfem::Vector b_vec, x_Dirch; // BC vectors
+  mutable mfem::Vector z_vec, w_vec;   // Temporary vectors
+
+public:
+  // Creates my block non-linear form
+  NLOperator(mfem::ParFiniteElementSpace * feSpace_,
+             mfem::ParNonlinearForm * NLForm_,
+             mfem::ParLinearForm * LForms_,
+             const mfem::MemoryType deviceMT);
+
+  // Destroys my block linear form
+  ~NLOperator();
+
+  // The residual operator
+  virtual void Mult(const mfem::Vector & x, mfem::Vector & y) const override;
+
+  // The Jacobian operator (Can be used for preconditioning)
+  mfem::Operator & GetGradient(const mfem::Vector & x) const override;
+
+  // A null and void function that inherits from
+  // the Operator class
+  virtual void SetOperator(const mfem::Operator & op) {};
+};
+
+NLOperator::NLOperator(mfem::ParFiniteElementSpace * feSpace_,
+                             mfem::ParNonlinearForm * NLForm_,
+                             mfem::ParLinearForm * LForms_,
+                             const mfem::MemoryType deviceMT)
+  : Operator(feSpace_->TrueVSize()), NLForm(NLForm_), LForm(LForms_)
+{
+  feSpace = new mfem::ParFiniteElementSpace(*feSpace_);
+  b_vec = mfem::Vector(feSpace_->TrueVSize(), deviceMT);
+  b_vec = 0.0;
+  x_Dirch = mfem::Vector(feSpace_->TrueVSize(), deviceMT);
+  x_Dirch = 0.0;
+  z_vec = mfem::Vector(feSpace_->TrueVSize(), deviceMT);
+  z_vec = 0.0;
+  w_vec = mfem::Vector(feSpace_->TrueVSize(), deviceMT);
+  w_vec = 0.0;
+}
+
+NLOperator::~NLOperator() {};
+
+void
+NLOperator::Mult(const mfem::Vector & x, mfem::Vector & y) const
+{
+  NLForm->Mult(x, y);
+};
+
+mfem::Operator &
+NLOperator::GetGradient(const mfem::Vector & x) const
+{
+  return (NLForm->GetGradient(x));
+};
+
+TEST(CheckData, TestNonLinearDiffusionIntegratorInhomogenous)
 {
 
   // 1. Parse command line options
@@ -86,7 +158,8 @@ TEST(CheckData, TestNonLinearDiffusionIntegratorInhomogenous)
   bool nonzero_rhs = true;
 
   // 2. Read the mesh from the given mesh file, and refine once uniformly.
-  mfem::Mesh mesh = mfem::Mesh::MakeCartesian2D(4, 4, mfem::Element::Type::QUADRILATERAL, true, 2.0, 2.0);
+  mfem::Mesh mesh =
+      mfem::Mesh::MakeCartesian2D(4, 4, mfem::Element::Type::QUADRILATERAL, true, 2.0, 2.0);
   mesh.UniformRefinement();
   mfem::ParMesh pmesh(MPI_COMM_WORLD, mesh);
 
