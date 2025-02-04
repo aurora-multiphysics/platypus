@@ -90,6 +90,38 @@ ScaleIntegrator::AddMultTransposePA(const mfem::Vector & x, mfem::Vector & y) co
   y += MTx;
 }
 
+void ScaleIntegrator::AssembleMF(const FiniteElementSpace &fes)
+{
+  CheckIntegrator();
+  _integrator->AssembleMF(fes);
+}
+
+void ScaleIntegrator::AddMultMF(const Vector& x, Vector& y) const
+{
+  // y += Mx*scale
+  mfem::Vector Mx(y.Size());
+  Mx = 0.0;
+  _integrator->AddMultTransposeMF(x, Mx);
+  Mx *= _scale;
+  y += Mx;
+}
+
+void ScaleIntegrator::AddMultTransposeMF(const Vector &x, Vector &y) const
+{
+  // y += Mx*scale
+  mfem::Vector Mx(y.Size());
+  Mx = 0.0;
+  _integrator->AddMultMF(x, Mx);
+  Mx *= _scale;
+  y += Mx;
+}
+
+void ScaleIntegrator::AssembleDiagonalMF(Vector &diag)
+{
+  _integrator->AssembleDiagonalMF(diag);
+  diag *= _scale;
+}
+
 void
 ScaleIntegrator::AssembleEA(const mfem::FiniteElementSpace & fes,
                             mfem::Vector & emat,
