@@ -6,7 +6,7 @@ registerMooseObject("PlatypusApp", MFEMMixedScalarWeakGradientKernel);
 InputParameters
 MFEMMixedScalarWeakGradientKernel::validParams()
 {
-  InputParameters params = MFEMMixedScalarWeakGradientKernel::validParams();
+  InputParameters params = MFEMMixedBilinearFormKernel::validParams();
   params.addClassDescription("Adds the domain integrator to an MFEM problem for the bilinear form "
                              "$-(\\lambda u, \\nabla v)_\\Omega$ "
                              "arising from the weak form of the scalar weak derivative operator "
@@ -23,7 +23,7 @@ MFEMMixedScalarWeakGradientKernel::MFEMMixedScalarWeakGradientKernel(const Input
 {
 }
 
-mfem::MixedScalarWeakDerivativeIntegrator *
+mfem::BilinearFormIntegrator *
 MFEMMixedScalarWeakGradientKernel::createIntegrator()
 {
   return new mfem::MixedScalarWeakDerivativeIntegrator(_coef);
