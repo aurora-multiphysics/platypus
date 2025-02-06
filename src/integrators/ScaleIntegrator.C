@@ -103,7 +103,7 @@ ScaleIntegrator::AddMultMF(const Vector & x, Vector & y) const
   // y += Mx*scale
   mfem::Vector Mx(y.Size());
   Mx = 0.0;
-  _integrator->AddMultTransposeMF(x, Mx);
+  _integrator->AddMultMF(x, Mx);
   Mx *= _scale;
   y += Mx;
 }
@@ -114,7 +114,7 @@ ScaleIntegrator::AddMultTransposeMF(const Vector & x, Vector & y) const
   // y += Mx*scale
   mfem::Vector Mx(y.Size());
   Mx = 0.0;
-  _integrator->AddMultMF(x, Mx);
+  _integrator->AddMultTransposeMF(x, Mx);
   Mx *= _scale;
   y += Mx;
 }
