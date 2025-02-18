@@ -63,7 +63,7 @@
 
 [BCs]
   [tangential_A_bdr]
-    type = MFEMVectorDirichletBC
+    type = MFEMVectorTangentialDirichletBC
     variable = magnetic_vector_potential
     boundary = '1 2 4'
     values = '0.0 0.0 0.0'
