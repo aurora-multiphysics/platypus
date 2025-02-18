@@ -1,0 +1,17 @@
+[tests]
+  [test]
+    [run]
+      type = RunApp
+      input = team4.i
+    []
+    [verify]
+      type = RunCommand
+      command = '../check.sh
+                neg_grad_electric_potential
+                OutputData/Diffusion/Run0/Cycle000001/proc000000.vtu
+                neg_grad_electric_potential
+                OutputData/DiffusionSub/Run0/Cycle000001/proc000000.vtu'
+	  prereq = test/run
+    []
+  []
+[]
