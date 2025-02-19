@@ -97,6 +97,15 @@ RUN cmake  ../src \
     -DENABLE_MPI=YES
 RUN make install -j$compile_cores
 
+# Download and build CEED
+WORKDIR /$WORKDIR
+RUN git clone https://github.com/CEED/libCEED.git
+WORKDIR /$WORKDIR/libCEED
+# This is the v0.12 commit
+# The most recent main pushes won't build with MFEM
+RUN git checkout 4018a20
+RUN make install prefix=/$WORKDIR/libCEED/build
+
 # Build MFEM and common miniapp
 WORKDIR /$WORKDIR
 RUN git clone https://github.com/mfem/mfem.git
@@ -120,6 +129,8 @@ RUN cmake .. \
     -DSuperLUDist_DIR=/$WORKDIR/petsc/ \
     -DMFEM_USE_NETCDF=YES \
     -DMFEM_USE_CONDUIT=YES \
+    -DMFEM_USE_CEED=YES \
+    -DCEED_DIR=/$WORKDIR/libCEED/build \
     -DCONDUIT_DIR=/$WORKDIR/conduit/installed \
     -DHDF5_DIR=/usr/lib/x86_64-linux-gnu/hdf5/openmpi/ && \
     make install -j$compile_cores
