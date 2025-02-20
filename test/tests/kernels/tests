@@ -72,4 +72,11 @@
     requirement = 'Platypus shall have the ability to solve for an irrotational vortext in two dimensions.'
     abs_zero = 1e-6
   []
+  [./MFEMDarcy]
+    type = CSVDiff
+    input = darcy.i
+    csvdiff = 'OutputData/Darcy.csv'
+    requirement = 'Platypus shall have the ability to solve a 2D mixed Darcy problem (MFEM Example 5).'
+    abs_zero = 1e-6
+  []
 []

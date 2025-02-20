@@ -19,4 +19,6 @@ public:
 protected:
   // Name of the trial variable that the kernel is applied to.
   std::string _trial_var_name;
+  // Bool controlling whether to add the transpose of the integrator to the system
+  bool _transpose;
 };
