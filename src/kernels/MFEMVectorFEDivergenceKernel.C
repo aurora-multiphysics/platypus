@@ -24,21 +24,8 @@ MFEMVectorFEDivergenceKernel::MFEMVectorFEDivergenceKernel(const InputParameters
 {
 }
 
-// mfem::BilinearFormIntegrator *
-// MFEMVectorFEDivergenceKernel::createIntegrator()
-// {
-//   if (_transpose)
-//   {
-//     return new mfem::TransposeIntegrator(new mfem::VectorFEDivergenceIntegrator(_coef));
-//   }
-//   else
-//   {
-//     return new mfem::VectorFEDivergenceIntegrator(_coef);
-//   }
-// }
-
 mfem::BilinearFormIntegrator *
-MFEMVectorFEDivergenceKernel::buildIntegrator() const
+MFEMVectorFEDivergenceKernel::createBFIntegrator() const
 {
   return new mfem::VectorFEDivergenceIntegrator(_coef);
 }

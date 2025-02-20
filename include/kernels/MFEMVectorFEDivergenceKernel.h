@@ -12,9 +12,9 @@ public:
   MFEMVectorFEDivergenceKernel(const InputParameters & parameters);
   ~MFEMVectorFEDivergenceKernel() override = default;
 
-protected:
-  mfem::BilinearFormIntegrator * buildIntegrator() const override;
+  virtual mfem::BilinearFormIntegrator * createBFIntegrator() override;
 
+protected:
   std::string _coef_name;
   mfem::Coefficient & _coef;
 };
