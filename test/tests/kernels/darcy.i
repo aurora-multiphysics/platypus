@@ -42,14 +42,12 @@
     expression_x = '-exp(x) * sin(y) * cos(z)'
     expression_y = '-exp(x) * cos(y) * cos(z)'
     expression_z = 'exp(x) * sin(y) * sin(z)'
-
     symbol_names = x, y, z
     symbol_values = 0.0, 0.0, 0.0
   []
   [pFun_ex]
     type = ParsedScalarFunction
     expression = 'exp(x) * sin(y) * cos(z)'
-
     symbol_names = x, y, z
     symbol_values = 0.0, 0.0, 0.0
   []
@@ -58,7 +56,6 @@
     expression_x = '0.0'
     expression_y = '0.0'
     expression_z = '0.0'
-
     symbol_names = x, y, z
     symbol_values = 0.0, 0.0, 0.0
   []
