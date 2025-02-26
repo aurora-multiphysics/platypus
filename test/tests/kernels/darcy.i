@@ -30,12 +30,12 @@
 
 [FESpaces]
   [L2FESpace]
-    type = MFEMFESpace
+    type = MFEMScalarFESpace
     fec_type = L2
     fec_order = SECOND
   []
   [HDivFESpace]
-    type = MFEMFESpace
+    type = MFEMVectorFESpace
     fec_type = RT
     fec_order = SECOND
   []  
