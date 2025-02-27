@@ -32,3 +32,14 @@ MFEMMixedBilinearFormKernel::getTrialVariableName() const
 {
   return _trial_var_name;
 }
+
+mfem::BilinearFormIntegrator *
+MFEMMixedBilinearFormKernel::createIntegrator()
+{
+  mfem::BilinearFormIntegrator * base_integrator = buildIntegrator();
+  if (_transpose)
+  {
+    return new mfem::TransposeIntegrator(base_integrator);
+  }
+  return base_integrator;
+}
