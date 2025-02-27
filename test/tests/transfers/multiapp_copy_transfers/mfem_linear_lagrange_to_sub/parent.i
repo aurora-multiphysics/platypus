@@ -1,6 +1,6 @@
 [Mesh]
   type = MFEMMesh
-  file = gold/mug.e
+  file = square.msh
   dim = 3
 []
 
@@ -17,7 +17,7 @@
 []
 
 [Variables]
-  [diffused]
+  [u]
     type = MFEMVariable
     fespace = H1FESpace
   []
@@ -26,14 +26,14 @@
 [BCs]
   [bottom]
     type = MFEMScalarDirichletBC
-    variable = diffused
-    boundary = '1'
+    variable = u
+    boundary = 2
     value = 1.0
   []
   [low_terminal]
     type = MFEMScalarDirichletBC
-    variable = diffused
-    boundary = '2'
+    variable = u
+    boundary = 4
     value = 0.0
   []
 []
@@ -49,34 +49,51 @@
 [Kernels]
   [diff]
     type = MFEMDiffusionKernel
-    variable = diffused
+    variable = u
     coefficient = diffusivity
   []
 []
 
 [Preconditioner]
-  [jacobi]
-    type = MFEMOperatorJacobiSmoother
+  [boomeramg]
+    type = MFEMHypreBoomerAMG
   []
 []
 
 [Solver]
-  type = MFEMCGSolver
-  preconditioner = jacobi
+  type = MFEMHypreGMRES
+  preconditioner = boomeramg
   l_tol = 1e-16
-  l_max_its = 1000
-  print_level = 2
+  l_max_its = 1000  
 []
 
-[Executioner]
-  type = MFEMSteady
-  assembly_level = partial
-[]
 
 [Outputs]
   [ParaViewDataCollection]
     type = MFEMParaViewDataCollection
-    file_base = OutputData/DiffusionPartial
+    file_base = OutputData/DiffusionSub
     vtk_format = ASCII
   []
+[]
+
+[Executioner]
+  type = MFEMSteady
+  device = cpu
+[]
+
+[MultiApps]
+  [./subapp]
+    type = FullSolveMultiApp
+    input_files = sub.i
+    execute_on = FINAL
+  [../]
+[]
+
+[Transfers]
+    [./to_sub]
+        type = MultiAppMFEMCopyTransfer
+        source_variable = u
+        variable = u
+        to_multi_app = subapp
+    [../]
 []

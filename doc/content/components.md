@@ -30,8 +30,8 @@ Documentation on the main components comprising Platypus can be found in the fol
 - [MFEMMesh](source/mesh/MFEMMesh.md): Builds an `mfem::ParMesh` object from the provided mesh input
   file.
 
-- [MFEMFESpace](source/fespaces/MFEMFESpace.md): Class responsible for defining the finite element
-  space that an `MFEMVariable` is defined with respect to.
+- [MFEMFESpace](source/fespaces/MFEMFESpace.md): Base class for defining the finite element
+  space with respect to which an  `MFEMVariable` is defined.
 
 - [MFEMVariable](source/variables/MFEMVariable.md): Wrapper for set-up of `mfem::ParGridFunction`
   objects representing trial variables; stores a set of (true) degrees of freedom for a variable
