@@ -8,6 +8,7 @@
 #include "MFEMVariable.h"
 #include "MFEMBoundaryCondition.h"
 #include "MFEMKernel.h"
+#include "MFEMMixedBilinearFormKernel.h"
 #include "MFEMExecutioner.h"
 #include "MFEMDataCollection.h"
 #include "MFEMFESpace.h"
@@ -101,6 +102,15 @@ public:
   void addKernel(const std::string & kernel_name,
                  const std::string & name,
                  InputParameters & parameters) override;
+
+  /**
+   * Override of ExternalProblem::addAuxKernel. Uses ExternalProblem::addAuxKernel to create a
+   * MFEMGeneralUserObject representing the kernel in MOOSE, and creates corresponding MFEM kernel
+   * to be used in the MFEM solve.
+   */
+  void addAuxKernel(const std::string & kernel_name,
+                    const std::string & name,
+                    InputParameters & parameters) override;
 
   /**
    * Override of ExternalProblem::addFunction. Uses ExternalProblem::addFunction to create a
@@ -224,6 +234,10 @@ protected:
                  "' because there is no equation system.");
     }
   }
+
+  void addKernel(std::string trial_var_name,
+                 std::string test_var_name,
+                 std::shared_ptr<MFEMMixedBilinearFormKernel> kernel);
 
   MFEMProblemData _problem_data;
   std::map<std::string, std::shared_ptr<mfem::FunctionCoefficient>> _scalar_functions;
