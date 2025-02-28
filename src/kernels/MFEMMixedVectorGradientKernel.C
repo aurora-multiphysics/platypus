@@ -27,5 +27,5 @@ MFEMMixedVectorGradientKernel::MFEMMixedVectorGradientKernel(const InputParamete
 mfem::BilinearFormIntegrator *
 MFEMMixedVectorGradientKernel::createBFIntegrator()
 {
-  return new mfem::MixedScalarCurlIntegrator(_coef);
+  return new mfem::MFEMMixedVectorGradientKernel(_coef);
 }
