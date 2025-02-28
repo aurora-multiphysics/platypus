@@ -13,7 +13,7 @@ public:
   ~MFEMMixedVectorGradientKernel() override = default;
 
 protected:
-  mfem::BilinearFormIntegrator * buildIntegrator() const override;
+  mfem::BilinearFormIntegrator * createIntegrator() const override;
 
   std::string _coef_name;
   mfem::Coefficient & _coef;

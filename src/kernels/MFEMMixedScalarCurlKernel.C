@@ -24,7 +24,7 @@ MFEMMixedScalarCurlKernel::MFEMMixedScalarCurlKernel(const InputParameters & par
 }
 
 mfem::BilinearFormIntegrator *
-MFEMMixedScalarCurlKernel::buildIntegrator() const
+MFEMMixedScalarCurlKernel::createIntegrator() const
 {
   return new mfem::MixedScalarCurlIntegrator(_coef);
 }
