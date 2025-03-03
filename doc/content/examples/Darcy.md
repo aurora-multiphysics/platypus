@@ -3,9 +3,10 @@
 ## Summary
 
 Solves a simple 2D/3D mixed Darcy problem corresponding to the saddle point system.
-We discretize with Raviart-Thomas finite elements (velocity $ \mathbf{u} $) and
-piecewise discontinuous polynomials (pressure $ p $).
-This example is based on [MFEM Example 5](https://mfem.org/examples/).
+We discretize with Raviart-Thomas finite elements
+(velocity $ \mathbf{u} $) and piecewise discontinuous polynomials (pressure $ p $).
+This example is based on
+[MFEM Example 5](https://mfem.org/examples/).
 
 ## Description
 
@@ -17,18 +18,18 @@ This problem solves a mixed Darcy problem with the following form:
 \end{align}
 
 with natural boundary condition $ -p = \text{"given pressure"} $.
-Here we use a given exact solution $ (\mathbf{u}, p) $ and compute the corresponding
-right-hand side $ (\mathbf{f}, g) $.
-We discretize with Raviart-Thomas finite elements (velocity $ \mathbf{u} $) and piecewise discontinuous polynomials
-(pressure $ p $).
+Here we use a given exact solution $ (\mathbf{u}, p) $ and compute the
+corresponding right-hand side $ (\mathbf{f}, g) $.
+We discretize with Raviart-Thomas finite elements (velocity $ \mathbf{u} $) and
+piecewise discontinuous polynomials (pressure $ p $).
 
 The example demonstrates the use of transpose in the input file.
 
 In this example, we solve this using the weak form
 
 \begin{equation}
-(\mathbf{K} \mathbf{u}, \mathbf{v})_\Omega + (\nabla p, \mathbf{v})_\Omega -
-(\nabla \cdot \mathbf{u}, q)_\Omega = (\mathbf{f}, \mathbf{v})_\Omega
+(\mathbf{K} \mathbf{u}, \mathbf{v})_\Omega + (\nabla p, \mathbf{v})_\Omega - (\nabla \cdot \mathbf{u}, q)_\Omega
+= (\mathbf{f}, \mathbf{v})_\Omega
 \quad \forall \mathbf{v} \in V, \forall q \in W
 \end{equation}
 
