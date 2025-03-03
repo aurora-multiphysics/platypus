@@ -27,5 +27,6 @@ MFEMVectorFEDivergenceKernel::MFEMVectorFEDivergenceKernel(const InputParameters
 mfem::BilinearFormIntegrator *
 MFEMVectorFEDivergenceKernel::createBFIntegrator() const
 {
-  return new mfem::VectorFEDivergenceIntegrator(_coef);
+  mfem::BilinearFormIntegrator * base_integrator = new mfem::VectorFEDivergenceIntegrator(_coef);
+  return createTransposableIntegrator(base_integrator);
 }
