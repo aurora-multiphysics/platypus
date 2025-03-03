@@ -12,10 +12,12 @@ Adds the domain integrator for the **linear form**:
 ( \mathbf{f}, \mathbf{u'} )_{\Omega}
 
 where:
+
 - \( \mathbf{f} \) is a given **vector-valued function**
 - \( \mathbf{u'} \) is a **test function** from the vector finite element space.
 
-where $f$ is a given function, and $u'$ is a test function. The term arises from the weak form for integrating a given function against the test function.
+where $f$ is a given function, and $u'$ is a test function.
+The term arises from the weak form for integrating a given function against the test function.
 
 ## Example Input File Syntax
 
