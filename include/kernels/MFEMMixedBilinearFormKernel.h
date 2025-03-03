@@ -17,7 +17,8 @@ public:
   virtual const std::string & getTrialVariableName() const override;
 
   // Create transposable integrator
-  mfem::BilinearFormIntegrator * createTransposableIntegrator();
+  mfem::BilinearFormIntegrator *
+  createTransposableIntegrator(mfem::BilinearFormIntegrator * base_integrator);
 
   // Derived classes must implement this to provide the base integrator
   virtual mfem::BilinearFormIntegrator * createIntegrator() override = 0;
