@@ -24,9 +24,8 @@ the initial condition $T(t=0)=0.0$.
 In this example, we solve this using the weak form
 
 \begin{equation}
-\left(\rho c_p \frac{\partial T}{\partial t}, v\right)_\Omega + (k \vec \nabla T, \vec \nabla v)_\Omega
-
-- (k \vec \nabla T \cdot \hat n, v)_{\partial \Omega} = 0 \,\,\, \forall v \in V
+\left(\rho c_p \frac{\partial T}{\partial t}, v\right)_\Omega + (k \vec \nabla T, \vec \nabla v)_\Omega -
+(k \vec \nabla T \cdot \hat n, v)_{\partial \Omega} = 0 \,\,\, \forall v \in V
 \end{equation}
 
 where
