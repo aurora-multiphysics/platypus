@@ -6,7 +6,8 @@
 
 ## Overview
 
-Boundary condition for applying a flux-integrated condition on the boundary for vector finite element functions. Currently assumes the vector function coefficient is 3D.
+Boundary condition for applying a flux-integrated condition on the boundary for vector finite element functions.
+Currently assumes the vector function coefficient is 3D.
 
 ## Example Input File Syntax
 

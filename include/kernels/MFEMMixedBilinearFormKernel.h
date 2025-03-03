@@ -17,12 +17,12 @@ public:
   virtual const std::string & getTrialVariableName() const override;
 
   // Create transposable integrator
-  mfem::BilinearFormIntegrator * createTransposableIntegrator() override;
+  mfem::BilinearFormIntegrator * createTransposableIntegrator();
+
+  // Derived classes must implement this to provide the base integrator
+  virtual mfem::BilinearFormIntegrator * createIntegrator() override = 0;
 
 protected:
-  // Derived classes must implement this to provide the base integrator
-  virtual mfem::BilinearFormIntegrator * createIntegrator() const = 0;
-
   // Name of the trial variable that the kernel is applied to.
   std::string _trial_var_name;
   // Bool controlling whether to add the transpose of the integrator to the system
