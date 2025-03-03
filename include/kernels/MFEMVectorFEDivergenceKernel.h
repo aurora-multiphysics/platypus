@@ -4,13 +4,13 @@
 /*
 (σ ∇ V, u')
 */
-class MFEMMixedVectorGradientKernel : public MFEMMixedBilinearFormKernel
+class MFEMVectorFEDivergenceKernel : public MFEMMixedBilinearFormKernel
 {
 public:
   static InputParameters validParams();
 
-  MFEMMixedVectorGradientKernel(const InputParameters & parameters);
-  ~MFEMMixedVectorGradientKernel() override = default;
+  MFEMVectorFEDivergenceKernel(const InputParameters & parameters);
+  ~MFEMVectorFEDivergenceKernel() override = default;
 
   mfem::BilinearFormIntegrator * createIntegrator() override;
 
