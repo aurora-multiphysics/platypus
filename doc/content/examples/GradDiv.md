@@ -7,7 +7,6 @@ using $H(\mathrm{div})$ conforming Raviart-Thomas elements. This example is
 based on [MFEM Example 4](https://mfem.org/examples/) and is relevant for
 solving Maxwell's equations using potentials without the Coulomb gauge.
 
-
 ## Description
 
 This problem solves a grad-div equation with strong form:

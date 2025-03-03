@@ -6,7 +6,6 @@ Solves a 3D linear elasticity problem for
 the deformation of a mult-material cantiliver beam. This example
 is based on [MFEM Example 2](https://mfem.org/examples/).
 
-
 ## Description
 
 This problem solves a linear elasticity problem for small deformations with strong form:
