@@ -155,7 +155,7 @@ TEST_F(MFEMKernelTest, MFEMVectorDomainLFKernel)
       addObject<MFEMVectorDomainLFKernel>("MFEMVectorDomainLFKernel", "kernel1", kernel_params);
 
   // Test MFEMKernel returns an integrator of the expected type
-  auto integrator = dynamic_cast<mfem::VectorDomainLFIntegrator *>(kernel.createIntegrator());
+  auto integrator = dynamic_cast<mfem::VectorDomainLFIntegrator *>(kernel.createLFIntegrator());
   ASSERT_NE(integrator, nullptr);
   delete integrator;
 }
@@ -181,7 +181,7 @@ TEST_F(MFEMKernelTest, MFEMVectorFEDomainLFKernel)
       addObject<MFEMVectorFEDomainLFKernel>("MFEMVectorFEDomainLFKernel", "kernel1", kernel_params);
 
   // Test MFEMKernel returns an integrator of the expected type
-  auto integrator = dynamic_cast<mfem::VectorFEDomainLFIntegrator *>(kernel.createIntegrator());
+  auto integrator = dynamic_cast<mfem::VectorFEDomainLFIntegrator *>(kernel.createLFIntegrator());
   ASSERT_NE(integrator, nullptr);
   delete integrator;
 }

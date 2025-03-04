@@ -4,7 +4,7 @@
 /*
 (σ ∇ q, ∇ q')
 */
-class MFEMDiffusionKernel : public MFEMKernel<mfem::BilinearFormIntegrator>
+class MFEMDiffusionKernel : public MFEMKernel
 {
 public:
   static InputParameters validParams();

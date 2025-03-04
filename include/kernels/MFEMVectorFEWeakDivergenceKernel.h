@@ -4,7 +4,7 @@
 /*
 (σ u, ∇ V')
 */
-class MFEMVectorFEWeakDivergenceKernel : public MFEMKernel<mfem::BilinearFormIntegrator>
+class MFEMVectorFEWeakDivergenceKernel : public MFEMKernel
 {
 public:
   static InputParameters validParams();

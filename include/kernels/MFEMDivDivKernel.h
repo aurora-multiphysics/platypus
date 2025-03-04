@@ -4,7 +4,7 @@
 /*
 (α∇.u, ∇.u')
 */
-class MFEMDivDivKernel : public MFEMKernel<mfem::BilinearFormIntegrator>
+class MFEMDivDivKernel : public MFEMKernel
 {
 public:
   static InputParameters validParams();

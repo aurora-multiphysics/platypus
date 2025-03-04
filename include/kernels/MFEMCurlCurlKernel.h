@@ -4,7 +4,7 @@
 /*
 (α∇×u, ∇×u')
 */
-class MFEMCurlCurlKernel : public MFEMKernel<mfem::BilinearFormIntegrator>
+class MFEMCurlCurlKernel : public MFEMKernel
 {
 public:
   static InputParameters validParams();

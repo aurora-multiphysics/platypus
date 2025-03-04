@@ -16,10 +16,6 @@ mixed and nonlinear forms) and build methods
 class EquationSystem : public mfem::Operator
 {
 public:
-  using MFEMBilinearFormKernel = MFEMKernel<mfem::BilinearFormIntegrator>;
-  using MFEMLinearFormKernel = MFEMKernel<mfem::LinearFormIntegrator>;
-  using MFEMNonlinearFormKernel = MFEMKernel<mfem::NonlinearFormIntegrator>;
-
   EquationSystem() = default;
   ~EquationSystem() override;
 
@@ -48,18 +44,9 @@ public:
   virtual void AddTrialVariableNameIfMissing(const std::string & trial_var_name);
 
   // Add kernels.
-  virtual void AddKernel(const std::string & test_var_name,
-                         std::shared_ptr<MFEMBilinearFormKernel> blf_kernel);
-
-  void AddKernel(const std::string & test_var_name,
-                 std::shared_ptr<MFEMLinearFormKernel> lf_kernel);
-
-  void AddKernel(const std::string & test_var_name,
-                 std::shared_ptr<MFEMNonlinearFormKernel> nlf_kernel);
-
-  void AddKernel(const std::string & trial_var_name,
-                 const std::string & test_var_name,
-                 std::shared_ptr<MFEMMixedBilinearFormKernel> mblf_kernel);
+  virtual void AddKernel(const std::string & trial_var_name,
+                         const std::string & test_var_name,
+                         std::shared_ptr<MFEMKernel> kernel);
 
   virtual void ApplyBoundaryConditions(platypus::BCMap & bc_map);
 
@@ -103,18 +90,31 @@ public:
    * Template method for storing kernels.
    */
   template <class T>
-  void addKernelToMap(std::shared_ptr<T> kernel,
-                      platypus::NamedFieldsMap<std::vector<std::shared_ptr<T>>> & kernels_map)
+  void addKernelToMap(
+      std::shared_ptr<T> kernel,
+      platypus::NamedFieldsMap<platypus::NamedFieldsMap<std::vector<std::shared_ptr<T>>>> &
+          kernels_map)
   {
+    auto trial_var_name = kernel->getTrialVariableName();
     auto test_var_name = kernel->getTestVariableName();
     if (!kernels_map.Has(test_var_name))
     {
-      // 1. Create kernels vector.
-      auto kernels = std::make_shared<std::vector<std::shared_ptr<T>>>();
-      // 2. Register with map to prevent leaks.
-      kernels_map.Register(test_var_name, std::move(kernels));
+      auto kernel_field_map =
+          std::make_shared<platypus::NamedFieldsMap<std::vector<std::shared_ptr<T>>>>();
+
+      kernels_map.Register(test_var_name, std::move(kernel_field_map));
     }
-    kernels_map.GetRef(test_var_name).push_back(std::move(kernel));
+
+    // Register new mblf kernels map if not present for the test/trial variable
+    // pair
+    if (!kernels_map.Get(test_var_name)->Has(trial_var_name))
+    {
+      auto kernels = std::make_shared<std::vector<std::shared_ptr<T>>>();
+
+      kernels_map.Get(test_var_name)->Register(trial_var_name, std::move(kernels));
+    }
+
+    kernels_map.GetRef(test_var_name).Get(trial_var_name)->push_back(std::move(kernel));
   }
 
 protected:
@@ -129,15 +129,8 @@ protected:
 
   // Arrays to store kernels to act on each component of weak form. Named
   // according to test variable
-  platypus::NamedFieldsMap<std::vector<std::shared_ptr<MFEMBilinearFormKernel>>> _blf_kernels_map;
-
-  platypus::NamedFieldsMap<std::vector<std::shared_ptr<MFEMLinearFormKernel>>> _lf_kernels_map;
-
-  platypus::NamedFieldsMap<std::vector<std::shared_ptr<MFEMNonlinearFormKernel>>> _nlf_kernels_map;
-
-  platypus::NamedFieldsMap<
-      platypus::NamedFieldsMap<std::vector<std::shared_ptr<MFEMMixedBilinearFormKernel>>>>
-      _mblf_kernels_map_map;
+  platypus::NamedFieldsMap<platypus::NamedFieldsMap<std::vector<std::shared_ptr<MFEMKernel>>>>
+      _kernels_map;
 
   mutable mfem::OperatorHandle _jacobian;
 
@@ -160,13 +153,14 @@ public:
   mfem::ConstantCoefficient _dt_coef; // Coefficient for timestep scaling
   std::vector<std::string> _trial_var_time_derivative_names;
 
-  platypus::NamedFieldsMap<std::vector<std::shared_ptr<MFEMBilinearFormKernel>>>
-      _td_blf_kernels_map;
+  platypus::NamedFieldsMap<platypus::NamedFieldsMap<std::vector<std::shared_ptr<MFEMKernel>>>>
+      _td_kernels_map;
   // Container to store contributions to weak form of the form (F du/dt, v)
   platypus::NamedFieldsMap<mfem::ParBilinearForm> _td_blfs;
 
-  virtual void AddKernel(const std::string & test_var_name,
-                         std::shared_ptr<MFEMBilinearFormKernel> blf_kernel) override;
+  virtual void AddKernel(const std::string & trial_var_name,
+                         const std::string & test_var_name,
+                         std::shared_ptr<MFEMKernel> kernel) override;
   virtual void BuildBilinearForms(platypus::BCMap & bc_map) override;
   virtual void FormLegacySystem(mfem::OperatorHandle & op,
                                 mfem::BlockVector & truedXdt,
