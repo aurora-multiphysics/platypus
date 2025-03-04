@@ -89,17 +89,25 @@ MFEMProblem::addBoundaryCondition(const std::string & bc_name,
                                   InputParameters & parameters)
 {
   FEProblemBase::addUserObject(bc_name, name, parameters);
-
-  auto object_ptr = getUserObject<MFEMBoundaryCondition>(name).getSharedPtr();
-  auto mfem_bc = std::dynamic_pointer_cast<MFEMBoundaryCondition>(object_ptr);
-
-  if (getProblemData()._bc_map.Has(name))
+  const UserObject * mfem_bc_uo = &(getUserObjectBase(name));
+  if (dynamic_cast<const MFEMBoundaryCondition *>(mfem_bc_uo) != nullptr)
   {
-    const std::string error_message = "A boundary condition with the name " + name +
-                                      " has already been added to the problem boundary conditions.";
-    mfem::mfem_error(error_message.c_str());
+    auto object_ptr = getUserObject<MFEMBoundaryCondition>(name).getSharedPtr();
+    auto mfem_bc = std::dynamic_pointer_cast<MFEMBoundaryCondition>(object_ptr);
+    if (getProblemData()._eqn_system)
+    {
+      getProblemData()._eqn_system->AddBC(name, std::move(mfem_bc));
+    }
+    else
+    {
+      mooseError("Cannot add boundary condition with name '" + name +
+                 "' because there is no corresponding equation system.");
+    }
   }
-  getProblemData()._bc_map.Register(name, std::move(mfem_bc));
+  else
+  {
+    mooseError("Unsupported bc of type '", bc_name, "' and name '", name, "' detected.");
+  }
 }
 
 void

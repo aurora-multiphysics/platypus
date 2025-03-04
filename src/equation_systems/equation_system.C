@@ -59,7 +59,19 @@ EquationSystem::AddKernel(std::shared_ptr<MFEMKernel> kernel)
 }
 
 void
-EquationSystem::ApplyBoundaryConditions(platypus::BCMap & bc_map)
+EquationSystem::AddBC(const std::string & name, std::shared_ptr<MFEMBoundaryCondition> bc)
+{
+  if (_bc_map.Has(name))
+  {
+    const std::string error_message = "A boundary condition with the name " + name +
+                                      " has already been added to the problem boundary conditions.";
+    mfem::mfem_error(error_message.c_str());
+  }
+  _bc_map.Register(name, std::move(bc));
+}
+
+void
+EquationSystem::ApplyBoundaryConditions()
 {
   _ess_tdof_lists.resize(_test_var_names.size());
   for (int i = 0; i < _test_var_names.size(); i++)
@@ -69,7 +81,7 @@ EquationSystem::ApplyBoundaryConditions(platypus::BCMap & bc_map)
     // overwritten in applyEssentialBCs
     *(_xs.at(i)) = 0.0;
     *(_dxdts.at(i)) = 0.0;
-    bc_map.ApplyEssentialBCs(
+    _bc_map.ApplyEssentialBCs(
         test_var_name, _ess_tdof_lists.at(i), *(_xs.at(i)), _test_pfespaces.at(i)->GetParMesh());
   }
 }
@@ -215,7 +227,6 @@ EquationSystem::RecoverFEMSolution(mfem::BlockVector & trueX,
 void
 EquationSystem::Init(platypus::GridFunctions & gridfunctions,
                      const platypus::FESpaces & fespaces,
-                     platypus::BCMap & bc_map,
                      mfem::AssemblyLevel assembly_level)
 {
   _assembly_level = assembly_level;
@@ -240,7 +251,7 @@ EquationSystem::Init(platypus::GridFunctions & gridfunctions,
 }
 
 void
-EquationSystem::BuildLinearForms(platypus::BCMap & bc_map)
+EquationSystem::BuildLinearForms()
 {
   // Register linear forms
   for (int i = 0; i < _test_var_names.size(); i++)
@@ -248,11 +259,11 @@ EquationSystem::BuildLinearForms(platypus::BCMap & bc_map)
     auto test_var_name = _test_var_names.at(i);
     _lfs.Register(test_var_name, std::make_shared<mfem::ParLinearForm>(_test_pfespaces.at(i)));
     _lfs.GetRef(test_var_name) = 0.0;
-    bc_map.ApplyIntegratedBCs(
+    _bc_map.ApplyIntegratedBCs(
         test_var_name, _lfs.GetRef(test_var_name), _test_pfespaces.at(i)->GetParMesh());
   }
   // Apply boundary conditions
-  ApplyBoundaryConditions(bc_map);
+  ApplyBoundaryConditions();
 
   for (auto & test_var_name : _test_var_names)
   {
@@ -277,7 +288,7 @@ EquationSystem::BuildLinearForms(platypus::BCMap & bc_map)
 }
 
 void
-EquationSystem::BuildBilinearForms(platypus::BCMap & bc_map)
+EquationSystem::BuildBilinearForms()
 {
   // Register bilinear forms
   for (int i = 0; i < _test_var_names.size(); i++)
@@ -285,7 +296,7 @@ EquationSystem::BuildBilinearForms(platypus::BCMap & bc_map)
     auto test_var_name = _test_var_names.at(i);
     _blfs.Register(test_var_name, std::make_shared<mfem::ParBilinearForm>(_test_pfespaces.at(i)));
 
-    bc_map.ApplyIntegratedBCs(
+    _bc_map.ApplyIntegratedBCs(
         test_var_name, _blfs.GetRef(test_var_name), _test_pfespaces.at(i)->GetParMesh());
     // Apply kernels
     auto blf = _blfs.Get(test_var_name);
@@ -357,11 +368,11 @@ EquationSystem::BuildMixedBilinearForms()
 }
 
 void
-EquationSystem::BuildEquationSystem(platypus::BCMap & bc_map)
+EquationSystem::BuildEquationSystem()
 {
-  BuildBilinearForms(bc_map);
+  BuildBilinearForms();
   BuildMixedBilinearForms();
-  BuildLinearForms(bc_map);
+  BuildLinearForms();
 }
 
 TimeDependentEquationSystem::TimeDependentEquationSystem() : _dt_coef(1.0) {}
@@ -428,9 +439,9 @@ TimeDependentEquationSystem::AddKernel(std::shared_ptr<MFEMKernel> kernel)
 }
 
 void
-TimeDependentEquationSystem::BuildBilinearForms(platypus::BCMap & bc_map)
+TimeDependentEquationSystem::BuildBilinearForms()
 {
-  EquationSystem::BuildBilinearForms(bc_map);
+  EquationSystem::BuildBilinearForms();
 
   // Build and assemble bilinear forms acting on time derivatives
   for (int i = 0; i < _test_var_names.size(); i++)
@@ -439,7 +450,7 @@ TimeDependentEquationSystem::BuildBilinearForms(platypus::BCMap & bc_map)
 
     _td_blfs.Register(test_var_name,
                       std::make_shared<mfem::ParBilinearForm>(_test_pfespaces.at(i)));
-    bc_map.ApplyIntegratedBCs(
+    _bc_map.ApplyIntegratedBCs(
         test_var_name, _td_blfs.GetRef(test_var_name), _test_pfespaces.at(i)->GetParMesh());
 
     // Apply kernels to td_blf
@@ -570,11 +581,11 @@ TimeDependentEquationSystem::FormSystem(mfem::OperatorHandle & op,
 }
 
 void
-TimeDependentEquationSystem::UpdateEquationSystem(platypus::BCMap & bc_map)
+TimeDependentEquationSystem::UpdateEquationSystem()
 {
-  BuildBilinearForms(bc_map);
+  BuildBilinearForms();
   BuildMixedBilinearForms();
-  BuildLinearForms(bc_map);
+  BuildLinearForms();
 }
 
 } // namespace platypus

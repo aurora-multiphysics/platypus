@@ -45,18 +45,18 @@ public:
 
   // Add kernels.
   virtual void AddKernel(std::shared_ptr<MFEMKernel> kernel);
+  virtual void AddBC(const std::string & name, std::shared_ptr<MFEMBoundaryCondition> bc);
 
-  virtual void ApplyBoundaryConditions(platypus::BCMap & bc_map);
+  virtual void ApplyBoundaryConditions();
 
   // Build forms
   virtual void Init(platypus::GridFunctions & gridfunctions,
                     const platypus::FESpaces & fespaces,
-                    platypus::BCMap & bc_map,
                     mfem::AssemblyLevel assembly_level);
-  virtual void BuildLinearForms(platypus::BCMap & bc_map);
-  virtual void BuildBilinearForms(platypus::BCMap & bc_map);
+  virtual void BuildLinearForms();
+  virtual void BuildBilinearForms();
   virtual void BuildMixedBilinearForms();
-  virtual void BuildEquationSystem(platypus::BCMap & bc_map);
+  virtual void BuildEquationSystem();
 
   // Form linear system, with essential boundary conditions accounted for
   virtual void FormLinearSystem(mfem::OperatorHandle & op,
@@ -99,6 +99,13 @@ protected:
   platypus::NamedFieldsMap<platypus::NamedFieldsMap<std::vector<std::shared_ptr<MFEMKernel>>>>
       _kernels_map;
 
+  platypus::BCMap _bc_map;
+
+  // platypus::NamedFieldsMap<platypus::NamedFieldsMap<std::vector<std::shared_ptr<MFEMIntegratedBC>>>>
+  //     _integrated_bc_map;
+
+  // platypus::NamedFieldsMap<std::vector<std::shared_ptr<MFEMEssentialBC>>> _essential_bc_map;
+
   mutable mfem::OperatorHandle _jacobian;
 
   mfem::AssemblyLevel _assembly_level;
@@ -116,7 +123,7 @@ public:
   void AddTrialVariableNameIfMissing(const std::string & trial_var_name) override;
 
   virtual void SetTimeStep(double dt);
-  virtual void UpdateEquationSystem(platypus::BCMap & bc_map);
+  virtual void UpdateEquationSystem();
   mfem::ConstantCoefficient _dt_coef; // Coefficient for timestep scaling
   std::vector<std::string> _trial_var_time_derivative_names;
 
@@ -126,7 +133,7 @@ public:
   platypus::NamedFieldsMap<mfem::ParBilinearForm> _td_blfs;
 
   virtual void AddKernel(std::shared_ptr<MFEMKernel> kernel) override;
-  virtual void BuildBilinearForms(platypus::BCMap & bc_map) override;
+  virtual void BuildBilinearForms() override;
   virtual void FormLegacySystem(mfem::OperatorHandle & op,
                                 mfem::BlockVector & truedXdt,
                                 mfem::BlockVector & trueRHS) override;
