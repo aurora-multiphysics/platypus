@@ -44,9 +44,7 @@ public:
   virtual void AddTrialVariableNameIfMissing(const std::string & trial_var_name);
 
   // Add kernels.
-  virtual void AddKernel(const std::string & trial_var_name,
-                         const std::string & test_var_name,
-                         std::shared_ptr<MFEMKernel> kernel);
+  virtual void AddKernel(std::shared_ptr<MFEMKernel> kernel);
 
   virtual void ApplyBoundaryConditions(platypus::BCMap & bc_map);
 
@@ -85,37 +83,6 @@ public:
                                   platypus::GridFunctions & gridfunctions);
 
   std::vector<mfem::Array<int>> _ess_tdof_lists;
-
-  /**
-   * Template method for storing kernels.
-   */
-  template <class T>
-  void addKernelToMap(
-      std::shared_ptr<T> kernel,
-      platypus::NamedFieldsMap<platypus::NamedFieldsMap<std::vector<std::shared_ptr<T>>>> &
-          kernels_map)
-  {
-    auto trial_var_name = kernel->getTrialVariableName();
-    auto test_var_name = kernel->getTestVariableName();
-    if (!kernels_map.Has(test_var_name))
-    {
-      auto kernel_field_map =
-          std::make_shared<platypus::NamedFieldsMap<std::vector<std::shared_ptr<T>>>>();
-
-      kernels_map.Register(test_var_name, std::move(kernel_field_map));
-    }
-
-    // Register new mblf kernels map if not present for the test/trial variable
-    // pair
-    if (!kernels_map.Get(test_var_name)->Has(trial_var_name))
-    {
-      auto kernels = std::make_shared<std::vector<std::shared_ptr<T>>>();
-
-      kernels_map.Get(test_var_name)->Register(trial_var_name, std::move(kernels));
-    }
-
-    kernels_map.GetRef(test_var_name).Get(trial_var_name)->push_back(std::move(kernel));
-  }
 
 protected:
   bool VectorContainsName(const std::vector<std::string> & the_vector,
@@ -158,9 +125,7 @@ public:
   // Container to store contributions to weak form of the form (F du/dt, v)
   platypus::NamedFieldsMap<mfem::ParBilinearForm> _td_blfs;
 
-  virtual void AddKernel(const std::string & trial_var_name,
-                         const std::string & test_var_name,
-                         std::shared_ptr<MFEMKernel> kernel) override;
+  virtual void AddKernel(std::shared_ptr<MFEMKernel> kernel) override;
   virtual void BuildBilinearForms(platypus::BCMap & bc_map) override;
   virtual void FormLegacySystem(mfem::OperatorHandle & op,
                                 mfem::BlockVector & truedXdt,
