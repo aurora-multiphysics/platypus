@@ -112,7 +112,7 @@ MFEMProblem::addBoundaryCondition(const std::string & bc_name,
     mfem_bc->getBoundaries();
     if (getProblemData()._eqn_system)
     {
-      getProblemData()._eqn_system->AddBC(name, std::move(mfem_bc));
+      getProblemData()._eqn_system->AddEssentialBC(std::move(mfem_bc));
     }
     else
     {

@@ -1,6 +1,7 @@
 #pragma once
 #include "mfem/miniapps/common/pfem_extras.hpp"
-#include "boundary_conditions.h"
+#include "MFEMIntegratedBC.h"
+#include "MFEMEssentialBC.h"
 #include "MFEMContainers.h"
 #include "MFEMKernel.h"
 #include "MFEMMixedBilinearFormKernel.h"
@@ -46,9 +47,8 @@ public:
   // Add kernels.
   virtual void AddKernel(std::shared_ptr<MFEMKernel> kernel);
   virtual void AddIntegratedBC(std::shared_ptr<MFEMIntegratedBC> kernel);
-  virtual void AddBC(const std::string & name, std::shared_ptr<MFEMBoundaryCondition> bc);
-
-  virtual void ApplyBoundaryConditions();
+  virtual void AddEssentialBC(std::shared_ptr<MFEMEssentialBC> bc);
+  virtual void ApplyEssentialBCs();
 
   // Build forms
   virtual void Init(platypus::GridFunctions & gridfunctions,
@@ -198,13 +198,9 @@ protected:
   // according to test variable
   platypus::NamedFieldsMap<platypus::NamedFieldsMap<std::vector<std::shared_ptr<MFEMKernel>>>>
       _kernels_map;
-
-  platypus::BCMap _bc_map;
-
   platypus::NamedFieldsMap<platypus::NamedFieldsMap<std::vector<std::shared_ptr<MFEMIntegratedBC>>>>
       _integrated_bc_map;
-
-  // platypus::NamedFieldsMap<std::vector<std::shared_ptr<MFEMEssentialBC>>> _essential_bc_map;
+  platypus::NamedFieldsMap<std::vector<std::shared_ptr<MFEMEssentialBC>>> _essential_bc_map;
 
   mutable mfem::OperatorHandle _jacobian;
 
