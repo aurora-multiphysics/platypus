@@ -101,15 +101,18 @@ protected:
       platypus::NamedFieldsMap<platypus::NamedFieldsMap<std::vector<std::shared_ptr<MFEMKernel>>>> &
           kernels_map)
   {
-    auto kernels = kernels_map.GetRef(test_var_name).GetRef(trial_var_name);
-    for (auto & kernel : kernels)
+    if (kernels_map.Has(test_var_name) && kernels_map.Get(test_var_name)->Has(trial_var_name))
     {
-      mfem::BilinearFormIntegrator * integ = kernel->createIntegrator();
-      if (integ != nullptr)
+      auto kernels = kernels_map.GetRef(test_var_name).GetRef(trial_var_name);
+      for (auto & kernel : kernels)
       {
-        kernel->isSubdomainRestricted()
-            ? form->AddDomainIntegrator(std::move(integ), kernel->getSubdomains())
-            : form->AddDomainIntegrator(std::move(integ));
+        mfem::BilinearFormIntegrator * integ = kernel->createIntegrator();
+        if (integ != nullptr)
+        {
+          kernel->isSubdomainRestricted()
+              ? form->AddDomainIntegrator(std::move(integ), kernel->getSubdomains())
+              : form->AddDomainIntegrator(std::move(integ));
+        }
       }
     }
   }
@@ -120,15 +123,18 @@ protected:
       platypus::NamedFieldsMap<platypus::NamedFieldsMap<std::vector<std::shared_ptr<MFEMKernel>>>> &
           kernels_map)
   {
-    auto kernels = kernels_map.GetRef(test_var_name).GetRef(test_var_name);
-    for (auto & kernel : kernels)
+    if (kernels_map.Has(test_var_name))
     {
-      mfem::LinearFormIntegrator * integ = kernel->createLFIntegrator();
-      if (integ != nullptr)
+      auto kernels = kernels_map.GetRef(test_var_name).GetRef(test_var_name);
+      for (auto & kernel : kernels)
       {
-        kernel->isSubdomainRestricted()
-            ? form->AddDomainIntegrator(std::move(integ), kernel->getSubdomains())
-            : form->AddDomainIntegrator(std::move(integ));
+        mfem::LinearFormIntegrator * integ = kernel->createLFIntegrator();
+        if (integ != nullptr)
+        {
+          kernel->isSubdomainRestricted()
+              ? form->AddDomainIntegrator(std::move(integ), kernel->getSubdomains())
+              : form->AddDomainIntegrator(std::move(integ));
+        }
       }
     }
   }
@@ -142,16 +148,20 @@ protected:
           platypus::NamedFieldsMap<std::vector<std::shared_ptr<MFEMIntegratedBC>>>> &
           integrated_bc_map)
   {
-    auto bcs = integrated_bc_map.GetRef(test_var_name).GetRef(trial_var_name);
-    for (auto & bc : bcs)
+    if (integrated_bc_map.Has(test_var_name) &&
+        integrated_bc_map.Get(test_var_name)->Has(trial_var_name))
     {
-      mfem::BilinearFormIntegrator * integ = bc->createBilinearFormIntegrator();
-      if (integ != nullptr)
+      auto bcs = integrated_bc_map.GetRef(test_var_name).GetRef(trial_var_name);
+      for (auto & bc : bcs)
       {
-        form->AddBoundaryIntegrator(std::move(integ), bc->_bdr_markers);
-        // bc->isBoundaryRestricted()
-        //     ? form->AddBoundaryIntegrator(std::move(integ), bc->_bdr_markers)
-        //     : form->AddBoundaryIntegrator(std::move(integ));
+        mfem::BilinearFormIntegrator * integ = bc->createBilinearFormIntegrator();
+        if (integ != nullptr)
+        {
+          form->AddBoundaryIntegrator(std::move(integ), bc->_bdr_markers);
+          // bc->isBoundaryRestricted()
+          //     ? form->AddBoundaryIntegrator(std::move(integ), bc->_bdr_markers)
+          //     : form->AddBoundaryIntegrator(std::move(integ));
+        }
       }
     }
   }
@@ -163,16 +173,19 @@ protected:
           platypus::NamedFieldsMap<std::vector<std::shared_ptr<MFEMIntegratedBC>>>> &
           integrated_bc_map)
   {
-    auto bcs = integrated_bc_map.GetRef(test_var_name).GetRef(test_var_name);
-    for (auto & bc : bcs)
+    if (integrated_bc_map.Has(test_var_name))
     {
-      mfem::LinearFormIntegrator * integ = bc->createLinearFormIntegrator();
-      if (integ != nullptr)
+      auto bcs = integrated_bc_map.GetRef(test_var_name).GetRef(test_var_name);
+      for (auto & bc : bcs)
       {
-        form->AddBoundaryIntegrator(std::move(integ), bc->_bdr_markers);
-        // bc->isBoundaryRestricted()
-        //     ? form->AddBoundaryIntegrator(std::move(integ), bc->_bdr_markers)
-        //     : form->AddBoundaryIntegrator(std::move(integ));
+        mfem::LinearFormIntegrator * integ = bc->createLinearFormIntegrator();
+        if (integ != nullptr)
+        {
+          form->AddBoundaryIntegrator(std::move(integ), bc->_bdr_markers);
+          // bc->isBoundaryRestricted()
+          //     ? form->AddBoundaryIntegrator(std::move(integ), bc->_bdr_markers)
+          //     : form->AddBoundaryIntegrator(std::move(integ));
+        }
       }
     }
   }
