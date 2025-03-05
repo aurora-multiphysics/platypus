@@ -1,4 +1,5 @@
 #include "MFEMBoundaryCondition.h"
+#include "MFEMProblem.h"
 #include "mfem/miniapps/common/mesh_extras.hpp"
 
 InputParameters
@@ -25,11 +26,6 @@ MFEMBoundaryCondition::MFEMBoundaryCondition(const InputParameters & parameters)
   {
     _bdr_attributes[i] = std::stoi(_boundary_names[i]);
   }
-}
-
-mfem::Array<int>
-MFEMBoundaryCondition::GetMarkers(mfem::Mesh & mesh)
-{
+  mfem::ParMesh & mesh(getMFEMProblem().mesh().getMFEMParMesh());
   mfem::common::AttrToMarker(mesh.bdr_attributes.Max(), _bdr_attributes, _bdr_markers);
-  return _bdr_markers;
 }
