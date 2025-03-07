@@ -34,63 +34,66 @@ EquationSystem::AddTestVariableNameIfMissing(const std::string & test_var_name)
 }
 
 void
-EquationSystem::AddKernel(const std::string & test_var_name,
-                          std::shared_ptr<MFEMBilinearFormKernel> blf_kernel)
+EquationSystem::AddKernel(std::shared_ptr<MFEMKernel> kernel)
 {
-  AddTestVariableNameIfMissing(test_var_name);
-  AddTrialVariableNameIfMissing(test_var_name);
-  addKernelToMap<MFEMBilinearFormKernel>(blf_kernel, _blf_kernels_map);
-}
-
-void
-EquationSystem::AddKernel(const std::string & test_var_name,
-                          std::shared_ptr<MFEMLinearFormKernel> lf_kernel)
-{
-  AddTestVariableNameIfMissing(test_var_name);
-  addKernelToMap<MFEMLinearFormKernel>(lf_kernel, _lf_kernels_map);
-}
-
-void
-EquationSystem::AddKernel(const std::string & test_var_name,
-                          std::shared_ptr<MFEMNonlinearFormKernel> nlf_kernel)
-{
-  AddTestVariableNameIfMissing(test_var_name);
-  AddTrialVariableNameIfMissing(nlf_kernel->getTrialVariableName());
-  addKernelToMap<MFEMNonlinearFormKernel>(nlf_kernel, _nlf_kernels_map);
-}
-
-void
-EquationSystem::AddKernel(const std::string & trial_var_name,
-                          const std::string & test_var_name,
-                          std::shared_ptr<MFEMMixedBilinearFormKernel> mblf_kernel)
-{
-  AddTestVariableNameIfMissing(test_var_name);
-  AddTrialVariableNameIfMissing(trial_var_name);
-  // Register new mblf kernels map if not present for this test variable
-  if (!_mblf_kernels_map_map.Has(test_var_name))
+  AddTestVariableNameIfMissing(kernel->getTestVariableName());
+  AddTrialVariableNameIfMissing(kernel->getTrialVariableName());
+  auto trial_var_name = kernel->getTrialVariableName();
+  auto test_var_name = kernel->getTestVariableName();
+  if (!_kernels_map.Has(test_var_name))
   {
-    auto kernel_field_map = std::make_shared<
-        platypus::NamedFieldsMap<std::vector<std::shared_ptr<MFEMMixedBilinearFormKernel>>>>();
-
-    _mblf_kernels_map_map.Register(test_var_name, std::move(kernel_field_map));
+    auto kernel_field_map =
+        std::make_shared<platypus::NamedFieldsMap<std::vector<std::shared_ptr<MFEMKernel>>>>();
+    _kernels_map.Register(test_var_name, std::move(kernel_field_map));
   }
-
-  // Register new mblf kernels map if not present for the test/trial variable
+  // Register new kernels map if not present for the test/trial variable
   // pair
-  if (!_mblf_kernels_map_map.Get(test_var_name)->Has(trial_var_name))
+  if (!_kernels_map.Get(test_var_name)->Has(trial_var_name))
   {
-    auto kernels = std::make_shared<std::vector<std::shared_ptr<MFEMMixedBilinearFormKernel>>>();
-
-    _mblf_kernels_map_map.Get(test_var_name)->Register(trial_var_name, std::move(kernels));
+    auto kernels = std::make_shared<std::vector<std::shared_ptr<MFEMKernel>>>();
+    _kernels_map.Get(test_var_name)->Register(trial_var_name, std::move(kernels));
   }
-
-  _mblf_kernels_map_map.GetRef(test_var_name)
-      .Get(trial_var_name)
-      ->push_back(std::move(mblf_kernel));
+  _kernels_map.GetRef(test_var_name).Get(trial_var_name)->push_back(std::move(kernel));
 }
 
 void
-EquationSystem::ApplyBoundaryConditions(platypus::BCMap & bc_map)
+EquationSystem::AddIntegratedBC(std::shared_ptr<MFEMIntegratedBC> bc)
+{
+  AddTestVariableNameIfMissing(bc->getTestVariableName());
+  AddTrialVariableNameIfMissing(bc->getTrialVariableName());
+  auto trial_var_name = bc->getTrialVariableName();
+  auto test_var_name = bc->getTestVariableName();
+  if (!_integrated_bc_map.Has(test_var_name))
+  {
+    auto integrated_bc_field_map = std::make_shared<
+        platypus::NamedFieldsMap<std::vector<std::shared_ptr<MFEMIntegratedBC>>>>();
+    _integrated_bc_map.Register(test_var_name, std::move(integrated_bc_field_map));
+  }
+  // Register new integrated bc map if not present for the test/trial variable
+  // pair
+  if (!_integrated_bc_map.Get(test_var_name)->Has(trial_var_name))
+  {
+    auto bcs = std::make_shared<std::vector<std::shared_ptr<MFEMIntegratedBC>>>();
+    _integrated_bc_map.Get(test_var_name)->Register(trial_var_name, std::move(bcs));
+  }
+  _integrated_bc_map.GetRef(test_var_name).Get(trial_var_name)->push_back(std::move(bc));
+}
+
+void
+EquationSystem::AddEssentialBC(std::shared_ptr<MFEMEssentialBC> bc)
+{
+  AddTestVariableNameIfMissing(bc->getTestVariableName());
+  auto test_var_name = bc->getTestVariableName();
+  if (!_essential_bc_map.Has(test_var_name))
+  {
+    auto bcs = std::make_shared<std::vector<std::shared_ptr<MFEMEssentialBC>>>();
+    _essential_bc_map.Register(test_var_name, std::move(bcs));
+  }
+  _essential_bc_map.GetRef(test_var_name).push_back(std::move(bc));
+}
+
+void
+EquationSystem::ApplyEssentialBCs()
 {
   _ess_tdof_lists.resize(_test_var_names.size());
   for (int i = 0; i < _test_var_names.size(); i++)
@@ -98,10 +101,26 @@ EquationSystem::ApplyBoundaryConditions(platypus::BCMap & bc_map)
     auto test_var_name = _test_var_names.at(i);
     // Set default value of gridfunction used in essential BC. Values
     // overwritten in applyEssentialBCs
-    *(_xs.at(i)) = 0.0;
-    *(_dxdts.at(i)) = 0.0;
-    bc_map.ApplyEssentialBCs(
-        test_var_name, _ess_tdof_lists.at(i), *(_xs.at(i)), _test_pfespaces.at(i)->GetParMesh());
+    mfem::ParGridFunction & trial_gf(*(_xs.at(i)));
+    mfem::ParGridFunction & trial_gf_time_derivatives(*(_dxdts.at(i)));
+    mfem::ParMesh * pmesh(_test_pfespaces.at(i)->GetParMesh());
+    trial_gf = 0.0;
+    trial_gf_time_derivatives = 0.0;
+
+    auto bcs = _essential_bc_map.GetRef(test_var_name);
+    mfem::Array<int> global_ess_markers(pmesh->bdr_attributes.Max());
+    global_ess_markers = 0;
+    for (auto & bc : bcs)
+    {
+      bc->ApplyBC(trial_gf, pmesh);
+
+      mfem::Array<int> ess_bdrs(bc->getBoundaries());
+      for (auto it = 0; it != pmesh->bdr_attributes.Max(); ++it)
+      {
+        global_ess_markers[it] = std::max(global_ess_markers[it], ess_bdrs[it]);
+      }
+    }
+    trial_gf.FESpace()->GetEssentialTrueDofs(global_ess_markers, _ess_tdof_lists.at(i));
   }
 }
 
@@ -119,7 +138,7 @@ EquationSystem::FormLinearSystem(mfem::OperatorHandle & op,
     default:
       MFEM_VERIFY(_test_var_names.size() == 1,
                   "Non-legacy assembly is only supported for single-variable systems");
-      MFEM_VERIFY(!_mblf_kernels_map_map.size(),
+      MFEM_VERIFY(_test_var_names.size() == _trial_var_names.size(),
                   "Non-legacy assembly is only supported for square systems");
       FormSystem(op, trueX, trueRHS);
   }
@@ -246,7 +265,6 @@ EquationSystem::RecoverFEMSolution(mfem::BlockVector & trueX,
 void
 EquationSystem::Init(platypus::GridFunctions & gridfunctions,
                      const platypus::FESpaces & fespaces,
-                     platypus::BCMap & bc_map,
                      mfem::AssemblyLevel assembly_level)
 {
   _assembly_level = assembly_level;
@@ -271,7 +289,7 @@ EquationSystem::Init(platypus::GridFunctions & gridfunctions,
 }
 
 void
-EquationSystem::BuildLinearForms(platypus::BCMap & bc_map)
+EquationSystem::BuildLinearForms()
 {
   // Register linear forms
   for (int i = 0; i < _test_var_names.size(); i++)
@@ -279,31 +297,22 @@ EquationSystem::BuildLinearForms(platypus::BCMap & bc_map)
     auto test_var_name = _test_var_names.at(i);
     _lfs.Register(test_var_name, std::make_shared<mfem::ParLinearForm>(_test_pfespaces.at(i)));
     _lfs.GetRef(test_var_name) = 0.0;
-    bc_map.ApplyIntegratedBCs(
-        test_var_name, _lfs.GetRef(test_var_name), _test_pfespaces.at(i)->GetParMesh());
   }
   // Apply boundary conditions
-  ApplyBoundaryConditions(bc_map);
+  ApplyEssentialBCs();
 
   for (auto & test_var_name : _test_var_names)
   {
     // Apply kernels
-    auto lf = _lfs.Get(test_var_name);
-    if (_lf_kernels_map.Has(test_var_name))
-    {
-      auto lf_kernels = _lf_kernels_map.GetRef(test_var_name);
-
-      for (auto & lf_kernel : lf_kernels)
-      {
-        lf->AddDomainIntegrator(lf_kernel->createIntegrator());
-      }
-    }
+    auto lf = _lfs.GetShared(test_var_name);
+    ApplyDomainLFIntegrators(test_var_name, lf, _kernels_map);
+    ApplyBoundaryLFIntegrators(test_var_name, lf, _integrated_bc_map);
     lf->Assemble();
   }
 }
 
 void
-EquationSystem::BuildBilinearForms(platypus::BCMap & bc_map)
+EquationSystem::BuildBilinearForms()
 {
   // Register bilinear forms
   for (int i = 0; i < _test_var_names.size(); i++)
@@ -311,20 +320,13 @@ EquationSystem::BuildBilinearForms(platypus::BCMap & bc_map)
     auto test_var_name = _test_var_names.at(i);
     _blfs.Register(test_var_name, std::make_shared<mfem::ParBilinearForm>(_test_pfespaces.at(i)));
 
-    bc_map.ApplyIntegratedBCs(
-        test_var_name, _blfs.GetRef(test_var_name), _test_pfespaces.at(i)->GetParMesh());
     // Apply kernels
-    auto blf = _blfs.Get(test_var_name);
-    if (_blf_kernels_map.Has(test_var_name))
-    {
-      blf->SetAssemblyLevel(_assembly_level);
-      auto blf_kernels = _blf_kernels_map.GetRef(test_var_name);
-
-      for (auto & blf_kernel : blf_kernels)
-      {
-        blf->AddDomainIntegrator(blf_kernel->createIntegrator());
-      }
-    }
+    auto blf = _blfs.GetShared(test_var_name);
+    blf->SetAssemblyLevel(_assembly_level);
+    ApplyBoundaryBLFIntegrators<mfem::ParBilinearForm>(
+        test_var_name, test_var_name, blf, _integrated_bc_map);
+    ApplyDomainBLFIntegrators<mfem::ParBilinearForm>(
+        test_var_name, test_var_name, blf, _kernels_map);
     // Assemble
     blf->Assemble();
   }
@@ -344,20 +346,17 @@ EquationSystem::BuildMixedBilinearForms()
     for (int j = 0; j < _test_var_names.size(); j++)
     {
       auto trial_var_name = _test_var_names.at(j);
-
+      auto mblf = std::make_shared<mfem::ParMixedBilinearForm>(_test_pfespaces.at(j),
+                                                               _test_pfespaces.at(i));
       // Register MixedBilinearForm if kernels exist for it, and assemble
       // kernels
-      if (_mblf_kernels_map_map.Has(test_var_name) &&
-          _mblf_kernels_map_map.Get(test_var_name)->Has(trial_var_name))
+      if (_kernels_map.Has(test_var_name) && _kernels_map.Get(test_var_name)->Has(trial_var_name) &&
+          test_var_name != trial_var_name)
       {
-        auto mblf_kernels = _mblf_kernels_map_map.GetRef(test_var_name).GetRef(trial_var_name);
-        auto mblf = std::make_shared<mfem::ParMixedBilinearForm>(_test_pfespaces.at(j),
-                                                                 _test_pfespaces.at(i));
+        mblf->SetAssemblyLevel(_assembly_level);
         // Apply all mixed kernels with this test/trial pair
-        for (auto & mblf_kernel : mblf_kernels)
-        {
-          mblf->AddDomainIntegrator(mblf_kernel->createIntegrator());
-        }
+        ApplyDomainBLFIntegrators<mfem::ParMixedBilinearForm>(
+            trial_var_name, test_var_name, mblf, _kernels_map);
         // Assemble mixed bilinear forms
         mblf->Assemble();
         // Register mixed bilinear forms associated with a single trial variable
@@ -372,11 +371,11 @@ EquationSystem::BuildMixedBilinearForms()
 }
 
 void
-EquationSystem::BuildEquationSystem(platypus::BCMap & bc_map)
+EquationSystem::BuildEquationSystem()
 {
-  BuildBilinearForms(bc_map);
+  BuildBilinearForms();
   BuildMixedBilinearForms();
-  BuildLinearForms(bc_map);
+  BuildLinearForms();
 }
 
 TimeDependentEquationSystem::TimeDependentEquationSystem() : _dt_coef(1.0) {}
@@ -411,25 +410,38 @@ TimeDependentEquationSystem::SetTimeStep(double dt)
 }
 
 void
-TimeDependentEquationSystem::AddKernel(const std::string & test_var_name,
-                                       std::shared_ptr<MFEMBilinearFormKernel> blf_kernel)
+TimeDependentEquationSystem::AddKernel(std::shared_ptr<MFEMKernel> kernel)
 {
-  if (blf_kernel->getTrialVariableName() == GetTimeDerivativeName(test_var_name))
+  if (kernel->getTrialVariableName() == GetTimeDerivativeName(kernel->getTestVariableName()))
   {
+    auto trial_var_name = kernel->getTrialVariableName();
+    auto test_var_name = kernel->getTestVariableName();
     AddTestVariableNameIfMissing(test_var_name);
     AddTrialVariableNameIfMissing(test_var_name);
-    addKernelToMap<MFEMBilinearFormKernel>(blf_kernel, _td_blf_kernels_map);
+    if (!_td_kernels_map.Has(test_var_name))
+    {
+      auto kernel_field_map =
+          std::make_shared<platypus::NamedFieldsMap<std::vector<std::shared_ptr<MFEMKernel>>>>();
+      _td_kernels_map.Register(test_var_name, std::move(kernel_field_map));
+    }
+    // Register new kernels map if not present for the test variable
+    if (!_td_kernels_map.Get(test_var_name)->Has(test_var_name))
+    {
+      auto kernels = std::make_shared<std::vector<std::shared_ptr<MFEMKernel>>>();
+      _td_kernels_map.Get(test_var_name)->Register(test_var_name, std::move(kernels));
+    }
+    _td_kernels_map.GetRef(test_var_name).Get(test_var_name)->push_back(std::move(kernel));
   }
   else
   {
-    EquationSystem::AddKernel(test_var_name, blf_kernel);
+    EquationSystem::AddKernel(kernel);
   }
 }
 
 void
-TimeDependentEquationSystem::BuildBilinearForms(platypus::BCMap & bc_map)
+TimeDependentEquationSystem::BuildBilinearForms()
 {
-  EquationSystem::BuildBilinearForms(bc_map);
+  EquationSystem::BuildBilinearForms();
 
   // Build and assemble bilinear forms acting on time derivatives
   for (int i = 0; i < _test_var_names.size(); i++)
@@ -438,21 +450,14 @@ TimeDependentEquationSystem::BuildBilinearForms(platypus::BCMap & bc_map)
 
     _td_blfs.Register(test_var_name,
                       std::make_shared<mfem::ParBilinearForm>(_test_pfespaces.at(i)));
-    bc_map.ApplyIntegratedBCs(
-        test_var_name, _td_blfs.GetRef(test_var_name), _test_pfespaces.at(i)->GetParMesh());
 
     // Apply kernels to td_blf
-    auto td_blf = _td_blfs.Get(test_var_name);
-    if (_td_blf_kernels_map.Has(test_var_name))
-    {
-      td_blf->SetAssemblyLevel(_assembly_level);
-      auto td_blf_kernels = _td_blf_kernels_map.GetRef(test_var_name);
-
-      for (auto & td_blf_kernel : td_blf_kernels)
-      {
-        td_blf->AddDomainIntegrator(td_blf_kernel->createIntegrator());
-      }
-    }
+    auto td_blf = _td_blfs.GetShared(test_var_name);
+    td_blf->SetAssemblyLevel(_assembly_level);
+    ApplyBoundaryBLFIntegrators<mfem::ParBilinearForm>(
+        test_var_name, test_var_name, td_blf, _integrated_bc_map);
+    ApplyDomainBLFIntegrators<mfem::ParBilinearForm>(
+        test_var_name, test_var_name, td_blf, _td_kernels_map);
 
     // Recover and scale integrators from blf. This is to apply the dt*du/dt contributions from the
     // operator on the trial variable in the implicit integration scheme
@@ -563,11 +568,11 @@ TimeDependentEquationSystem::FormSystem(mfem::OperatorHandle & op,
 }
 
 void
-TimeDependentEquationSystem::UpdateEquationSystem(platypus::BCMap & bc_map)
+TimeDependentEquationSystem::UpdateEquationSystem()
 {
-  BuildBilinearForms(bc_map);
+  BuildBilinearForms();
   BuildMixedBilinearForms();
-  BuildLinearForms(bc_map);
+  BuildLinearForms();
 }
 
 } // namespace platypus

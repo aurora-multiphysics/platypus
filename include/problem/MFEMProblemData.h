@@ -19,7 +19,6 @@ public:
   platypus::VectorCoefficientManager _vector_manager;
   platypus::MatrixCoefficientManager _matrix_manager;
   platypus::PropertyManager _properties{_scalar_manager, _vector_manager, _matrix_manager};
-  platypus::BCMap _bc_map;
 
   std::unique_ptr<mfem::ODESolver> _ode_solver{nullptr};
   mfem::BlockVector _f;

@@ -18,7 +18,7 @@ void
 TimeDomainEquationSystemProblemOperator::Init(mfem::BlockVector & X)
 {
   TimeDomainProblemOperator::Init(X);
-  GetEquationSystem()->BuildEquationSystem(_problem._bc_map);
+  GetEquationSystem()->BuildEquationSystem();
 }
 
 void
@@ -58,7 +58,7 @@ void
 TimeDomainEquationSystemProblemOperator::BuildEquationSystemOperator(double dt)
 {
   GetEquationSystem()->SetTimeStep(dt);
-  GetEquationSystem()->UpdateEquationSystem(_problem._bc_map);
+  GetEquationSystem()->UpdateEquationSystem();
   GetEquationSystem()->BuildJacobian(_true_x, _true_rhs);
 }
 

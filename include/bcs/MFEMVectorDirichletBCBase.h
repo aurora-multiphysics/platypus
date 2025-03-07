@@ -1,7 +1,6 @@
 #pragma once
 
 #include "MFEMEssentialBC.h"
-#include "boundary_conditions.h"
 
 class MFEMVectorDirichletBCBase : public MFEMEssentialBC
 {

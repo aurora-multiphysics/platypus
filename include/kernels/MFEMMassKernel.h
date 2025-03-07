@@ -4,7 +4,7 @@
 /*
 (βu, u')
 */
-class MFEMMassKernel : public MFEMKernel<mfem::BilinearFormIntegrator>
+class MFEMMassKernel : public MFEMKernel
 {
 public:
   static InputParameters validParams();
@@ -12,7 +12,7 @@ public:
   MFEMMassKernel(const InputParameters & parameters);
   ~MFEMMassKernel() override {}
 
-  virtual mfem::BilinearFormIntegrator * createIntegrator() override;
+  virtual mfem::BilinearFormIntegrator * createBFIntegrator() override;
 
 protected:
   std::string _coef_name;

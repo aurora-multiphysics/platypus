@@ -28,7 +28,7 @@ MFEMDivDivKernel::MFEMDivDivKernel(const InputParameters & parameters)
 }
 
 mfem::BilinearFormIntegrator *
-MFEMDivDivKernel::createIntegrator()
+MFEMDivDivKernel::createBFIntegrator()
 {
   return new mfem::DivDivIntegrator(_coef);
 }
