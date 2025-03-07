@@ -372,6 +372,63 @@ install_mfem() {
     make install -j $compile_cores
 }
 
+install_axom() {
+    cd ${BUILD_PATH} || exit 1
+    git clone --recursive https://github.com/LLNL/axom.git axom-repo
+    cd axom-repo || exit 1
+
+    # the mfem repo has a cmake file that we can use
+    python3 ./config-build.py -hc ${BUILD_PATH}/mfem/miniapps/tribol/axom-gcc-notpl.cmake -bt Release -DCMAKE_INSTALL_PREFIX=${BUILD_PATH}/axom -DAXOM_ENABLE_MIR=NO -DAXOM_ENABLE_SINA=NO || exit 1
+    cd build-axom-gcc-notpl-release || exit 1
+    make -j $compile_cores install || exit 1
+}
+
+install_tribol() {
+    # must be done strictly after configuring mfem so that we have something
+    # to link to. Then we go back and make sure that mfem is configured with
+    # tribol.
+    cd ${BUILD_PATH} || exit 1
+    # use my fork to evade the axom namespace issue
+    # cf https://github.com/LLNL/Tribol/issues/133
+    git clone https://github.com/sean-baccas/Tribol --recursive tribol-repo
+    cd tribol-repo || exit 1
+    python3 ./config-build.py -hc ${BUILD_PATH}/mfem/miniapps/tribol/tribol-gcc-basictpl.cmake -bt Release -DCMAKE_INSTALL_PREFIX=${BUILD_PATH}/tribol -DMFEM_DIR=${BUILD_PATH}/mfem/build/ || exit 1
+    cd build-tribol-gcc-basictpl-release || exit 1
+    make -j $compile_cores install || exit 1
+
+    # finally reconfigure mfem
+    cd ${BUILD_PATH}/mfem
+    cmake -S . -B build \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_INSTALL_PREFIX="${BUILD_PATH}"/mfem/installed \
+        -DBUILD_SHARED_LIBS=YES \
+        -DMFEM_USE_OPENMP=NO \
+        -DMFEM_THREAD_SAFE=YES \
+        -DMFEM_ENABLE_EXAMPLES=YES \
+        -DMFEM_ENABLE_MINIAPPS=YES \
+        -DMFEM_USE_MPI=YES \
+        -DMFEM_USE_CUDA="${CUDA_MFEM}" \
+        -DMFEM_USE_HIP="${HIP_MFEM}" \
+        -DCUDA_ARCH=sm_"${GPU_ARCH}" \
+        -DHIP_ARCH="${GPU_ARCH}" \
+        -DMFEM_USE_METIS_5=YES \
+        -DMFEM_USE_SUPERLU=YES \
+        -DMFEM_USE_NETCDF=YES \
+        -DMFEM_USE_GSLIB=YES \
+        -DMFEM_USE_CONDUIT=YES \
+        -DMFEM_USE_CEED=YES \
+        -DGSLIB_DIR="${GSLIB_DIR}" \
+        -DCONDUIT_DIR="${CONDUIT_DIR}" \
+        -DHDF5_DIR="${HDF5_DIR}" \
+        -DCEED_DIR="${CEED_DIR}" \
+        -DSuperLUDist_DIR="${SLU_DIR}" \
+        -DSuperLUDist_VERSION_OK=YES \
+        -DHYPRE_VERSION=23200
+    cd build
+    make install -j $compile_cores
+}
+
+
 install_moose() {
     cd "${BUILD_PATH}" || exit 1
     git clone https://github.com/idaholab/moose
@@ -455,5 +512,7 @@ spack clean -a
 
 set_environment_vars
 install_mfem
+install_axom
+install_tribol
 install_moose
 install_platypus
