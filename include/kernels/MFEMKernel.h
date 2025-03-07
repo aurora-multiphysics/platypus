@@ -39,7 +39,7 @@ public:
 
   // Create a new MFEM integrator to apply to the weak form. Ownership managed by the caller.
   virtual mfem::LinearFormIntegrator * createLFIntegrator() { return nullptr; }
-  virtual mfem::BilinearFormIntegrator * createIntegrator() { return nullptr; }
+  virtual mfem::BilinearFormIntegrator * createBFIntegrator() { return nullptr; }
 
   // Get name of the test variable labelling the weak form this kernel is added to
   const std::string & getTestVariableName() const { return _test_var_name; }
