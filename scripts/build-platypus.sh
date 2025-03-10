@@ -344,6 +344,7 @@ install_mfem() {
     spack load cmake
     cmake -S . -B build \
         -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_CXX_STANDARD=14 \
         -DCMAKE_INSTALL_PREFIX="${BUILD_PATH}"/mfem/installed \
         -DBUILD_SHARED_LIBS=YES \
         -DMFEM_USE_OPENMP=NO \
@@ -400,6 +401,7 @@ install_tribol() {
     cd ${BUILD_PATH}/mfem
     cmake -S . -B build \
         -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_CXX_STANDARD=14 \
         -DCMAKE_INSTALL_PREFIX="${BUILD_PATH}"/mfem/installed \
         -DBUILD_SHARED_LIBS=YES \
         -DMFEM_USE_OPENMP=NO \
@@ -417,6 +419,7 @@ install_tribol() {
         -DMFEM_USE_GSLIB=YES \
         -DMFEM_USE_CONDUIT=YES \
         -DMFEM_USE_CEED=YES \
+        -DMFEM_USE_TRIBOL=YES \
         -DGSLIB_DIR="${GSLIB_DIR}" \
         -DCONDUIT_DIR="${CONDUIT_DIR}" \
         -DHDF5_DIR="${HDF5_DIR}" \
