@@ -1,6 +1,7 @@
 #pragma once
 #include "mfem/miniapps/common/pfem_extras.hpp"
-#include "boundary_conditions.h"
+#include "MFEMIntegratedBC.h"
+#include "MFEMEssentialBC.h"
 #include "MFEMContainers.h"
 #include "MFEMKernel.h"
 #include "MFEMMixedBilinearFormKernel.h"
@@ -16,10 +17,6 @@ mixed and nonlinear forms) and build methods
 class EquationSystem : public mfem::Operator
 {
 public:
-  using MFEMBilinearFormKernel = MFEMKernel<mfem::BilinearFormIntegrator>;
-  using MFEMLinearFormKernel = MFEMKernel<mfem::LinearFormIntegrator>;
-  using MFEMNonlinearFormKernel = MFEMKernel<mfem::NonlinearFormIntegrator>;
-
   EquationSystem() = default;
   ~EquationSystem() override;
 
@@ -48,30 +45,19 @@ public:
   virtual void AddTrialVariableNameIfMissing(const std::string & trial_var_name);
 
   // Add kernels.
-  virtual void AddKernel(const std::string & test_var_name,
-                         std::shared_ptr<MFEMBilinearFormKernel> blf_kernel);
-
-  void AddKernel(const std::string & test_var_name,
-                 std::shared_ptr<MFEMLinearFormKernel> lf_kernel);
-
-  void AddKernel(const std::string & test_var_name,
-                 std::shared_ptr<MFEMNonlinearFormKernel> nlf_kernel);
-
-  void AddKernel(const std::string & trial_var_name,
-                 const std::string & test_var_name,
-                 std::shared_ptr<MFEMMixedBilinearFormKernel> mblf_kernel);
-
-  virtual void ApplyBoundaryConditions(platypus::BCMap & bc_map);
+  virtual void AddKernel(std::shared_ptr<MFEMKernel> kernel);
+  virtual void AddIntegratedBC(std::shared_ptr<MFEMIntegratedBC> kernel);
+  virtual void AddEssentialBC(std::shared_ptr<MFEMEssentialBC> bc);
+  virtual void ApplyEssentialBCs();
 
   // Build forms
   virtual void Init(platypus::GridFunctions & gridfunctions,
                     const platypus::FESpaces & fespaces,
-                    platypus::BCMap & bc_map,
                     mfem::AssemblyLevel assembly_level);
-  virtual void BuildLinearForms(platypus::BCMap & bc_map);
-  virtual void BuildBilinearForms(platypus::BCMap & bc_map);
+  virtual void BuildLinearForms();
+  virtual void BuildBilinearForms();
   virtual void BuildMixedBilinearForms();
-  virtual void BuildEquationSystem(platypus::BCMap & bc_map);
+  virtual void BuildEquationSystem();
 
   // Form linear system, with essential boundary conditions accounted for
   virtual void FormLinearSystem(mfem::OperatorHandle & op,
@@ -99,27 +85,108 @@ public:
 
   std::vector<mfem::Array<int>> _ess_tdof_lists;
 
-  /**
-   * Template method for storing kernels.
-   */
-  template <class T>
-  void addKernelToMap(std::shared_ptr<T> kernel,
-                      platypus::NamedFieldsMap<std::vector<std::shared_ptr<T>>> & kernels_map)
-  {
-    auto test_var_name = kernel->getTestVariableName();
-    if (!kernels_map.Has(test_var_name))
-    {
-      // 1. Create kernels vector.
-      auto kernels = std::make_shared<std::vector<std::shared_ptr<T>>>();
-      // 2. Register with map to prevent leaks.
-      kernels_map.Register(test_var_name, std::move(kernels));
-    }
-    kernels_map.GetRef(test_var_name).push_back(std::move(kernel));
-  }
-
 protected:
   bool VectorContainsName(const std::vector<std::string> & the_vector,
                           const std::string & name) const;
+
+  /**
+   * Template method for applying BilinearFormIntegrators on domains from kernels to a BilinearForm,
+   * or MixedBilinearForm
+   */
+  template <class FormType>
+  void ApplyDomainBLFIntegrators(
+      const std::string & trial_var_name,
+      const std::string & test_var_name,
+      std::shared_ptr<FormType> form,
+      platypus::NamedFieldsMap<platypus::NamedFieldsMap<std::vector<std::shared_ptr<MFEMKernel>>>> &
+          kernels_map)
+  {
+    if (kernels_map.Has(test_var_name) && kernels_map.Get(test_var_name)->Has(trial_var_name))
+    {
+      auto kernels = kernels_map.GetRef(test_var_name).GetRef(trial_var_name);
+      for (auto & kernel : kernels)
+      {
+        mfem::BilinearFormIntegrator * integ = kernel->createBFIntegrator();
+        if (integ != nullptr)
+        {
+          kernel->isSubdomainRestricted()
+              ? form->AddDomainIntegrator(std::move(integ), kernel->getSubdomains())
+              : form->AddDomainIntegrator(std::move(integ));
+        }
+      }
+    }
+  }
+
+  void ApplyDomainLFIntegrators(
+      const std::string & test_var_name,
+      std::shared_ptr<mfem::ParLinearForm> form,
+      platypus::NamedFieldsMap<platypus::NamedFieldsMap<std::vector<std::shared_ptr<MFEMKernel>>>> &
+          kernels_map)
+  {
+    if (kernels_map.Has(test_var_name))
+    {
+      auto kernels = kernels_map.GetRef(test_var_name).GetRef(test_var_name);
+      for (auto & kernel : kernels)
+      {
+        mfem::LinearFormIntegrator * integ = kernel->createLFIntegrator();
+        if (integ != nullptr)
+        {
+          kernel->isSubdomainRestricted()
+              ? form->AddDomainIntegrator(std::move(integ), kernel->getSubdomains())
+              : form->AddDomainIntegrator(std::move(integ));
+        }
+      }
+    }
+  }
+
+  template <class FormType>
+  void ApplyBoundaryBLFIntegrators(
+      const std::string & trial_var_name,
+      const std::string & test_var_name,
+      std::shared_ptr<FormType> form,
+      platypus::NamedFieldsMap<
+          platypus::NamedFieldsMap<std::vector<std::shared_ptr<MFEMIntegratedBC>>>> &
+          integrated_bc_map)
+  {
+    if (integrated_bc_map.Has(test_var_name) &&
+        integrated_bc_map.Get(test_var_name)->Has(trial_var_name))
+    {
+      auto bcs = integrated_bc_map.GetRef(test_var_name).GetRef(trial_var_name);
+      for (auto & bc : bcs)
+      {
+        mfem::BilinearFormIntegrator * integ = bc->createBFIntegrator();
+        if (integ != nullptr)
+        {
+          bc->isBoundaryRestricted()
+              ? form->AddBoundaryIntegrator(std::move(integ), bc->getBoundaries())
+              : form->AddBoundaryIntegrator(std::move(integ));
+        }
+      }
+    }
+  }
+
+  void ApplyBoundaryLFIntegrators(
+      const std::string & test_var_name,
+      std::shared_ptr<mfem::ParLinearForm> form,
+      platypus::NamedFieldsMap<
+          platypus::NamedFieldsMap<std::vector<std::shared_ptr<MFEMIntegratedBC>>>> &
+          integrated_bc_map)
+  {
+    if (integrated_bc_map.Has(test_var_name))
+    {
+      auto bcs = integrated_bc_map.GetRef(test_var_name).GetRef(test_var_name);
+      for (auto & bc : bcs)
+      {
+        mfem::LinearFormIntegrator * integ = bc->createLFIntegrator();
+        if (integ != nullptr)
+        {
+          bc->isBoundaryRestricted()
+              ? form->AddBoundaryIntegrator(std::move(integ), bc->getBoundaries())
+              : form->AddBoundaryIntegrator(std::move(integ));
+        }
+      }
+    }
+  }
 
   // gridfunctions for setting Dirichlet BCs
   std::vector<std::unique_ptr<mfem::ParGridFunction>> _xs;
@@ -129,15 +196,11 @@ protected:
 
   // Arrays to store kernels to act on each component of weak form. Named
   // according to test variable
-  platypus::NamedFieldsMap<std::vector<std::shared_ptr<MFEMBilinearFormKernel>>> _blf_kernels_map;
-
-  platypus::NamedFieldsMap<std::vector<std::shared_ptr<MFEMLinearFormKernel>>> _lf_kernels_map;
-
-  platypus::NamedFieldsMap<std::vector<std::shared_ptr<MFEMNonlinearFormKernel>>> _nlf_kernels_map;
-
-  platypus::NamedFieldsMap<
-      platypus::NamedFieldsMap<std::vector<std::shared_ptr<MFEMMixedBilinearFormKernel>>>>
-      _mblf_kernels_map_map;
+  platypus::NamedFieldsMap<platypus::NamedFieldsMap<std::vector<std::shared_ptr<MFEMKernel>>>>
+      _kernels_map;
+  platypus::NamedFieldsMap<platypus::NamedFieldsMap<std::vector<std::shared_ptr<MFEMIntegratedBC>>>>
+      _integrated_bc_map;
+  platypus::NamedFieldsMap<std::vector<std::shared_ptr<MFEMEssentialBC>>> _essential_bc_map;
 
   mutable mfem::OperatorHandle _jacobian;
 
@@ -156,18 +219,17 @@ public:
   void AddTrialVariableNameIfMissing(const std::string & trial_var_name) override;
 
   virtual void SetTimeStep(double dt);
-  virtual void UpdateEquationSystem(platypus::BCMap & bc_map);
+  virtual void UpdateEquationSystem();
   mfem::ConstantCoefficient _dt_coef; // Coefficient for timestep scaling
   std::vector<std::string> _trial_var_time_derivative_names;
 
-  platypus::NamedFieldsMap<std::vector<std::shared_ptr<MFEMBilinearFormKernel>>>
-      _td_blf_kernels_map;
+  platypus::NamedFieldsMap<platypus::NamedFieldsMap<std::vector<std::shared_ptr<MFEMKernel>>>>
+      _td_kernels_map;
   // Container to store contributions to weak form of the form (F du/dt, v)
   platypus::NamedFieldsMap<mfem::ParBilinearForm> _td_blfs;
 
-  virtual void AddKernel(const std::string & test_var_name,
-                         std::shared_ptr<MFEMBilinearFormKernel> blf_kernel) override;
-  virtual void BuildBilinearForms(platypus::BCMap & bc_map) override;
+  virtual void AddKernel(std::shared_ptr<MFEMKernel> kernel) override;
+  virtual void BuildBilinearForms() override;
   virtual void FormLegacySystem(mfem::OperatorHandle & op,
                                 mfem::BlockVector & truedXdt,
                                 mfem::BlockVector & trueRHS) override;

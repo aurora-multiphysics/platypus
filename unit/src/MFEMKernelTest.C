@@ -35,7 +35,7 @@ TEST_F(MFEMKernelTest, MFEMCurlCurlKernel)
       addObject<MFEMCurlCurlKernel>("MFEMCurlCurlKernel", "kernel1", kernel_params);
 
   // Test MFEMKernel returns an integrator of the expected type
-  auto integrator = dynamic_cast<mfem::CurlCurlIntegrator *>(kernel.createIntegrator());
+  auto integrator = dynamic_cast<mfem::CurlCurlIntegrator *>(kernel.createBFIntegrator());
   ASSERT_NE(integrator, nullptr);
   delete integrator;
 }
@@ -59,7 +59,7 @@ TEST_F(MFEMKernelTest, MFEMDiffusionKernel)
       addObject<MFEMDiffusionKernel>("MFEMDiffusionKernel", "kernel1", kernel_params);
 
   // Test MFEMKernel returns an integrator of the expected type
-  auto integrator = dynamic_cast<mfem::DiffusionIntegrator *>(kernel.createIntegrator());
+  auto integrator = dynamic_cast<mfem::DiffusionIntegrator *>(kernel.createBFIntegrator());
   ASSERT_NE(integrator, nullptr);
   delete integrator;
 }
@@ -82,7 +82,7 @@ TEST_F(MFEMKernelTest, MFEMDivDivKernel)
   auto & kernel = addObject<MFEMDivDivKernel>("MFEMDivDivKernel", "kernel1", kernel_params);
 
   // Test MFEMKernel returns an integrator of the expected type
-  auto integrator = dynamic_cast<mfem::DivDivIntegrator *>(kernel.createIntegrator());
+  auto integrator = dynamic_cast<mfem::DivDivIntegrator *>(kernel.createBFIntegrator());
   ASSERT_NE(integrator, nullptr);
   delete integrator;
 }
@@ -107,7 +107,7 @@ TEST_F(MFEMKernelTest, MFEMLinearElasticityKernel)
       addObject<MFEMLinearElasticityKernel>("MFEMLinearElasticityKernel", "kernel1", kernel_params);
 
   // Test MFEMKernel returns an integrator of the expected type
-  auto integrator = dynamic_cast<mfem::ElasticityIntegrator *>(kernel.createIntegrator());
+  auto integrator = dynamic_cast<mfem::ElasticityIntegrator *>(kernel.createBFIntegrator());
   ASSERT_NE(integrator, nullptr);
   delete integrator;
 }
@@ -131,7 +131,8 @@ TEST_F(MFEMKernelTest, MFEMMixedVectorGradientKernel)
       "MFEMMixedVectorGradientKernel", "kernel1", kernel_params);
 
   // Test MFEMKernel returns an integrator of the expected type
-  auto integrator = dynamic_cast<mfem::MixedVectorGradientIntegrator *>(kernel.createIntegrator());
+  auto integrator =
+      dynamic_cast<mfem::MixedVectorGradientIntegrator *>(kernel.createBFIntegrator());
   ASSERT_NE(integrator, nullptr);
   delete integrator;
 }
@@ -155,7 +156,7 @@ TEST_F(MFEMKernelTest, MFEMVectorDomainLFKernel)
       addObject<MFEMVectorDomainLFKernel>("MFEMVectorDomainLFKernel", "kernel1", kernel_params);
 
   // Test MFEMKernel returns an integrator of the expected type
-  auto integrator = dynamic_cast<mfem::VectorDomainLFIntegrator *>(kernel.createIntegrator());
+  auto integrator = dynamic_cast<mfem::VectorDomainLFIntegrator *>(kernel.createLFIntegrator());
   ASSERT_NE(integrator, nullptr);
   delete integrator;
 }
@@ -181,7 +182,7 @@ TEST_F(MFEMKernelTest, MFEMVectorFEDomainLFKernel)
       addObject<MFEMVectorFEDomainLFKernel>("MFEMVectorFEDomainLFKernel", "kernel1", kernel_params);
 
   // Test MFEMKernel returns an integrator of the expected type
-  auto integrator = dynamic_cast<mfem::VectorFEDomainLFIntegrator *>(kernel.createIntegrator());
+  auto integrator = dynamic_cast<mfem::VectorFEDomainLFIntegrator *>(kernel.createLFIntegrator());
   ASSERT_NE(integrator, nullptr);
   delete integrator;
 }
@@ -205,7 +206,7 @@ TEST_F(MFEMKernelTest, MFEMVectorFEMassKernel)
       addObject<MFEMVectorFEMassKernel>("MFEMVectorFEMassKernel", "kernel1", kernel_params);
 
   // Test MFEMKernel returns an integrator of the expected type
-  auto integrator = dynamic_cast<mfem::VectorFEMassIntegrator *>(kernel.createIntegrator());
+  auto integrator = dynamic_cast<mfem::VectorFEMassIntegrator *>(kernel.createBFIntegrator());
   ASSERT_NE(integrator, nullptr);
   delete integrator;
 }
@@ -231,7 +232,7 @@ TEST_F(MFEMKernelTest, MFEMVectorFEWeakDivergenceKernel)
 
   // Test MFEMKernel returns an integrator of the expected type
   auto integrator =
-      dynamic_cast<mfem::VectorFEWeakDivergenceIntegrator *>(kernel.createIntegrator());
+      dynamic_cast<mfem::VectorFEWeakDivergenceIntegrator *>(kernel.createBFIntegrator());
   ASSERT_NE(integrator, nullptr);
   delete integrator;
 }
@@ -261,7 +262,7 @@ TEST_F(MFEMKernelTest, MFEMMixedScalarCurlKernel)
   EXPECT_EQ(trial_name, "trial_variable_name");
 
   // Test MFEMKernel returns an integrator of the expected type
-  auto integrator = dynamic_cast<mfem::MixedScalarCurlIntegrator *>(kernel.createIntegrator());
+  auto integrator = dynamic_cast<mfem::MixedScalarCurlIntegrator *>(kernel.createBFIntegrator());
   ASSERT_NE(integrator, nullptr);
   delete integrator;
 }

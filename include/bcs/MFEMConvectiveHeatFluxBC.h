@@ -13,10 +13,10 @@ public:
 
   // Create a new MFEM integrator to apply to the RHS of the weak form. Ownership managed by the
   // caller.
-  virtual mfem::LinearFormIntegrator * createLinearFormIntegrator();
+  virtual mfem::LinearFormIntegrator * createLFIntegrator();
 
   // Create a new MFEM integrator to apply to LHS of the weak form. Ownership managed by the caller.
-  virtual mfem::BilinearFormIntegrator * createBilinearFormIntegrator();
+  virtual mfem::BilinearFormIntegrator * createBFIntegrator();
 
 protected:
   std::shared_ptr<mfem::FunctionCoefficient> _heat_transfer_coef;

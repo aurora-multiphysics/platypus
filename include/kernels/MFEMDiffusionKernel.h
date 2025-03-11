@@ -4,14 +4,14 @@
 /*
 (σ ∇ q, ∇ q')
 */
-class MFEMDiffusionKernel : public MFEMKernel<mfem::BilinearFormIntegrator>
+class MFEMDiffusionKernel : public MFEMKernel
 {
 public:
   static InputParameters validParams();
 
   MFEMDiffusionKernel(const InputParameters & parameters);
 
-  virtual mfem::BilinearFormIntegrator * createIntegrator() override;
+  virtual mfem::BilinearFormIntegrator * createBFIntegrator() override;
 
 protected:
   std::string _coef_name;

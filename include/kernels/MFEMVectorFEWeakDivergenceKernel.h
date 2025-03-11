@@ -4,7 +4,7 @@
 /*
 (σ u, ∇ V')
 */
-class MFEMVectorFEWeakDivergenceKernel : public MFEMKernel<mfem::BilinearFormIntegrator>
+class MFEMVectorFEWeakDivergenceKernel : public MFEMKernel
 {
 public:
   static InputParameters validParams();
@@ -12,7 +12,7 @@ public:
   MFEMVectorFEWeakDivergenceKernel(const InputParameters & parameters);
   ~MFEMVectorFEWeakDivergenceKernel() override = default;
 
-  virtual mfem::BilinearFormIntegrator * createIntegrator() override;
+  virtual mfem::BilinearFormIntegrator * createBFIntegrator() override;
 
 protected:
   std::string _coef_name;
