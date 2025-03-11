@@ -451,7 +451,6 @@ install_platypus() {
 
     echo "Building platypus..."
     # This is only here until the PR is merged since it is needed for AMD builds
-    git switch HenriqueBR/build_script
     make -j"$compile_cores"
     ./run_tests -j"$compile_cores"
 }
