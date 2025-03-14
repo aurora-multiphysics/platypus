@@ -16,7 +16,7 @@ public:
   // Real
   // MFEMCustomIntegrator::computeQpResidual();
 
-  mfem::real_t computeQpJacobian(int & i, int & j);
+  mfem::real_t computeQpJacobian();
 
   // void AssembleElementVector(const FiniteElement &el,
   //                         ElementTransformation &Tr,
@@ -24,12 +24,12 @@ public:
 
   void AssembleElementMatrix(const mfem::FiniteElement & el,
                              mfem::ElementTransformation & Trans,
-                             mfem::DenseMatrix & elmat) override;
+                             mfem::DenseMatrix & _local_ke) override;
 
   void AssembleElementMatrix2(const mfem::FiniteElement & trial_fe,
                               const mfem::FiniteElement & test_fe,
                               mfem::ElementTransformation & Trans,
-                              mfem::DenseMatrix & elmat) override;
+                              mfem::DenseMatrix & _local_ke) override;
 
   const mfem::IntegrationRule & GetRule(const mfem::FiniteElement & trial_fe,
                                         const mfem::FiniteElement & test_fe,
@@ -43,8 +43,8 @@ protected:
 private:
   mfem::Vector vec, vecdxt, pointflux;
   mfem::Vector _test, _phi;
-  mfem::real_t _q;
-  int i, j;
+  mfem::real_t _q, _JxW;
+  unsigned int _i, _j;
 #ifndef MFEM_THREAD_SAFE
   mfem::DenseMatrix dshape, dshapedxt, invdfdx, M, dshapedxt_m;
   mfem::DenseMatrix te_dshape, te_dshapedxt;
@@ -62,13 +62,13 @@ private:
 // shape[i] = v = _test[_i][_qp]
 // elfun = grad_u[qp] = sum(c[j] _grad_phi[j])
 
-// DenseMatrix elmat;
-// AssembleElementMatrix(el, Tr, elmat);
-// elvect.SetSize(elmat.Height());
-// elmat.Mult(elfun, elvect); -
+// DenseMatrix _local_ke;
+// AssembleElementMatrix(el, Tr, _local_ke);
+// elvect.SetSize(_local_ke.Height());
+// _local_ke.Mult(elfun, elvect); -
 
 // AssembleElementMatrix2(
 //    const FiniteElement &trial_fe, const FiniteElement &test_fe,
-//    ElementTransformation &Trans, DenseMatrix &elmat)
+//    ElementTransformation &Trans, DenseMatrix &_local_ke)
 
 } // namespace platypus
