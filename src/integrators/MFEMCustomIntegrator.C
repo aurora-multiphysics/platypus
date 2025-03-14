@@ -3,8 +3,14 @@
 namespace platypus
 {
 
-MFEMCustomIntegrator::MFEMCustomIntegrator(mfem::Coefficient & q)
-  : mfem::BilinearFormIntegrator(), Q(&q)
+MFEMCustomIntegrator::MFEMCustomIntegrator(platypus::MFEMIntegratorInterface * mfem_ii)
+  : mfem::BilinearFormIntegrator(),
+    _mfem_ii(mfem_ii),
+    _test(mfem_ii->_test),
+    _phi(mfem_ii->_phi),
+    _i(mfem_ii->_i),
+    _j(mfem_ii->_j),
+    _JxW(mfem_ii->_JxW)
 {
 }
 
@@ -16,38 +22,38 @@ MFEMCustomIntegrator::MFEMCustomIntegrator(mfem::Coefficient & q)
 //   return _test[_i][_qp] * (_velocity * _grad_u[_qp]);
 // }
 
-mfem::real_t
-MFEMCustomIntegrator::computeQpJacobian()
-{
-  // the partial derivative of _grad_u is just _grad_phi[_j]
-  // return _test[_i][_qp] * (_velocity * _grad_phi[_j][_qp]);
+// mfem::real_t
+// MFEMCustomIntegrator::computeQpJacobian()
+// {
+//   // the partial derivative of _grad_u is just _grad_phi[_j]
+//   // return _test[_i][_qp] * (_velocity * _grad_phi[_j][_qp]);
 
-  return _test[_i] * _phi[_j];
-}
+//   return _test[_i] * _phi[_j];
+// }
 
 void
 MFEMCustomIntegrator::AssembleElementMatrix(const mfem::FiniteElement & el,
                                             mfem::ElementTransformation & Trans,
-                                            mfem::DenseMatrix & _local_ke)
+                                            mfem::DenseMatrix & local_ke)
 {
-  AssembleElementMatrix2(el, el, Trans, _local_ke);
+  AssembleElementMatrix2(el, el, Trans, local_ke);
 }
 
 void
 MFEMCustomIntegrator::AssembleElementMatrix2(const mfem::FiniteElement & trial_fe,
                                              const mfem::FiniteElement & test_fe,
                                              mfem::ElementTransformation & Trans,
-                                             mfem::DenseMatrix & _local_ke)
+                                             mfem::DenseMatrix & local_ke)
 {
   int tr_nd = trial_fe.GetDof();
   int te_nd = test_fe.GetDof();
-  _local_ke.SetSize(te_nd, tr_nd);
+  local_ke.SetSize(te_nd, tr_nd);
   _phi.SetSize(tr_nd);
   _test.SetSize(te_nd);
 
   const mfem::IntegrationRule * ir = IntRule ? IntRule : &GetRule(trial_fe, test_fe, Trans);
 
-  _local_ke = 0.0;
+  local_ke = 0.0;
   for (int i = 0; i < ir->GetNPoints(); i++)
   {
     const mfem::IntegrationPoint & ip = ir->IntPoint(i);
@@ -79,7 +85,7 @@ MFEMCustomIntegrator::AssembleElementMatrix2(const mfem::FiniteElement & trial_f
     {
       for (_j = 0; _j < phi_size; _j++)
       {
-        _local_ke(_i, _j) += _JxW * computeQpJacobian();
+        local_ke(_i, _j) += _JxW * _mfem_ii->computeQpJacobian();
       }
     }
   }

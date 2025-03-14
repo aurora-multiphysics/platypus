@@ -1,5 +1,6 @@
 #pragma once
 #include "MFEMGeneralUserObject.h"
+#include "MFEMIntegratorInterface.h"
 #include "mfem/miniapps/common/pfem_extras.hpp"
 
 namespace platypus
@@ -11,12 +12,10 @@ class MFEMCustomIntegrator : public mfem::BilinearFormIntegrator
 public:
   static InputParameters validParams();
 
-  MFEMCustomIntegrator(mfem::Coefficient & q);
+  MFEMCustomIntegrator(platypus::MFEMIntegratorInterface * mfem_ii);
 
   // Real
   // MFEMCustomIntegrator::computeQpResidual();
-
-  mfem::real_t computeQpJacobian();
 
   // void AssembleElementVector(const FiniteElement &el,
   //                         ElementTransformation &Tr,
@@ -24,32 +23,27 @@ public:
 
   void AssembleElementMatrix(const mfem::FiniteElement & el,
                              mfem::ElementTransformation & Trans,
-                             mfem::DenseMatrix & _local_ke) override;
+                             mfem::DenseMatrix & local_ke) override;
 
   void AssembleElementMatrix2(const mfem::FiniteElement & trial_fe,
                               const mfem::FiniteElement & test_fe,
                               mfem::ElementTransformation & Trans,
-                              mfem::DenseMatrix & _local_ke) override;
+                              mfem::DenseMatrix & local_ke) override;
 
   const mfem::IntegrationRule & GetRule(const mfem::FiniteElement & trial_fe,
                                         const mfem::FiniteElement & test_fe,
                                         mfem::ElementTransformation & Trans);
 
 protected:
+  platypus::MFEMIntegratorInterface * _mfem_ii;
   mfem::Coefficient * Q;
   mfem::VectorCoefficient * VQ;
   mfem::MatrixCoefficient * MQ;
 
 private:
-  mfem::Vector vec, vecdxt, pointflux;
-  mfem::Vector _test, _phi;
-  mfem::real_t _q, _JxW;
-  unsigned int _i, _j;
-#ifndef MFEM_THREAD_SAFE
-  mfem::DenseMatrix dshape, dshapedxt, invdfdx, M, dshapedxt_m;
-  mfem::DenseMatrix te_dshape, te_dshapedxt;
-  mfem::Vector D;
-#endif
+  mfem::Vector &_test, &_phi;
+  unsigned int &_i, &_j;
+  mfem::real_t & _JxW;
 };
 
 // ComputeQPResidual
@@ -62,13 +56,13 @@ private:
 // shape[i] = v = _test[_i][_qp]
 // elfun = grad_u[qp] = sum(c[j] _grad_phi[j])
 
-// DenseMatrix _local_ke;
-// AssembleElementMatrix(el, Tr, _local_ke);
-// elvect.SetSize(_local_ke.Height());
-// _local_ke.Mult(elfun, elvect); -
+// DenseMatrix local_ke;
+// AssembleElementMatrix(el, Tr, local_ke);
+// elvect.SetSize(local_ke.Height());
+// local_ke.Mult(elfun, elvect); -
 
 // AssembleElementMatrix2(
 //    const FiniteElement &trial_fe, const FiniteElement &test_fe,
-//    ElementTransformation &Trans, DenseMatrix &_local_ke)
+//    ElementTransformation &Trans, DenseMatrix &local_ke)
 
 } // namespace platypus
