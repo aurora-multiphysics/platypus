@@ -12,7 +12,7 @@ public:
   MFEMMixedVectorGradientKernel(const InputParameters & parameters);
   ~MFEMMixedVectorGradientKernel() override = default;
 
-  virtual mfem::BilinearFormIntegrator * createBFIntegrator() override;
+  virtual mfem::BilinearFormIntegrator * createJacobianContribution() override;
 
 protected:
   std::string _coef_name;
