@@ -162,6 +162,9 @@ EquationSystem::FormSystem(mfem::OperatorHandle & op,
   trueX.SyncFromBlocks();
   trueRHS.SyncFromBlocks();
 
+  _trueRHS.SetSize(width);
+  _trueRHS = trueRHS;
+
   op.Reset(aux_a->Ptr());
 }
 
@@ -223,7 +226,8 @@ EquationSystem::FormLegacySystem(mfem::OperatorHandle & op,
     trueX.GetBlock(0).SyncAliasMemory(trueX);
     trueRHS.GetBlock(0).SyncAliasMemory(trueRHS);
   }
-
+  _trueRHS.SetSize(width);
+  _trueRHS = trueRHS;
   // Create monolithic matrix
   op.Reset(mfem::HypreParMatrixFromBlocks(_h_blocks));
 }
@@ -242,6 +246,7 @@ EquationSystem::Mult(const mfem::Vector & x, mfem::Vector & residual) const
   _jacobian->Mult(x, residual);
   x.HostRead();
   residual.HostRead();
+  residual -= _trueRHS;
 }
 
 mfem::Operator &
@@ -526,6 +531,9 @@ TimeDependentEquationSystem::FormLegacySystem(mfem::OperatorHandle & op,
   truedXdt.SyncFromBlocks();
   trueRHS.SyncFromBlocks();
 
+  _trueRHS.SetSize(width);
+  _trueRHS = trueRHS;
+
   // Create monolithic matrix
   op.Reset(mfem::HypreParMatrixFromBlocks(_h_blocks));
 }
@@ -562,6 +570,9 @@ TimeDependentEquationSystem::FormSystem(mfem::OperatorHandle & op,
   trueRHS.GetBlock(0) = aux_rhs;
   truedXdt.SyncFromBlocks();
   trueRHS.SyncFromBlocks();
+
+  _trueRHS.SetSize(width);
+  _trueRHS = trueRHS;
 
   // Create monolithic matrix
   op.Reset(aux_a->Ptr());

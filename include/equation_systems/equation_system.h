@@ -203,7 +203,7 @@ protected:
   platypus::NamedFieldsMap<std::vector<std::shared_ptr<MFEMEssentialBC>>> _essential_bc_map;
 
   mutable mfem::OperatorHandle _jacobian;
-
+  mutable mfem::Vector _trueRHS;
   mfem::AssemblyLevel _assembly_level;
 };
 
