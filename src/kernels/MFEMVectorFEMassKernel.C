@@ -24,7 +24,7 @@ MFEMVectorFEMassKernel::MFEMVectorFEMassKernel(const InputParameters & parameter
 }
 
 mfem::BilinearFormIntegrator *
-MFEMVectorFEMassKernel::createBFIntegrator()
+MFEMVectorFEMassKernel::createJacobianContribution()
 {
   return new mfem::VectorFEMassIntegrator(_coef);
 }

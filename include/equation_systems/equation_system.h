@@ -106,7 +106,7 @@ protected:
       auto kernels = kernels_map.GetRef(test_var_name).GetRef(trial_var_name);
       for (auto & kernel : kernels)
       {
-        mfem::BilinearFormIntegrator * integ = kernel->createBFIntegrator();
+        mfem::BilinearFormIntegrator * integ = kernel->createJacobianContribution();
         if (integ != nullptr)
         {
           kernel->isSubdomainRestricted()
@@ -128,7 +128,7 @@ protected:
       auto kernels = kernels_map.GetRef(test_var_name).GetRef(test_var_name);
       for (auto & kernel : kernels)
       {
-        mfem::LinearFormIntegrator * integ = kernel->createLFIntegrator();
+        mfem::LinearFormIntegrator * integ = kernel->createResidualContribution();
         if (integ != nullptr)
         {
           kernel->isSubdomainRestricted()
@@ -154,7 +154,7 @@ protected:
       auto bcs = integrated_bc_map.GetRef(test_var_name).GetRef(trial_var_name);
       for (auto & bc : bcs)
       {
-        mfem::BilinearFormIntegrator * integ = bc->createBFIntegrator();
+        mfem::BilinearFormIntegrator * integ = bc->createJacobianContribution();
         if (integ != nullptr)
         {
           bc->isBoundaryRestricted()
@@ -177,7 +177,7 @@ protected:
       auto bcs = integrated_bc_map.GetRef(test_var_name).GetRef(test_var_name);
       for (auto & bc : bcs)
       {
-        mfem::LinearFormIntegrator * integ = bc->createLFIntegrator();
+        mfem::LinearFormIntegrator * integ = bc->createResidualContribution();
         if (integ != nullptr)
         {
           bc->isBoundaryRestricted()

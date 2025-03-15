@@ -12,7 +12,7 @@ public:
   MFEMVectorDomainLFKernel(const InputParameters & parameters);
   ~MFEMVectorDomainLFKernel() override {}
 
-  virtual mfem::LinearFormIntegrator * createLFIntegrator() override;
+  virtual mfem::LinearFormIntegrator * createResidualContribution() override;
 
 protected:
   std::string _vec_coef_name;
