@@ -9,14 +9,14 @@ cᵢₖⱼₗ = λ δᵢₖδⱼₗ + μ (δᵢⱼδₖₗ + δᵢₗδⱼₖ),
 E is Young's modulus,
 ν is Poisson's ratio
 */
-class MFEMLinearElasticityKernel : public MFEMKernel<mfem::BilinearFormIntegrator>
+class MFEMLinearElasticityKernel : public MFEMKernel
 {
 public:
   static InputParameters validParams();
 
   MFEMLinearElasticityKernel(const InputParameters & parameters);
 
-  virtual mfem::BilinearFormIntegrator * createIntegrator() override;
+  virtual mfem::BilinearFormIntegrator * createBFIntegrator() override;
 
 protected:
   std::string _lambda_name;
