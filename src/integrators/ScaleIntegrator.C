@@ -110,6 +110,38 @@ ScaleIntegrator::AssembleEA(const mfem::FiniteElementSpace & fes,
   }
 }
 
+void ScaleIntegrator::AssembleMF(const FiniteElementSpace &fes)
+{
+  CheckIntegrator();
+  _integrator->AssembleMF(fes);
+}
+
+void ScaleIntegrator::AddMultMF(const Vector& x, Vector& y) const
+{
+  // y += Mx*scale
+  mfem::Vector Mx(y.Size());
+  Mx = 0.0;
+  _integrator->AddMultMF(x, Mx);
+  Mx *= _scale;
+  y += Mx;
+}
+
+void ScaleIntegrator::AddMultTransposeMF(const Vector &x, Vector &y) const
+{
+  // y += M^T x*scale
+  mfem::Vector MTx(y.Size());
+  MTx = 0.0;
+  _integrator->AddMultTransposeMF(x, MTx);
+  MTx *= _scale;
+  y += MTx;
+}
+
+void ScaleIntegrator::AssembleDiagonalMF(Vector &diag)
+{
+  _integrator->AssembleDiagonalMF(diag);
+  diag *= _scale;
+}
+
 ScaleIntegrator::~ScaleIntegrator()
 {
   if (_own_integrator)
