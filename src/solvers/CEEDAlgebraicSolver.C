@@ -34,7 +34,8 @@ CEEDAlgebraicSolver::constructSolver(const InputParameters & parameters)
 {
   auto preconditioner = std::dynamic_pointer_cast<mfem::Solver>(_preconditioner);
 
-  _solver = std::make_shared<mfem::ceed::AlgebraicSolver>(getMFEMProblem().mesh().getMFEMParMesh().GetComm());
+  _solver = std::make_shared<mfem::ceed::AlgebraicSolver>(
+      getMFEMProblem().mesh().getMFEMParMesh().GetComm());
   _solver->SetRelTol(getParam<double>("l_tol"));
   _solver->SetAbsTol(getParam<double>("l_abs_tol"));
   _solver->SetMaxIter(getParam<int>("l_max_its"));

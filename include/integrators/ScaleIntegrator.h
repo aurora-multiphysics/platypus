@@ -76,13 +76,13 @@ public:
 
   virtual void AddMultPA(const mfem::Vector & x, mfem::Vector & y) const;
 
-  virtual void AssembleMF(const FiniteElementSpace &fes);
+  virtual void AssembleMF(const FiniteElementSpace & fes);
 
-  virtual void AddMultMF(const Vector &x, Vector &y) const;
+  virtual void AddMultMF(const Vector & x, Vector & y) const;
 
-  virtual void AddMultTransposeMF(const Vector &x, Vector &y) const;
+  virtual void AddMultTransposeMF(const Vector & x, Vector & y) const;
 
-  virtual void AssembleDiagonalMF(Vector &diag);
+  virtual void AssembleDiagonalMF(Vector & diag);
 
   virtual void
   AssembleEA(const mfem::FiniteElementSpace & fes, mfem::Vector & emat, const bool add);
