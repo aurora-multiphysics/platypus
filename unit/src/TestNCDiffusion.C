@@ -68,7 +68,24 @@ TEST(CheckData, NCDiffusionTest)
     mfem::Element * be = mesh.GetBdrElement(i);
     mfem::Array<int> vertices;
     be->GetVertices(vertices);
-    be->SetAttribute(1);
+
+    mfem::real_t * coords1 = mesh.GetVertex(vertices[0]);
+    mfem::real_t * coords2 = mesh.GetVertex(vertices[1]);
+
+    mfem::Vector center(2);
+    center(0) = 0.5 * (coords1[0] + coords2[0]);
+    center(1) = 0.5 * (coords1[1] + coords2[1]);
+
+    if (abs(center(0) - 0.0) < 1e-6)
+    {
+      // the left edge
+      be->SetAttribute(1);
+    }
+    else
+    {
+      // all other boundaries
+      be->SetAttribute(2);
+    }
   }
   mesh.SetAttributes();
   mfem::ParMesh pmesh(MPI_COMM_WORLD, mesh);
@@ -82,7 +99,8 @@ TEST(CheckData, NCDiffusionTest)
   // 4. Extract the list of all the boundaries. These will be marked as
   //    Dirichlet in order to enforce zero boundary conditions.
   mfem::Array<int> ess_bdr(pmesh.bdr_attributes.Max());
-  ess_bdr = 1;
+  ess_bdr = 0;
+  ess_bdr[0] = 1;
   mfem::Array<int> ess_tdof_list;
   fespace.GetEssentialTrueDofs(ess_bdr, ess_tdof_list);
 
@@ -90,38 +108,39 @@ TEST(CheckData, NCDiffusionTest)
   //    the initial guess to the exact function.
   // mfem::FunctionCoefficient bcL_coef(boundary_forcing_func);
   mfem::FunctionCoefficient T_exact_coef(T_exact_func);
-  mfem::ParGridFunction T(&fespace), T_exact(&fespace);
+  mfem::ParGridFunction T(&fespace);
   T = 0.0;
   T.ProjectBdrCoefficient(T_exact_coef, ess_bdr);
-  T_exact.ProjectCoefficient(T_exact_coef);
 
-  // 6. Set up the the right-hand side.
-  mfem::ParLinearForm b(&fespace);
-  b = 0.0;
-  mfem::FunctionCoefficient forcing_coef(forcing_func);
-  b.AddDomainIntegrator(new mfem::DomainLFIntegrator(forcing_coef));
-  b.Assemble();
-
-  mfem::MatrixFunctionCoefficient kc_2D_coef(2, kc_func_2D);
   // Solve as a linear problem.
   {
+    // 6. Set up the the right-hand side.
+    mfem::ParLinearForm b(&fespace);
+    b = 0.0;
+    mfem::FunctionCoefficient forcing_coef(forcing_func);
+    b.AddDomainIntegrator(new mfem::DomainLFIntegrator(forcing_coef));
+    b.Assemble();
+
+    mfem::MatrixFunctionCoefficient kc_2D_coef(2, kc_func_2D);
     mfem::BilinearForm a(&fespace);
     a.AddDomainIntegrator(new mfem::DiffusionIntegrator(kc_2D_coef));
     a.Assemble();
 
     mfem::OperatorPtr A;
-    mfem::Vector C, Y;
-    a.FormLinearSystem(ess_tdof_list, T, b, A, Y, C);
+    mfem::Vector B, X;
+    a.FormLinearSystem(ess_tdof_list, T, b, A, X, B);
 
     mfem::GSSmoother M((mfem::SparseMatrix &)(*A));
-    mfem::PCG(*A, M, C, Y, 1, 5000, 1e-12, 0.0);
-
-    a.RecoverFEMSolution(Y, b, T);
+    mfem::PCG(*A, M, B, X, 1, 5000, 1e-12, 0.0);
+    a.RecoverFEMSolution(X, b, T);
   }
 
   bool debug_output = true;
   if (debug_output)
   {
+    mfem::ParGridFunction T_exact(&fespace);
+    T_exact.ProjectCoefficient(T_exact_coef);
+
     mfem::ParaViewDataCollection paraview_dc("NCDiffusion", &pmesh);
     paraview_dc.SetPrefixPath("ParaView");
     paraview_dc.SetLevelsOfDetail(order);
@@ -134,7 +153,8 @@ TEST(CheckData, NCDiffusionTest)
     paraview_dc.Save();
   }
 
-  T -= T_exact;
-
-  EXPECT_NEAR(T.Norml2(), 0, 1e-5);
+  mfem::real_t l2err = T.ComputeL2Error(T_exact_coef);
+  EXPECT_NEAR(l2err, 0, 1e-5);
+  mfem::real_t linferr = T.ComputeMaxError(T_exact_coef);
+  EXPECT_NEAR(linferr, 0, 1e-5);
 }
