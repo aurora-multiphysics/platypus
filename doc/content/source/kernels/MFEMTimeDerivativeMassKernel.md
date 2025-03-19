@@ -20,7 +20,7 @@ k \dot{u}
 
 ## Example Input File Syntax
 
-!listing kernels/heatconduction.i
+!listing kernels/heattransfer.i
 
 !syntax parameters /Kernels/MFEMTimeDerivativeMassKernel
 

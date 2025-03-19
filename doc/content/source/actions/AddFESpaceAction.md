@@ -12,6 +12,6 @@ Action called to add an MFEM finite element space to the problem, parsing conten
 
 ## Example Input File Syntax
 
-!listing test/tests/kernels/heatconduction.i block=Problem FESpaces
+!listing test/tests/kernels/heattransfer.i block=Problem FESpaces
 
 !syntax parameters /FESpaces/AddFESpaceAction
