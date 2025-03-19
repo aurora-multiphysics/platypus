@@ -109,7 +109,7 @@ RUN make install prefix=/$WORKDIR/libCEED/build
 # Build MFEM and common miniapp
 WORKDIR /$WORKDIR
 RUN git clone https://github.com/mfem/mfem.git
-WORKDIR /$WORKDIR/mfem 
+WORKDIR /$WORKDIR/mfem
 RUN git checkout master && mkdir build
 WORKDIR /$WORKDIR/mfem/build
 RUN cmake .. \
@@ -139,7 +139,7 @@ RUN make install -j$compile_cores
 
 # Build GLVis
 WORKDIR /$WORKDIR
-RUN git clone https://github.com/GLVis/glvis.git 
+RUN git clone https://github.com/GLVis/glvis.git
 WORKDIR /$WORKDIR/glvis
 RUN mkdir build
 WORKDIR /$WORKDIR/glvis/build/
@@ -167,10 +167,10 @@ RUN METHOD=opt make -j$compile_cores
 WORKDIR /$WORKDIR/moose/test
 RUN METHOD=opt make -j$compile_cores
 
-# Build HEAT_TRANSFER module 
+# Build HEAT_TRANSFER module
 WORKDIR /$WORKDIR/moose/modules/heat_transfer
 RUN METHOD=opt make -j$compile_cores
 
-# Build SOLID_MECHANICS module 
+# Build SOLID_MECHANICS module
 WORKDIR /$WORKDIR/moose/modules/solid_mechanics
 RUN METHOD=opt make -j$compile_cores
