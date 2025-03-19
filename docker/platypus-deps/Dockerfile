@@ -30,6 +30,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get install 
     graphviz \
     ninja-build \
     pre-commit \
+    python3-bs4 \
     python3-deepdiff \
     python3-jinja2 \
     python3-livereload \
