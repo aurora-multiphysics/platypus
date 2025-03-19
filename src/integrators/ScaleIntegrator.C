@@ -111,14 +111,14 @@ ScaleIntegrator::AssembleEA(const mfem::FiniteElementSpace & fes,
 }
 
 void
-ScaleIntegrator::AssembleMF(const FiniteElementSpace & fes)
+ScaleIntegrator::AssembleMF(const mfem::FiniteElementSpace & fes)
 {
   CheckIntegrator();
   _integrator->AssembleMF(fes);
 }
 
 void
-ScaleIntegrator::AddMultMF(const Vector & x, Vector & y) const
+ScaleIntegrator::AddMultMF(const mfem::Vector & x, mfem::Vector & y) const
 {
   // y += Mx*scale
   mfem::Vector Mx(y.Size());
@@ -129,7 +129,7 @@ ScaleIntegrator::AddMultMF(const Vector & x, Vector & y) const
 }
 
 void
-ScaleIntegrator::AddMultTransposeMF(const Vector & x, Vector & y) const
+ScaleIntegrator::AddMultTransposeMF(const mfem::Vector & x, mfem::Vector & y) const
 {
   // y += M^T x*scale
   mfem::Vector MTx(y.Size());
@@ -140,7 +140,7 @@ ScaleIntegrator::AddMultTransposeMF(const Vector & x, Vector & y) const
 }
 
 void
-ScaleIntegrator::AssembleDiagonalMF(Vector & diag)
+ScaleIntegrator::AssembleDiagonalMF(mfem::Vector & diag)
 {
   _integrator->AssembleDiagonalMF(diag);
   diag *= _scale;

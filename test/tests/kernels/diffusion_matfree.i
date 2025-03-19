@@ -77,7 +77,7 @@
 [Outputs]
   [ParaViewDataCollection]
     type = MFEMParaViewDataCollection
-    file_base = OutputData/DiffusionPartial
+    file_base = OutputData/DiffusionMatrixFree
     vtk_format = ASCII
   []
 []

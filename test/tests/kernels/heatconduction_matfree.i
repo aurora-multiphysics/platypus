@@ -61,7 +61,7 @@
 
 [Preconditioner]
   [jacobi]
-    type = CEEDAlgebraicSolver
+    type = MFEMOperatorJacobiSmoother
   []
 []
 
@@ -84,7 +84,7 @@
 [Outputs]
   [ParaViewDataCollection]
     type = MFEMParaViewDataCollection
-    file_base = OutputData/HeatConductionElement
+    file_base = OutputData/HeatConductionMatrixFree
     vtk_format = ASCII
   []
 []
