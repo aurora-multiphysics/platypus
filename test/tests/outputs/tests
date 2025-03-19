@@ -1,6 +1,6 @@
 [Tests]
   design = 'syntax/Problem/index.md'
-  [./MFEMDataCollections]
+  [MFEMDataCollections]
     type = 'CheckFiles'
     input = 'datacollections.i'
     check_files = 'OutputData/ParaViewDataCollection/Run0/Run0.pvd
