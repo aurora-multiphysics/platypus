@@ -28,7 +28,7 @@ MFEMDivDivKernel::MFEMDivDivKernel(const InputParameters & parameters)
 }
 
 mfem::BilinearFormIntegrator *
-MFEMDivDivKernel::createBFIntegrator()
+MFEMDivDivKernel::createJacobianContribution()
 {
   return new mfem::DivDivIntegrator(_coef);
 }

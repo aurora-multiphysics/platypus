@@ -27,11 +27,11 @@ TEST_F(MFEMIntegratedBCTest, MFEMVectorNormalIntegratedBC)
 
   // Test MFEMVectorNormalIntegratedBC returns an integrator of the expected type
   auto lf_integrator =
-      dynamic_cast<mfem::BoundaryNormalLFIntegrator *>(integrated_bc.createLFIntegrator());
+      dynamic_cast<mfem::BoundaryNormalLFIntegrator *>(integrated_bc.createResidualContribution());
   ASSERT_NE(lf_integrator, nullptr);
   delete lf_integrator;
 
-  auto blf_integrator = integrated_bc.createBFIntegrator();
+  auto blf_integrator = integrated_bc.createJacobianContribution();
   ASSERT_EQ(blf_integrator, nullptr);
   delete blf_integrator;
 }
@@ -57,11 +57,11 @@ TEST_F(MFEMIntegratedBCTest, MFEMVectorFunctionNormalIntegratedBC)
 
   // Test MFEMVectorNormalIntegratedBC returns an integrator of the expected type
   auto lf_integrator =
-      dynamic_cast<mfem::BoundaryNormalLFIntegrator *>(integrated_bc.createLFIntegrator());
+      dynamic_cast<mfem::BoundaryNormalLFIntegrator *>(integrated_bc.createResidualContribution());
   ASSERT_NE(lf_integrator, nullptr);
   delete lf_integrator;
 
-  auto blf_integrator = integrated_bc.createBFIntegrator();
+  auto blf_integrator = integrated_bc.createJacobianContribution();
   ASSERT_EQ(blf_integrator, nullptr);
   delete blf_integrator;
 }
@@ -87,11 +87,11 @@ TEST_F(MFEMIntegratedBCTest, MFEMScalarBoundaryIntegratedBC)
 
   // Test MFEMScalarBoundaryIntegratedBC returns an integrator of the expected type
   auto lf_integrator =
-      dynamic_cast<mfem::BoundaryLFIntegrator *>(integrated_bc.createLFIntegrator());
+      dynamic_cast<mfem::BoundaryLFIntegrator *>(integrated_bc.createResidualContribution());
   ASSERT_NE(lf_integrator, nullptr);
   delete lf_integrator;
 
-  auto blf_integrator = integrated_bc.createBFIntegrator();
+  auto blf_integrator = integrated_bc.createJacobianContribution();
   ASSERT_EQ(blf_integrator, nullptr);
   delete blf_integrator;
 }
@@ -121,12 +121,12 @@ TEST_F(MFEMIntegratedBCTest, MFEMConvectiveHeatFluxBC)
 
   // Test MFEMConvectiveHeatFluxBC returns an integrator of the expected type
   auto lf_integrator =
-      dynamic_cast<mfem::BoundaryLFIntegrator *>(integrated_bc.createLFIntegrator());
+      dynamic_cast<mfem::BoundaryLFIntegrator *>(integrated_bc.createResidualContribution());
   ASSERT_NE(lf_integrator, nullptr);
   delete lf_integrator;
 
   auto blf_integrator =
-      dynamic_cast<mfem::BoundaryMassIntegrator *>(integrated_bc.createBFIntegrator());
+      dynamic_cast<mfem::BoundaryMassIntegrator *>(integrated_bc.createJacobianContribution());
   ASSERT_NE(blf_integrator, nullptr);
   delete blf_integrator;
 }
@@ -142,11 +142,12 @@ TEST_F(MFEMIntegratedBCTest, MFEMVectorBoundaryIntegratedBC)
       addObject<MFEMVectorBoundaryIntegratedBC>("MFEMVectorBoundaryIntegratedBC", "bc1", bc_params);
 
   // Test MFEMVectorBoundaryIntegratedBC returns an integrator of the expected type
-  auto lf_integrator = dynamic_cast<mfem::VectorBoundaryLFIntegrator *>(bc.createLFIntegrator());
+  auto lf_integrator =
+      dynamic_cast<mfem::VectorBoundaryLFIntegrator *>(bc.createResidualContribution());
   ASSERT_NE(lf_integrator, nullptr);
   delete lf_integrator;
 
-  auto blf_integrator = bc.createBFIntegrator();
+  auto blf_integrator = bc.createJacobianContribution();
   ASSERT_EQ(blf_integrator, nullptr);
   delete blf_integrator;
 }
@@ -169,11 +170,12 @@ TEST_F(MFEMIntegratedBCTest, MFEMVectorFunctionBoundaryIntegratedBC)
       "MFEMVectorFunctionBoundaryIntegratedBC", "bc1", bc_params);
 
   // Test MFEMVectorBoundaryIntegratedBC returns an integrator of the expected type
-  auto lf_integrator = dynamic_cast<mfem::VectorBoundaryLFIntegrator *>(bc.createLFIntegrator());
+  auto lf_integrator =
+      dynamic_cast<mfem::VectorBoundaryLFIntegrator *>(bc.createResidualContribution());
   ASSERT_NE(lf_integrator, nullptr);
   delete lf_integrator;
 
-  auto blf_integrator = bc.createBFIntegrator();
+  auto blf_integrator = bc.createJacobianContribution();
   ASSERT_EQ(blf_integrator, nullptr);
   delete blf_integrator;
 }

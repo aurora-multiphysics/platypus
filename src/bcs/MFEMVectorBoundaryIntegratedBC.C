@@ -25,14 +25,14 @@ MFEMVectorBoundaryIntegratedBC::MFEMVectorBoundaryIntegratedBC(const InputParame
 // Create a new MFEM integrator to apply to the RHS of the weak form. Ownership managed by the
 // caller.
 mfem::LinearFormIntegrator *
-MFEMVectorBoundaryIntegratedBC::createLFIntegrator()
+MFEMVectorBoundaryIntegratedBC::createResidualContribution()
 {
   return new mfem::VectorBoundaryLFIntegrator(*_vec_coef);
 }
 
 // Create a new MFEM integrator to apply to LHS of the weak form. Ownership managed by the caller.
 mfem::BilinearFormIntegrator *
-MFEMVectorBoundaryIntegratedBC::createBFIntegrator()
+MFEMVectorBoundaryIntegratedBC::createJacobianContribution()
 {
   return nullptr;
 }
