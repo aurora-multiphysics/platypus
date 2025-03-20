@@ -1,6 +1,6 @@
 [Mesh]
   type = MFEMMesh
-  file = ../../../../../data/square.msh
+  file = ../../../../data/square.msh
   dim = 3
 []
 
@@ -17,7 +17,7 @@
 []
 
 [Variables]
-  [send]
+  [u]
     type = MFEMVariable
     fespace = H1FESpace
   []
@@ -26,14 +26,14 @@
 [BCs]
   [bottom]
     type = MFEMScalarDirichletBC
-    variable = send
-    boundary = '1'
+    variable = u
+    boundary = 2
     value = 1.0
   []
   [low_terminal]
     type = MFEMScalarDirichletBC
-    variable = send
-    boundary = '2'
+    variable = u
+    boundary = 4
     value = 0.0
   []
 []
@@ -49,7 +49,7 @@
 [Kernels]
   [diff]
     type = MFEMDiffusionKernel
-    variable = send
+    variable = u
     coefficient = diffusivity
   []
 []
@@ -67,17 +67,34 @@
   l_max_its = 1000
 []
 
-
-[Outputs]
-  [ParaViewDataCollection]
-    type = MFEMParaViewDataCollection
-    file_base = OutputData/DiffusionSendApp
-    vtk_format = ASCII
-  []
-[]
-
 [Executioner]
   type = MFEMSteady
   device = cpu
 []
 
+[MultiApps]
+  active = ''
+  [subapp]
+    type = FullSolveMultiApp
+    input_files = parent.i
+    execute_on = FINAL
+  []
+[]
+
+[Transfers]
+  active = ''
+  [to_sub]
+    type = MultiAppMFEMCopyTransfer
+    source_variable = u
+    variable = u
+    to_multi_app = subapp
+  []
+[]
+
+[Outputs]
+  [ParaViewDataCollection]
+    type = MFEMParaViewDataCollection
+    file_base = OutputData/DiffusionSub
+    vtk_format = ASCII
+  []
+[]

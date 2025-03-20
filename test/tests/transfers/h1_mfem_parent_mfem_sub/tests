@@ -1,0 +1,36 @@
+[Tests]
+  [FromSubToParent]
+    [run]
+      type = RunApp
+      input = parent.i
+    []
+    [verify]
+      type = RunCommand
+      command = '../check.sh
+                u
+                OutputData/Diffusion/Run0/Cycle000001/proc000000.vtu
+                u
+                OutputData/DiffusionSub/Run0/Cycle000001/proc000000.vtu'
+	    prereq = FromSubToParent/run
+    []
+    requirement = 'Platypus shall have the ability to transfer linear, H1 scalar fields from a subapp to its parent app.'
+  []
+  [ToSubFromParent]
+    [run]
+      type = RunApp
+      input = sub.i
+      cli_args = 'MultiApps/active=subapp Transfers/active=to_sub '
+                 'subapp:MultiApps/active="" subapp:Transfers/active=""'
+    []
+    [verify]
+      type = RunCommand
+      command = '../check.sh
+                u
+                OutputData/Diffusion/Run0/Cycle000001/proc000000.vtu
+                u
+                OutputData/DiffusionSub/Run0/Cycle000001/proc000000.vtu'
+	    prereq = ToSubFromParent/run
+    []
+    requirement = 'Platypus shall have the ability to transfer linear, H1 scalar fields to a subapp from its parent app.'
+  []
+[]

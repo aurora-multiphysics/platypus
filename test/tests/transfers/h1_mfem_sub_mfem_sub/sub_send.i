@@ -1,6 +1,6 @@
 [Mesh]
   type = MFEMMesh
-  file = ../../../../../data/square.msh
+  file = ../../../../data/square.msh
   dim = 3
 []
 
@@ -17,7 +17,7 @@
 []
 
 [Variables]
-  [u]
+  [send]
     type = MFEMVariable
     fespace = H1FESpace
   []
@@ -26,14 +26,14 @@
 [BCs]
   [bottom]
     type = MFEMScalarDirichletBC
-    variable = u
-    boundary = 2
+    variable = send
+    boundary = '1'
     value = 1.0
   []
   [low_terminal]
     type = MFEMScalarDirichletBC
-    variable = u
-    boundary = 4
+    variable = send
+    boundary = '2'
     value = 0.0
   []
 []
@@ -49,7 +49,7 @@
 [Kernels]
   [diff]
     type = MFEMDiffusionKernel
-    variable = u
+    variable = send
     coefficient = diffusivity
   []
 []
@@ -71,7 +71,7 @@
 [Outputs]
   [ParaViewDataCollection]
     type = MFEMParaViewDataCollection
-    file_base = OutputData/DiffusionSub
+    file_base = OutputData/DiffusionSendApp
     vtk_format = ASCII
   []
 []

@@ -1,6 +1,6 @@
 [Mesh]
   type = MFEMMesh
-  file = ../../../../../data/square.msh
+  file = ../../../../data/square.msh
   dim = 3
 []
 
@@ -51,5 +51,3 @@
         to_multi_app = recv_app
     []
 []
-
-
