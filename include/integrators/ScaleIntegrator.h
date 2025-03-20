@@ -80,8 +80,6 @@ public:
 
   virtual void AddMultMF(const mfem::Vector & x, mfem::Vector & y) const;
 
-  virtual void AddMultTransposeMF(const mfem::Vector & x, mfem::Vector & y) const;
-
   virtual void AssembleDiagonalMF(mfem::Vector & diag);
 
   virtual void

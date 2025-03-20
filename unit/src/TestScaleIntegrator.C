@@ -129,6 +129,7 @@ TEST(CheckData, ScaleIntegratorTestPartial)
 
 TEST(CheckData, ScaleIntegratorTestMatrixFree)
 {
+  mfem::Device device("ceed-cpu");
   mfem::Mesh mesh = mfem::Mesh::MakeCartesian3D(1, 1, 1, mfem::Element::HEXAHEDRON);
   mfem::H1_FECollection fec(2, mesh.Dimension());
   mfem::FiniteElementSpace fes(&mesh, &fec);
@@ -153,14 +154,6 @@ TEST(CheckData, ScaleIntegratorTestMatrixFree)
   y2 = 0.0;
   integ_scale.AddMultMF(x, y1);
   integ_sum.AddMultMF(x, y2);
-  y1 -= y2;
-  EXPECT_NEAR(y1.Normlinf(), 0, 1e-12);
-
-  // AddMultTransposeMF
-  y1 = 0.0;
-  y2 = 0.0;
-  integ_scale.AddMultTransposeMF(x, y1);
-  integ_sum.AddMultTransposeMF(x, y2);
   y1 -= y2;
   EXPECT_NEAR(y1.Normlinf(), 0, 1e-12);
 

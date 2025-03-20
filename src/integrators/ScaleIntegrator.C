@@ -129,17 +129,6 @@ ScaleIntegrator::AddMultMF(const mfem::Vector & x, mfem::Vector & y) const
 }
 
 void
-ScaleIntegrator::AddMultTransposeMF(const mfem::Vector & x, mfem::Vector & y) const
-{
-  // y += M^T x*scale
-  mfem::Vector MTx(y.Size());
-  MTx = 0.0;
-  _integrator->AddMultTransposeMF(x, MTx);
-  MTx *= _scale;
-  y += MTx;
-}
-
-void
 ScaleIntegrator::AssembleDiagonalMF(mfem::Vector & diag)
 {
   _integrator->AssembleDiagonalMF(diag);
