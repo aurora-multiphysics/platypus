@@ -172,4 +172,3 @@ TEST(CheckData, ScaleIntegratorTestMatrixFree)
   diag1 -= diag2;
   EXPECT_NEAR(diag1.Normlinf(), 0, 1e-12);
 }
-
