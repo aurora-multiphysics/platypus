@@ -32,7 +32,7 @@ WORKDIR /$WORKDIR/platypus/doc
 RUN ./moosedocs.py build
 
 # Test Platypus regression tests
-WORKDIR /$WORKDIR/platypus 
+WORKDIR /$WORKDIR/platypus
 RUN make test
 
 # Build Platypus unit tests

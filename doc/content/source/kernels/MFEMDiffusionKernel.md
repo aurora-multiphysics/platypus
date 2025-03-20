@@ -20,7 +20,7 @@ This term arises from the weak form of the Laplacian operator
 
 ## Example Input File Syntax
 
-!listing kernels/diffusion.i
+!listing kernels/diffusion.i block=Kernels
 
 !syntax parameters /Kernels/MFEMDiffusionKernel
 

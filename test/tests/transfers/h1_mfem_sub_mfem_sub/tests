@@ -11,7 +11,8 @@
                 OutputData/DiffusionRecvApp/Run0/Cycle000001/proc000000.vtu
                 send
                 OutputData/DiffusionSendApp/Run0/Cycle000001/proc000000.vtu'
-	  prereq = test/run
+	    prereq = test/run
     []
+    requirement = 'Platypus shall have the ability to transfer linear, H1 scalar fields between two subapps.'
   []
 []

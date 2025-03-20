@@ -3,7 +3,7 @@
 
 [Mesh]
   type = MFEMMesh
-  file = gold/beam-tet.mesh
+  file = ../../../data/beam-tet.mesh
   dim = 3
   uniform_refine = 1
 []
@@ -23,7 +23,7 @@
     type = MFEMScalarFESpace
     fec_type = L2
     fec_order = CONSTANT
-  []  
+  []
 []
 
 [Variables]

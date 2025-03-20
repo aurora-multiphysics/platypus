@@ -39,7 +39,7 @@ directory in either of the above containers.
 To build and run the entire set of regression tests for platypus found in `/opt/platypus/test`, run
 
 ``` {.sh}
-METHOD=opt make test 
+METHOD=opt make test
 ```
 
 from the `/opt/platypus` directory. Running a specific test (or tests) is possible

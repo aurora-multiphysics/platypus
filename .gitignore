@@ -134,9 +134,6 @@ framework/contrib/exodiff/exodiff
 .DS_Store
 *.dSYM
 
-# Unit testing stuffbmoose_unit/test_results.xml
-!unit/data/csv/*.csv
-
 # gcov code coverage files
 *.gcno
 *.gcda
