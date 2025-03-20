@@ -126,3 +126,50 @@ TEST(CheckData, ScaleIntegratorTestPartial)
   diag1 -= diag2;
   EXPECT_NEAR(diag1.Normlinf(), 0, 1e-12);
 }
+
+TEST(CheckData, ScaleIntegratorTestMatrixFree)
+{
+  mfem::Mesh mesh = mfem::Mesh::MakeCartesian3D(1, 1, 1, mfem::Element::HEXAHEDRON);
+  mfem::H1_FECollection fec(2, mesh.Dimension());
+  mfem::FiniteElementSpace fes(&mesh, &fec);
+
+  mfem::SumIntegrator integ_sum(true);
+  integ_sum.AddIntegrator(new mfem::MassIntegrator);
+  integ_sum.AddIntegrator(new mfem::MassIntegrator);
+
+  platypus::ScaleIntegrator integ_scale(new mfem::MassIntegrator, 2);
+
+  // Matrix-Free Assembly
+  integ_sum.AssembleMF(fes);
+  integ_scale.AssembleMF(fes);
+
+  int n = fes.GetTrueVSize();
+  mfem::Vector x(n), y1(n), y2(n);
+  mfem::Vector diag1(n), diag2(n);
+  x.Randomize(1);
+
+  // AddMultMF
+  y1 = 0.0;
+  y2 = 0.0;
+  integ_scale.AddMultMF(x, y1);
+  integ_sum.AddMultMF(x, y2);
+  y1 -= y2;
+  EXPECT_NEAR(y1.Normlinf(), 0, 1e-12);
+
+  // AddMultTransposeMF
+  y1 = 0.0;
+  y2 = 0.0;
+  integ_scale.AddMultTransposeMF(x, y1);
+  integ_sum.AddMultTransposeMF(x, y2);
+  y1 -= y2;
+  EXPECT_NEAR(y1.Normlinf(), 0, 1e-12);
+
+  // AssembleDiagonalMF
+  diag1 = 0.0;
+  diag2 = 0.0;
+  integ_scale.AssembleDiagonalMF(diag1);
+  integ_sum.AssembleDiagonalMF(diag2);
+  diag1 -= diag2;
+  EXPECT_NEAR(diag1.Normlinf(), 0, 1e-12);
+}
+
