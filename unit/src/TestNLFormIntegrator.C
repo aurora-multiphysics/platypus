@@ -260,7 +260,7 @@ TEST(CheckData, TestNonLinearDiffusionIntegratorInhomogenous)
   newton.SetMaxIter(20);
 
   // 10. Solve the nonlinear system.
-  X.SetSubVector(ess_tdof_list, 0.0);
+  X.SetSubVector(ess_tdof_list, 5.0);
   newton.Mult(B, X);
   u1.Distribute(X);
 
@@ -274,6 +274,7 @@ TEST(CheckData, TestNonLinearDiffusionIntegratorInhomogenous)
 
   // 10. Solve the nonlinear system.
   C = 0.0;
+  Y.SetSubVector(ess_tdof_list, 5.0);
   newton.Mult(C, Y);
   u2.Distribute(Y);
   }
