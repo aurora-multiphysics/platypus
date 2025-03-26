@@ -175,7 +175,7 @@ NLForm::NLForm(mfem::ParFiniteElementSpace & fes_, mfem::Array<int> BDR_tags): O
   r = b_gf;
 
   //Apply the Dirch BCs elimination
-  r.SetSubVector(dofs, 0.00);
+  r.SetSubVector(dofs, 0.0);
 
   //Update the Jacobian for linear-solve
   Jacobian->Update();
@@ -260,26 +260,22 @@ TEST(CheckData, TestNonLinearDiffusionIntegratorInhomogenous)
   newton.SetMaxIter(20);
 
   // 10. Solve the nonlinear system.
-  X.SetSubVector(ess_tdof_list, 5.0);
+  X.SetSubVector(ess_tdof_list, 0.0);
   newton.Mult(B, X);
   u1.Distribute(X);
 
+
   // Solve as a linear problem.
   {
-    mfem::BilinearForm a(&fespace);
-    a.AddDomainIntegrator(new mfem::DiffusionIntegrator);
-    a.AddDomainIntegrator(new mfem::MassIntegrator);
-    a.Assemble();
+  mfem::Vector Y(fespace.GetTrueVSize()), C(fespace.GetTrueVSize());
+  NLForm sampleProb(fespace, ess_bdr);
 
-    mfem::ConstantCoefficient dbcCoef(5.0);
+  newton.SetOperator(sampleProb);
 
-    mfem::OperatorPtr A;
-    mfem::Vector C, Y;
-    u2.ProjectBdrCoefficient(dbcCoef, ess_bdr);
-    a.FormLinearSystem(ess_tdof_list, u2, b, A, Y, C);
-    mfem::GSSmoother M((mfem::SparseMatrix &)(*A));
-    mfem::PCG(*A, M, C, Y, 1, 500, 1e-12, 0.0);
-    a.RecoverFEMSolution(Y, b, u2);
+  // 10. Solve the nonlinear system.
+  C = 0.0;
+  newton.Mult(C, Y);
+  u2.Distribute(Y);
   }
 
   u1 -= u2;
