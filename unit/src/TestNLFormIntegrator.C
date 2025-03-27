@@ -130,6 +130,7 @@ class NLForm: public mfem::Operator{
     //Forms the coefficients
     mfem::GradientGridFunctionCoefficient gradCf;
     NonlinearGridFunctionCoefficient  cf, dcf;
+    mfem::ConstantCoefficient minusfive;
 
     mfem::Array<int> dofs;
 
@@ -148,13 +149,14 @@ class NLForm: public mfem::Operator{
 
 NLForm::NLForm(mfem::ParFiniteElementSpace & fes_, mfem::Array<int> BDR_tags): Operator(fes_.TrueVSize()),
  						     fes(fes_), x_gf(&fes), b_gf(&fes)
- 						   , gradCf(&x_gf), cf(x_gf,ff), dcf(x_gf,dff)
+ 						   , gradCf(&x_gf), cf(x_gf,ff), dcf(x_gf,dff), minusfive(-5.0)
  {
    //Get the constrained boundary dofs
    fes.GetEssentialTrueDofs(BDR_tags, dofs);
  
    //Forms the residual vector
    Residual = new mfem::ParLinearForm(&fes);
+   Residual->AddDomainIntegrator(new mfem::DomainLFIntegrator(minusfive));
    Residual->AddDomainIntegrator(new mfem::DomainLFIntegrator(cf));
    Residual->AddDomainIntegrator(new mfem::DomainLFGradIntegrator(gradCf));
    Residual->UseFastAssembly(true);
@@ -195,7 +197,7 @@ TEST(CheckData, TestNonLinearDiffusionIntegratorInhomogenous)
   // 1. Parse command line options
 
   int order = 1;
-  bool nonzero_rhs = false;
+  bool nonzero_rhs = true;
 
   // 2. Read the mesh from the given mesh file, and refine once uniformly.
   mfem::Mesh mesh =
