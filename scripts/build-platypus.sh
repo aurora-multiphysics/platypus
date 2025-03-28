@@ -25,6 +25,11 @@ help() {
     exit 0
 }
 
+clean() {
+    rm -r ${BUILD_PATH}
+    exit 0
+}
+
 replace_in_file() {
     # First argument is the file
     # Second argument is the word to be replaced
@@ -37,6 +42,9 @@ parse_options() {
         case $arg in
             -h | --help)
             help
+            ;;
+            -cl | --clean)
+            clean
             ;;
             -g | --gpu)
             GPU_BUILD=1
@@ -125,7 +133,7 @@ make_spack_env() {
                 replace_in_file ${SPACK_MOD} "blas" "+rocblas"
                 replace_in_file ${SPACK_MOD} "llvm_version" "@${AMDLLVM_VER}"
                 replace_in_file ${SPACK_MOD} "openmpi" "openmpi@openmpi_version@"
-                replace_in_file ${SPACK_MOD} "ucx" "ucx%gcc @gpu@"
+                replace_in_file ${SPACK_MOD} "ucx" "ucx @gpu@"
             fi
             replace_in_file ${SPACK_MOD} "gpu" "+${GPU_BACKEND}"
         fi
@@ -405,6 +413,9 @@ SPACK_MOD=".spack_env_platypus.yaml"
 # Name of the config file where we print the invocation options
 CONFIG_FILE="build_platypus_config.txt"
 
+# Location for the spack cache
+export SPACK_USER_CACHE_PATH="deps"
+
 GPU_BUILD=0
 GPU_BACKEND=""
 GPU_ARCH=""
@@ -421,6 +432,9 @@ export BUILD_DIR_NAME="deps"
 ROOT_PATH=$(pwd)
 export ROOT_PATH
 export BUILD_PATH=${ROOT_PATH}/${BUILD_DIR_NAME}
+
+parse_options "$@"
+
 mkdir -p "${BUILD_PATH}"
 
 # Create modifiable spack environment file
@@ -428,7 +442,6 @@ cp ${SPACK_FILE} "${BUILD_PATH}"/${SPACK_MOD}
 
 cd "${BUILD_PATH}" || exit 1
 
-parse_options "$@"
 add_external_packages
 add_external_compilers
 load_spack

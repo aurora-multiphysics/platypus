@@ -20,7 +20,7 @@ spack:
   - py-xmltodict
   - py-pip
   - zlib
-  - python@3.12.5
+  - python
   - libceed @gpu@ @gpu_arch@
   - petsc +batch +fortran +hdf5 +hypre +metis +mpi +superlu-dist @gpu@ @gpu_arch@
   - @openmpi@ fabrics=knem,ucx schedulers=slurm
