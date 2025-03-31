@@ -18,10 +18,10 @@ public:
 
   // Create transposable integrator
   mfem::BilinearFormIntegrator *
-  createTransposableIntegrator(mfem::BilinearFormIntegrator * base_integrator);
+  createTransposableBFIntegrator(mfem::BilinearFormIntegrator * base_integrator);
 
   // Derived classes must implement this to provide the base integrator
-  virtual mfem::BilinearFormIntegrator * createIntegrator() override = 0;
+  virtual mfem::BilinearFormIntegrator * createBFIntegrator() override = 0;
 
 protected:
   // Name of the trial variable that the kernel is applied to.
