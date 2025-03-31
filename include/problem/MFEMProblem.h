@@ -153,7 +153,7 @@ public:
    * properties and converting them to MFEM coefficients. This is used
    * by Material and Kernel classes (among others).
    */
-  platypus::PropertyManager & getProperties() { return _problem_data._properties; }
+  platypus::CoefficientManager & getProperties() { return _problem_data._properties; }
 
   /**
    * Method to get the current MFEMProblemData object storing the

@@ -2,28 +2,28 @@
 #include <memory>
 
 #include "gtest/gtest.h"
-#include "ObjectManager.h"
+#include "TrackedObjectFactory.h"
 
 #include "mfem.hpp"
 
-class CheckObjectManager : public testing::Test
+class CheckTrackedObjectFactory : public testing::Test
 {
 protected:
-  platypus::ObjectManager<mfem::Coefficient> manager;
+  platypus::TrackedObjectFactory<mfem::Coefficient> factory;
   std::shared_ptr<mfem::ConstantCoefficient> c1, c2, c3;
 
-  CheckObjectManager()
+  CheckTrackedObjectFactory()
   {
-    c1 = manager.make<mfem::ConstantCoefficient>(1.);
-    c2 = manager.make<mfem::ConstantCoefficient>(2.);
-    c3 = manager.make<mfem::ConstantCoefficient>(3.);
+    c1 = factory.make<mfem::ConstantCoefficient>(1.);
+    c2 = factory.make<mfem::ConstantCoefficient>(2.);
+    c3 = factory.make<mfem::ConstantCoefficient>(3.);
   }
 };
 
-TEST_F(CheckObjectManager, Iter)
+TEST_F(CheckTrackedObjectFactory, Iter)
 {
   int i = -1;
-  for (auto coef : manager)
+  for (auto coef : factory)
   {
     auto coef_const = std::dynamic_pointer_cast<mfem::ConstantCoefficient>(coef);
     ASSERT_NE(coef_const.get(), nullptr);
@@ -34,10 +34,10 @@ TEST_F(CheckObjectManager, Iter)
   EXPECT_EQ(c3->constant, -3);
 }
 
-TEST_F(CheckObjectManager, IterMutable)
+TEST_F(CheckTrackedObjectFactory, IterMutable)
 {
   int i = -1;
-  for (auto & coef : manager)
+  for (auto & coef : factory)
   {
     EXPECT_EQ(coef.use_count(), 2);
     coef.reset();
@@ -47,10 +47,10 @@ TEST_F(CheckObjectManager, IterMutable)
   EXPECT_EQ(c3.use_count(), 1);
 }
 
-TEST_F(CheckObjectManager, ConstIter)
+TEST_F(CheckTrackedObjectFactory, ConstIter)
 {
   int i = -1;
-  for (auto it = manager.cbegin(); it != manager.cend(); ++it)
+  for (auto it = factory.cbegin(); it != factory.cend(); ++it)
   {
     auto coef_const = std::dynamic_pointer_cast<mfem::ConstantCoefficient>(*it);
     ASSERT_NE(coef_const.get(), nullptr);
@@ -61,10 +61,10 @@ TEST_F(CheckObjectManager, ConstIter)
   EXPECT_EQ(c3->constant, -3);
 }
 
-TEST_F(CheckObjectManager, ReverseIter)
+TEST_F(CheckTrackedObjectFactory, ReverseIter)
 {
   int i = -1;
-  for (auto it = manager.rbegin(); it != manager.rend(); ++it)
+  for (auto it = factory.rbegin(); it != factory.rend(); ++it)
   {
     auto coef_const = std::dynamic_pointer_cast<mfem::ConstantCoefficient>(*it);
     ASSERT_NE(coef_const.get(), nullptr);
@@ -75,10 +75,10 @@ TEST_F(CheckObjectManager, ReverseIter)
   EXPECT_EQ(c3->constant, -1);
 }
 
-TEST_F(CheckObjectManager, ReverseIterMutable)
+TEST_F(CheckTrackedObjectFactory, ReverseIterMutable)
 {
   int i = -1;
-  for (auto it = manager.rbegin(); it != manager.rend(); ++it)
+  for (auto it = factory.rbegin(); it != factory.rend(); ++it)
   {
     EXPECT_EQ(it->use_count(), 2);
     it->reset();
@@ -88,10 +88,10 @@ TEST_F(CheckObjectManager, ReverseIterMutable)
   EXPECT_EQ(c3.use_count(), 1);
 }
 
-TEST_F(CheckObjectManager, ConstReverseIter)
+TEST_F(CheckTrackedObjectFactory, ConstReverseIter)
 {
   int i = -1;
-  for (auto it = manager.crbegin(); it != manager.crend(); ++it)
+  for (auto it = factory.crbegin(); it != factory.crend(); ++it)
   {
     auto coef_const = std::dynamic_pointer_cast<mfem::ConstantCoefficient>(*it);
     ASSERT_NE(coef_const.get(), nullptr);

@@ -13,7 +13,7 @@ namespace platypus
  * allow access to all of the objects that have been created.
  */
 template <class T>
-class ObjectManager
+class TrackedObjectFactory
 {
 public:
   using storage = typename std::vector<std::shared_ptr<T>>;
@@ -43,8 +43,8 @@ private:
   storage _objects;
 };
 
-using ScalarCoefficientManager = ObjectManager<mfem::Coefficient>;
-using VectorCoefficientManager = ObjectManager<mfem::VectorCoefficient>;
-using MatrixCoefficientManager = ObjectManager<mfem::MatrixCoefficient>;
+using TrackedScalarCoefficientFactory = TrackedObjectFactory<mfem::Coefficient>;
+using TrackedVectorCoefficientFactory = TrackedObjectFactory<mfem::VectorCoefficient>;
+using TrackedMatrixCoefficientFactory = TrackedObjectFactory<mfem::MatrixCoefficient>;
 
 }
