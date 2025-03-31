@@ -28,8 +28,8 @@ MFEMLinearElasticityKernel::MFEMLinearElasticityKernel(const InputParameters & p
   : MFEMKernel(parameters),
     _lambda_name(getParam<platypus::MFEMScalarCoefficientName>("lambda")),
     _mu_name(getParam<platypus::MFEMScalarCoefficientName>("mu")),
-    _lambda(getScalarProperty(_lambda_name)),
-    _mu(getScalarProperty(_mu_name))
+    _lambda(getScalarCoefficient(_lambda_name)),
+    _mu(getScalarCoefficient(_mu_name))
 {
 }
 

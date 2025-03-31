@@ -40,7 +40,7 @@ MFEMGenericConstantVectorMaterial::MFEMGenericConstantVectorMaterial(
     {
       vec[j] = _prop_values[i * _prop_dims + j];
     }
-    _properties.declareVector<mfem::VectorConstantCoefficient>(
+    _properties.declareVectorProperty<mfem::VectorConstantCoefficient>(
         _prop_names[i], subdomainsToStrings(_block_ids), vec);
   }
 }

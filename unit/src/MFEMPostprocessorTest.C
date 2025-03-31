@@ -49,7 +49,8 @@ TEST_F(MFEMPostprocessorTest, MFEML2Error)
   _scalar_var->ProjectCoefficient(twos);
   EXPECT_GT(l2_pp.getValue(), 1.);
 
-  _scalar_var->ProjectCoefficient(*_mfem_problem->getScalarFunctionCoefficient("scalar_ones"));
+  _scalar_var->ProjectCoefficient(
+      _mfem_problem->getProperties().getScalarCoefficient("scalar_ones"));
   EXPECT_LT(l2_pp.getValue(), 1e-12);
 }
 
@@ -67,6 +68,7 @@ TEST_F(MFEMPostprocessorTest, MFEMVectorL2Error)
   _vector_var->ProjectCoefficient(twos);
   EXPECT_GT(l2_pp.getValue(), 1.);
 
-  _vector_var->ProjectCoefficient(*_mfem_problem->getVectorFunctionCoefficient("vector_ones"));
+  _vector_var->ProjectCoefficient(
+      _mfem_problem->getProperties().getVectorCoefficient("vector_ones"));
   EXPECT_LT(l2_pp.getValue(), 1e-12);
 }

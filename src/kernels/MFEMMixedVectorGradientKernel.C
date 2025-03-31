@@ -20,7 +20,7 @@ MFEMMixedVectorGradientKernel::MFEMMixedVectorGradientKernel(const InputParamete
     _coef_name(getParam<platypus::MFEMScalarCoefficientName>("coefficient")),
     // FIXME: The MFEM bilinear form can also handle vector and matrix
     // coefficients, so ideally we'd handle all three too.
-    _coef(getScalarProperty(_coef_name))
+    _coef(getScalarCoefficient(_coef_name))
 {
 }
 

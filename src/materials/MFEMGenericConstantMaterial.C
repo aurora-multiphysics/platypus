@@ -32,7 +32,7 @@ MFEMGenericConstantMaterial::MFEMGenericConstantMaterial(const InputParameters &
   _num_props = num_names;
   for (unsigned int i = 0; i < _num_props; i++)
   {
-    _properties.declareScalar<mfem::ConstantCoefficient>(
+    _properties.declareScalarProperty<mfem::ConstantCoefficient>(
         _prop_names[i], subdomainsToStrings(_block_ids), _prop_values[i]);
   }
 }

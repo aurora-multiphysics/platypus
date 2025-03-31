@@ -22,9 +22,9 @@ public:
   MFEMProblem & getMFEMProblem() const { return _mfem_problem; }
 
   /// Returns references to coefficients stored in the MFEMProblem PropertiesManager.
-  mfem::Coefficient & getScalarProperty(const std::string & name);
-  mfem::VectorCoefficient & getVectorProperty(const std::string & name);
-  mfem::MatrixCoefficient & getMatrixProperty(const std::string & name);
+  mfem::Coefficient & getScalarCoefficient(const std::string & name);
+  mfem::VectorCoefficient & getVectorCoefficient(const std::string & name);
+  mfem::MatrixCoefficient & getMatrixCoefficient(const std::string & name);
 
   void execute() override {}
 

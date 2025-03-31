@@ -33,9 +33,10 @@ MFEMGenericFunctionVectorMaterial::MFEMGenericFunctionVectorMaterial(
   _num_props = num_names;
   for (unsigned int i = 0; i < _num_props; i++)
   {
-    _properties.declareVector(_prop_names[i],
-                              subdomainsToStrings(_block_ids),
-                              getMFEMProblem().getProperties().getVectorPropertyPtr(_prop_values[i]));
+    _properties.declareVectorProperty(
+        _prop_names[i],
+        subdomainsToStrings(_block_ids),
+        getMFEMProblem().getProperties().getVectorCoefficientPtr(_prop_values[i]));
   }
 }
 

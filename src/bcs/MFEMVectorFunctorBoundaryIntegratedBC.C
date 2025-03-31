@@ -16,7 +16,7 @@ MFEMVectorFunctorBoundaryIntegratedBC::MFEMVectorFunctorBoundaryIntegratedBC(
     const InputParameters & parameters)
   : MFEMIntegratedBC(parameters),
     _vec_coef(
-        getVectorProperty(getParam<platypus::MFEMVectorCoefficientName>("vector_coefficient")))
+        getVectorCoefficient(getParam<platypus::MFEMVectorCoefficientName>("vector_coefficient")))
 {
 }
 
