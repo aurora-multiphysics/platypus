@@ -28,5 +28,5 @@ MFEMMixedScalarCurlKernel::createBFIntegrator()
 {
   mfem::BilinearFormIntegrator * base_integrator = new mfem::MixedScalarCurlIntegrator(_coef);
 
-  return createTransposableIntegrator(base_integrator);
+  return createTransposableBFIntegrator(base_integrator);
 }

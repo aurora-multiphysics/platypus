@@ -34,7 +34,7 @@ MFEMMixedBilinearFormKernel::getTrialVariableName() const
 }
 
 mfem::BilinearFormIntegrator *
-MFEMMixedBilinearFormKernel::createTransposableIntegrator(
+MFEMMixedBilinearFormKernel::createTransposableBFIntegrator(
     mfem::BilinearFormIntegrator * base_integrator)
 {
   if (_transpose)
