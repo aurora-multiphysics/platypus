@@ -4,7 +4,7 @@
 /*
 (f, u')
 */
-class MFEMDomainLFKernel : public MFEMKernel<mfem::LinearFormIntegrator>
+class MFEMDomainLFKernel : public MFEMKernel
 {
 public:
   static InputParameters validParams();

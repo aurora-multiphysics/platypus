@@ -1,4 +1,5 @@
 #include "MFEMDomainLFKernel.h"
+#include "MFEMProblem.h"
 
 registerMooseObject("PlatypusApp", MFEMDomainLFKernel);
 
