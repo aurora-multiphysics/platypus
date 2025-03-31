@@ -28,5 +28,5 @@ mfem::BilinearFormIntegrator *
 MFEMMixedVectorGradientKernel::createBFIntegrator()
 {
   mfem::BilinearFormIntegrator * base_integrator = new mfem::MixedVectorGradientIntegrator(_coef);
-  return createTransposableIntegrator(base_integrator);
+  return createTransposableBFIntegrator(base_integrator);
 }
