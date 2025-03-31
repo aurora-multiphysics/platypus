@@ -168,7 +168,7 @@ public:
   template <class T, class... Args>
   std::shared_ptr<T> makeScalarCoefficient(Args &&... args)
   {
-    return this->_problem_data._scalar_manager.make<T>(args...);
+    return this->_problem_data._scalar_factory.make<T>(args...);
   }
 
   /**
@@ -178,7 +178,7 @@ public:
   template <class T, class... Args>
   std::shared_ptr<T> makeVectorCoefficient(Args &&... args)
   {
-    return this->_problem_data._vector_manager.make<T>(args...);
+    return this->_problem_data._vector_factory.make<T>(args...);
   }
 
   /**
@@ -188,7 +188,7 @@ public:
   template <class T, class... Args>
   std::shared_ptr<T> makeMatrixCoefficient(Args &&... args)
   {
-    return this->_problem_data._matrix_manager.make<T>(args...);
+    return this->_problem_data._matrix_factory.make<T>(args...);
   }
 
   /**

@@ -15,10 +15,10 @@ public:
   virtual ~MFEMProblemData() { _ode_solver.reset(); };
 
   std::shared_ptr<mfem::ParMesh> _pmesh{nullptr};
-  platypus::TrackedScalarCoefficientFactory _scalar_manager;
-  platypus::TrackedVectorCoefficientFactory _vector_manager;
-  platypus::TrackedMatrixCoefficientFactory _matrix_manager;
-  platypus::CoefficientManager _properties{_scalar_manager, _vector_manager, _matrix_manager};
+  platypus::TrackedScalarCoefficientFactory _scalar_factory;
+  platypus::TrackedVectorCoefficientFactory _vector_factory;
+  platypus::TrackedMatrixCoefficientFactory _matrix_factory;
+  platypus::CoefficientManager _properties{_scalar_factory, _vector_factory, _matrix_factory};
 
   std::unique_ptr<mfem::ODESolver> _ode_solver{nullptr};
   mfem::BlockVector _f;
