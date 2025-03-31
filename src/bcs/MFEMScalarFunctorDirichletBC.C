@@ -1,9 +1,9 @@
-#include "MFEMScalarFunctionDirichletBC.h"
+#include "MFEMScalarFunctorDirichletBC.h"
 
-registerMooseObject("PlatypusApp", MFEMScalarFunctionDirichletBC);
+registerMooseObject("PlatypusApp", MFEMScalarFunctorDirichletBC);
 
 InputParameters
-MFEMScalarFunctionDirichletBC::validParams()
+MFEMScalarFunctorDirichletBC::validParams()
 {
   InputParameters params = MFEMEssentialBC::validParams();
   params.addRequiredParam<std::string>(
@@ -11,7 +11,7 @@ MFEMScalarFunctionDirichletBC::validParams()
   return params;
 }
 
-MFEMScalarFunctionDirichletBC::MFEMScalarFunctionDirichletBC(const InputParameters & parameters)
+MFEMScalarFunctorDirichletBC::MFEMScalarFunctorDirichletBC(const InputParameters & parameters)
   : MFEMEssentialBC(parameters),
     _coef_name(getParam<std::string>("coefficient")),
     _coef(getMFEMProblem().getProperties().getScalarProperty(_coef_name))
@@ -19,7 +19,7 @@ MFEMScalarFunctionDirichletBC::MFEMScalarFunctionDirichletBC(const InputParamete
 }
 
 void
-MFEMScalarFunctionDirichletBC::ApplyBC(mfem::GridFunction & gridfunc, mfem::Mesh * mesh_)
+MFEMScalarFunctorDirichletBC::ApplyBC(mfem::GridFunction & gridfunc, mfem::Mesh * mesh_)
 {
   mfem::Array<int> ess_bdrs(mesh_->bdr_attributes.Max());
   ess_bdrs = getBoundaries();

@@ -1,7 +1,7 @@
-#include "MFEMVectorFunctionDirichletBCBase.h"
+#include "MFEMVectorFunctorDirichletBCBase.h"
 
 InputParameters
-MFEMVectorFunctionDirichletBCBase::validParams()
+MFEMVectorFunctorDirichletBCBase::validParams()
 {
   InputParameters params = MFEMEssentialBC::validParams();
   params.addRequiredParam<std::string>(
@@ -11,7 +11,7 @@ MFEMVectorFunctionDirichletBCBase::validParams()
 }
 
 // TODO: Currently assumes the vector function coefficient is 3D
-MFEMVectorFunctionDirichletBCBase::MFEMVectorFunctionDirichletBCBase(
+MFEMVectorFunctorDirichletBCBase::MFEMVectorFunctorDirichletBCBase(
     const InputParameters & parameters)
   : MFEMEssentialBC(parameters),
     _vec_coef(getMFEMProblem().getProperties().getVectorProperty(
