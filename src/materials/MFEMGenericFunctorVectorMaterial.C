@@ -1,27 +1,29 @@
-#include "MFEMGenericFunctionVectorMaterial.h"
+#include "MFEMGenericFunctorVectorMaterial.h"
 #include "MFEMProblem.h"
 
-registerMooseObject("PlatypusApp", MFEMGenericFunctionVectorMaterial);
+registerMooseObject("PlatypusApp", MFEMGenericFunctorVectorMaterial);
 
 InputParameters
-MFEMGenericFunctionVectorMaterial::validParams()
+MFEMGenericFunctorVectorMaterial::validParams()
 {
   InputParameters params = MFEMMaterial::validParams();
-  params.addClassDescription("Declares material vector properties based on names and functions "
+  params.addClassDescription("Declares material vector properties based on names and functors "
                              "prescribed by input parameters.");
   params.addRequiredParam<std::vector<std::string>>(
       "prop_names", "The names of the properties this material will have");
-  params.addRequiredParam<std::vector<FunctionName>>(
-      "prop_values", "The corresponding names of functions associated with the named properties");
+  params.addRequiredParam<std::vector<MFEMVectorCoefficientName>>(
+      "prop_values",
+      "The corresponding names of functors associated with the named properties. A functor is any "
+      "of the following: a variable, an MFEM material property, a function, or a post-processor.");
 
   return params;
 }
 
-MFEMGenericFunctionVectorMaterial::MFEMGenericFunctionVectorMaterial(
+MFEMGenericFunctorVectorMaterial::MFEMGenericFunctorVectorMaterial(
     const InputParameters & parameters)
   : MFEMMaterial(parameters),
     _prop_names(getParam<std::vector<std::string>>("prop_names")),
-    _prop_values(getParam<std::vector<FunctionName>>("prop_values"))
+    _prop_values(getParam<std::vector<MFEMVectorCoefficientName>>("prop_values"))
 {
   unsigned int num_names = _prop_names.size();
   unsigned int num_values = _prop_values.size();
@@ -38,4 +40,4 @@ MFEMGenericFunctionVectorMaterial::MFEMGenericFunctionVectorMaterial(
   }
 }
 
-MFEMGenericFunctionVectorMaterial::~MFEMGenericFunctionVectorMaterial() {}
+MFEMGenericFunctorVectorMaterial::~MFEMGenericFunctorVectorMaterial() {}

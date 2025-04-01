@@ -9,15 +9,17 @@ MFEMScalarFunctorBoundaryIntegratedBC::validParams()
   params.addClassDescription("Adds the domain integrator to an MFEM problem for the linear form "
                              "$(f, v)_\\Omega$ "
                              "arising from the weak form of the forcing term $f$.");
-  params.addRequiredParam<platypus::MFEMScalarCoefficientName>(
-      "coefficient", "The scalar MFEM coefficient which will be used in the integrated BC.");
+  params.addRequiredParam<MFEMScalarCoefficientName>(
+      "functor",
+      "The functor which will be used in the integrated BC. A functor is any of the following: a "
+      "variable, an MFEM material property, a function, or a post-processor.");
   return params;
 }
 
 MFEMScalarFunctorBoundaryIntegratedBC::MFEMScalarFunctorBoundaryIntegratedBC(
     const InputParameters & parameters)
   : MFEMIntegratedBC(parameters),
-    _coef_name(getParam<platypus::MFEMScalarCoefficientName>("coefficient")),
+    _coef_name(getParam<MFEMScalarCoefficientName>("functor")),
     _coef(getScalarCoefficient(_coef_name))
 {
 }

@@ -15,6 +15,6 @@ public:
   virtual mfem::LinearFormIntegrator * createLFIntegrator() override;
 
 protected:
-  const platypus::MFEMVectorCoefficientName & _vec_coef_name;
+  const MFEMVectorCoefficientName & _vec_coef_name;
   mfem::VectorCoefficient & _vec_coef;
 };

@@ -4,9 +4,10 @@ InputParameters
 MFEMVectorFunctorDirichletBCBase::validParams()
 {
   InputParameters params = MFEMEssentialBC::validParams();
-  params.addRequiredParam<platypus::MFEMVectorCoefficientName>(
-      "vector_coefficient",
-      "The vector coefficient specifying the values variable takes on the boundary.");
+  params.addRequiredParam<MFEMVectorCoefficientName>(
+      "vector_functor",
+      "Vector functor specifying the values variable takes on the boundar. A functor is any of the "
+      "following: a variable, an MFEM material property, a function, or a post-processor.");
   return params;
 }
 
@@ -14,7 +15,7 @@ MFEMVectorFunctorDirichletBCBase::validParams()
 MFEMVectorFunctorDirichletBCBase::MFEMVectorFunctorDirichletBCBase(
     const InputParameters & parameters)
   : MFEMEssentialBC(parameters),
-    _vec_coef_name(getParam<platypus::MFEMVectorCoefficientName>("vector_coefficient")),
+    _vec_coef_name(getParam<MFEMVectorCoefficientName>("vector_functor")),
     _vec_coef(getVectorCoefficient(_vec_coef_name))
 {
 }

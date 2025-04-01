@@ -12,14 +12,14 @@ MFEMCurlCurlKernel::validParams()
       "$(k\\vec\\nabla \\times \\vec u, \\vec\\nabla \\times \\vec v)_\\Omega$ "
       "arising from the weak form of the curl curl operator "
       "$-k\\vec\\nabla \\times \\vec\\nabla \\times \\vec u$.");
-  params.addParam<platypus::MFEMScalarCoefficientName>(
+  params.addParam<MFEMScalarCoefficientName>(
       "coefficient", "Name of scalar coefficient k to multiply the integrator by.");
   return params;
 }
 
 MFEMCurlCurlKernel::MFEMCurlCurlKernel(const InputParameters & parameters)
   : MFEMKernel(parameters),
-    _coef_name(getParam<platypus::MFEMScalarCoefficientName>("coefficient")),
+    _coef_name(getParam<MFEMScalarCoefficientName>("coefficient")),
     // FIXME: The MFEM bilinear form can also handle vector and matrix
     // coefficients, so ideally we'd handle all three too.
     _coef(getScalarCoefficient(_coef_name))

@@ -5,6 +5,7 @@
 #include <memory>
 #include <vector>
 #include <mfem.hpp>
+#include "MooseTypes.h"
 
 namespace platypus
 {
@@ -182,12 +183,14 @@ GetTimeDerivativeName(std::string name)
   return std::string("d") + name + std::string("_dt");
 }
 
-// TODO: Convert coefficient names to MOOSE derived string types
-using MFEMScalarCoefficientName = std::string;
-using MFEMVectorCoefficientName = std::string;
-using MFEMMatrixCoefficientName = std::string;
-
 using FECollections = platypus::NamedFieldsMap<mfem::FiniteElementCollection>;
 using FESpaces = platypus::NamedFieldsMap<mfem::ParFiniteElementSpace>;
 using GridFunctions = platypus::NamedFieldsMap<mfem::ParGridFunction>;
 } // namespace platypus
+
+/// This type is used for objects that expect mfem::Coefficient objects
+DerivativeStringClass(MFEMScalarCoefficientName);
+/// This type is used for objects that expect mfem::VectorCoefficient objects
+DerivativeStringClass(MFEMVectorCoefficientName);
+/// This type is used for objects that expect mfem::MatrixCoefficient objects
+DerivativeStringClass(MFEMMatrixCoefficientName);

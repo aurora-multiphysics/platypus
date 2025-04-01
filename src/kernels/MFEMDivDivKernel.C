@@ -13,15 +13,15 @@ MFEMDivDivKernel::validParams()
       "arising from the weak form of the grad-div operator "
       "$-\\vec\\nabla \\left( k \\vec\\nabla \\cdot \\vec u \\right)$.");
 
-  params.addParam<platypus::MFEMScalarCoefficientName>(
-      "coefficient", "Name of property k to multiply the Laplacian by");
+  params.addParam<MFEMScalarCoefficientName>("coefficient",
+                                             "Name of property k to multiply the Laplacian by");
 
   return params;
 }
 
 MFEMDivDivKernel::MFEMDivDivKernel(const InputParameters & parameters)
   : MFEMKernel(parameters),
-    _coef_name(getParam<platypus::MFEMScalarCoefficientName>("coefficient")),
+    _coef_name(getParam<MFEMScalarCoefficientName>("coefficient")),
     // FIXME: The MFEM bilinear form can also handle vector and matrix
     // coefficients, so ideally we'd handle all three too.
     _coef(getScalarCoefficient(_coef_name))
