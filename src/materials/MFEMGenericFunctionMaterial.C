@@ -33,9 +33,7 @@ MFEMGenericFunctionMaterial::MFEMGenericFunctionMaterial(const InputParameters &
   for (unsigned int i = 0; i < _num_props; i++)
   {
     _properties.declareScalarProperty(
-        _prop_names[i],
-        subdomainsToStrings(_block_ids),
-        getMFEMProblem().getProperties().getScalarCoefficientPtr(_prop_values[i]));
+        _prop_names[i], subdomainsToStrings(_block_ids), _prop_values[i]);
   }
 }
 
