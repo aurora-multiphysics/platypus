@@ -413,7 +413,7 @@ MFEMProblem::updateFESpaces()
   {
     gridfunction_pair.second->Update();
   }
-  _problem_data._eqn_system->UpdateEquationSystem(_problem_data._bc_map);
+  _problem_data._eqn_system->UpdateEquationSystem();
 }
 
 void
