@@ -74,7 +74,7 @@
     type = MFEMVectorDomainLFKernel
     variable = displacement
     vector_coefficient = gravitational_force_density
-  []  
+  []
 []
 
 [Preconditioner]
