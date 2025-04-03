@@ -18,7 +18,7 @@ public:
   platypus::TrackedScalarCoefficientFactory _scalar_factory;
   platypus::TrackedVectorCoefficientFactory _vector_factory;
   platypus::TrackedMatrixCoefficientFactory _matrix_factory;
-  platypus::CoefficientManager _properties{_scalar_factory, _vector_factory, _matrix_factory};
+  platypus::CoefficientManager _coefficients{_scalar_factory, _vector_factory, _matrix_factory};
 
   std::unique_ptr<mfem::ODESolver> _ode_solver{nullptr};
   mfem::BlockVector _f;

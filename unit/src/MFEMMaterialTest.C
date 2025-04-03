@@ -65,7 +65,7 @@ TEST_F(MFEMMaterialTest, MFEMGenericConstantMaterial)
   coef_params.set<std::vector<Real>>("prop_values") = {2.0, 1.0};
   _mfem_problem->addMaterial("MFEMGenericConstantMaterial", "material1", coef_params);
 
-  mfem::Coefficient & coef1 = _mfem_problem->getProperties().getScalarCoefficient("coef1");
+  mfem::Coefficient & coef1 = _mfem_problem->getCoefficients().getScalarCoefficient("coef1");
   auto c1 = dynamic_cast<mfem::ConstantCoefficient *>(&coef1);
   EXPECT_NE(c1, nullptr);
   fe_transform.Attribute = 1;
@@ -74,7 +74,7 @@ TEST_F(MFEMMaterialTest, MFEMGenericConstantMaterial)
   fe_transform.Attribute = 2;
   EXPECT_EQ(coef1.Eval(fe_transform, point1), 2.0);
 
-  mfem::Coefficient & coef2 = _mfem_problem->getProperties().getScalarCoefficient("coef2");
+  mfem::Coefficient & coef2 = _mfem_problem->getCoefficients().getScalarCoefficient("coef2");
   auto c2 = dynamic_cast<mfem::ConstantCoefficient *>(&coef2);
   EXPECT_NE(c2, nullptr);
   fe_transform.Attribute = 1;
@@ -100,7 +100,7 @@ TEST_F(MFEMMaterialTest, MFEMGenericConstantMaterial_PW)
   coef_params2.set<std::vector<SubdomainName>>("block") = {"3"};
   _mfem_problem->addMaterial("MFEMGenericConstantMaterial", "material2", coef_params2);
 
-  mfem::Coefficient & coef1 = _mfem_problem->getProperties().getScalarCoefficient("coef1");
+  mfem::Coefficient & coef1 = _mfem_problem->getCoefficients().getScalarCoefficient("coef1");
   auto c1 = dynamic_cast<mfem::PWCoefficient *>(&coef1);
   EXPECT_NE(c1, nullptr);
   fe_transform.Attribute = 1;
@@ -113,7 +113,7 @@ TEST_F(MFEMMaterialTest, MFEMGenericConstantMaterial_PW)
   fe_transform.Attribute = 4;
   EXPECT_EQ(coef1.Eval(fe_transform, point1), 0.0);
 
-  mfem::Coefficient & coef2 = _mfem_problem->getProperties().getScalarCoefficient("coef2");
+  mfem::Coefficient & coef2 = _mfem_problem->getCoefficients().getScalarCoefficient("coef2");
   auto c2 = dynamic_cast<mfem::PWCoefficient *>(&coef2);
   EXPECT_NE(c2, nullptr);
   fe_transform.Attribute = 1;
@@ -183,7 +183,7 @@ TEST_F(MFEMMaterialTest, MFEMGenericConstantVectorMaterial)
       expected1[0], expected1[1], expected1[2], expected2[0], expected2[1], expected2[2]};
   _mfem_problem->addMaterial("MFEMGenericConstantVectorMaterial", "material1", coef_params);
 
-  mfem::VectorCoefficient & coef1 = _mfem_problem->getProperties().getVectorCoefficient("coef1");
+  mfem::VectorCoefficient & coef1 = _mfem_problem->getCoefficients().getVectorCoefficient("coef1");
   auto c1 = dynamic_cast<mfem::VectorConstantCoefficient *>(&coef1);
   EXPECT_NE(c1, nullptr);
   fe_transform.Attribute = 1;
@@ -192,7 +192,7 @@ TEST_F(MFEMMaterialTest, MFEMGenericConstantVectorMaterial)
   fe_transform.Attribute = 2;
   EXPECT_TRUE(check_vector(coef1, fe_transform, point1, expected1));
 
-  mfem::VectorCoefficient & coef2 = _mfem_problem->getProperties().getVectorCoefficient("coef2");
+  mfem::VectorCoefficient & coef2 = _mfem_problem->getCoefficients().getVectorCoefficient("coef2");
   auto c2 = dynamic_cast<mfem::VectorConstantCoefficient *>(&coef2);
   EXPECT_NE(c2, nullptr);
   fe_transform.Attribute = 1;
@@ -219,7 +219,7 @@ TEST_F(MFEMMaterialTest, MFEMGenericConstantVectorMaterial_PW)
   coef_params2.set<std::vector<SubdomainName>>("block") = {"2"};
   _mfem_problem->addMaterial("MFEMGenericConstantVectorMaterial", "material2", coef_params2);
 
-  mfem::VectorCoefficient & coef = _mfem_problem->getProperties().getVectorCoefficient("coef1");
+  mfem::VectorCoefficient & coef = _mfem_problem->getCoefficients().getVectorCoefficient("coef1");
   auto c = dynamic_cast<mfem::PWCoefficient *>(&coef);
   fe_transform.Attribute = 1;
   EXPECT_TRUE(check_vector(coef, fe_transform, point1, expected1));
@@ -261,7 +261,7 @@ TEST_F(MFEMFunctorMaterialTest, MFEMGenericFunctorMaterial)
   coef_params.set<std::vector<MFEMScalarCoefficientName>>("prop_values") = {"func1", "func2"};
   _mfem_problem->addMaterial("MFEMGenericFunctorMaterial", "material1", coef_params);
 
-  mfem::Coefficient & coef1 = _mfem_problem->getProperties().getScalarCoefficient("coef1");
+  mfem::Coefficient & coef1 = _mfem_problem->getCoefficients().getScalarCoefficient("coef1");
   auto c1 = dynamic_cast<mfem::FunctionCoefficient *>(&coef1);
   EXPECT_NE(c1, nullptr);
   fe_transform.Attribute = 1;
@@ -270,7 +270,7 @@ TEST_F(MFEMFunctorMaterialTest, MFEMGenericFunctorMaterial)
   fe_transform.Attribute = 2;
   EXPECT_EQ(coef1.Eval(fe_transform, point1), 0.0);
 
-  mfem::Coefficient & coef2 = _mfem_problem->getProperties().getScalarCoefficient("coef2");
+  mfem::Coefficient & coef2 = _mfem_problem->getCoefficients().getScalarCoefficient("coef2");
   auto c2 = dynamic_cast<mfem::FunctionCoefficient *>(&coef2);
   EXPECT_NE(c2, nullptr);
   fe_transform.Attribute = 1;
@@ -296,7 +296,7 @@ TEST_F(MFEMFunctorMaterialTest, MFEMGenericFunctorMaterial_PW)
   coef_params2.set<std::vector<SubdomainName>>("block") = {"3"};
   _mfem_problem->addMaterial("MFEMGenericFunctorMaterial", "material2", coef_params2);
 
-  mfem::Coefficient & coef1 = _mfem_problem->getProperties().getScalarCoefficient("coef1");
+  mfem::Coefficient & coef1 = _mfem_problem->getCoefficients().getScalarCoefficient("coef1");
   auto c1 = dynamic_cast<mfem::PWCoefficient *>(&coef1);
   EXPECT_NE(c1, nullptr);
   fe_transform.Attribute = 1;
@@ -312,7 +312,7 @@ TEST_F(MFEMFunctorMaterialTest, MFEMGenericFunctorMaterial_PW)
   EXPECT_EQ(coef1.Eval(fe_transform, point1), 0.0);
   EXPECT_EQ(coef1.Eval(fe_transform, point2), 0.0);
 
-  mfem::Coefficient & coef2 = _mfem_problem->getProperties().getScalarCoefficient("coef2");
+  mfem::Coefficient & coef2 = _mfem_problem->getCoefficients().getScalarCoefficient("coef2");
   auto c2 = dynamic_cast<mfem::PWCoefficient *>(&coef2);
   EXPECT_NE(c2, nullptr);
   fe_transform.Attribute = 1;
@@ -361,7 +361,7 @@ TEST_F(MFEMFunctorVectorMaterialTest, MFEMGenericFunctorVectorMaterial)
   _mfem_problem->addMaterial("MFEMGenericFunctorVectorMaterial", "material1", coef_params);
   mfem::Vector a({0., 1., 2.}), b({1.5, 2.5, 3.5}), c({0., 0., 0.}), d({0.5, 1., 1.5});
 
-  mfem::VectorCoefficient & coef1 = _mfem_problem->getProperties().getVectorCoefficient("coef1");
+  mfem::VectorCoefficient & coef1 = _mfem_problem->getCoefficients().getVectorCoefficient("coef1");
   auto c1 = dynamic_cast<mfem::VectorFunctionCoefficient *>(&coef1);
   EXPECT_NE(c1, nullptr);
   fe_transform.Attribute = 1;
@@ -370,7 +370,7 @@ TEST_F(MFEMFunctorVectorMaterialTest, MFEMGenericFunctorVectorMaterial)
   fe_transform.Attribute = 2;
   EXPECT_TRUE(check_vector(coef1, fe_transform, point1, a));
 
-  mfem::VectorCoefficient & coef2 = _mfem_problem->getProperties().getVectorCoefficient("coef2");
+  mfem::VectorCoefficient & coef2 = _mfem_problem->getCoefficients().getVectorCoefficient("coef2");
   auto c2 = dynamic_cast<mfem::VectorFunctionCoefficient *>(&coef2);
   EXPECT_NE(c2, nullptr);
   fe_transform.Attribute = 1;
@@ -398,7 +398,7 @@ TEST_F(MFEMFunctorVectorMaterialTest, MFEMGenericFunctorVectorMaterial_PW)
   mfem::Vector a({0., 1., 2.}), b({1.5, 2.5, 3.5}), c({0., 0., 0.}), d({0.5, 1., 1.5}),
       zero({0., 0., 0.});
 
-  mfem::VectorCoefficient & coef1 = _mfem_problem->getProperties().getVectorCoefficient("coef1");
+  mfem::VectorCoefficient & coef1 = _mfem_problem->getCoefficients().getVectorCoefficient("coef1");
   auto c1 = dynamic_cast<mfem::PWVectorCoefficient *>(&coef1);
   EXPECT_NE(c1, nullptr);
   fe_transform.Attribute = 1;
@@ -414,7 +414,7 @@ TEST_F(MFEMFunctorVectorMaterialTest, MFEMGenericFunctorVectorMaterial_PW)
   EXPECT_TRUE(check_vector(coef1, fe_transform, point1, zero));
   EXPECT_TRUE(check_vector(coef1, fe_transform, point2, zero));
 
-  mfem::VectorCoefficient & coef2 = _mfem_problem->getProperties().getVectorCoefficient("coef2");
+  mfem::VectorCoefficient & coef2 = _mfem_problem->getCoefficients().getVectorCoefficient("coef2");
   auto c2 = dynamic_cast<mfem::PWVectorCoefficient *>(&coef2);
   EXPECT_NE(c2, nullptr);
   fe_transform.Attribute = 1;

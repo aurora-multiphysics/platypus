@@ -188,12 +188,12 @@ MFEMProblem::addGridFunction(const std::string & var_type,
   getProblemData()._gridfunctions.Register(var_name, mfem_variable.getGridFunction());
   if (mfem_variable.getFESpace().isScalar())
   {
-    getProperties().declareScalar<mfem::GridFunctionCoefficient>(
+    getCoefficients().declareScalar<mfem::GridFunctionCoefficient>(
         var_name, mfem_variable.getGridFunction().get());
   }
   else
   {
-    getProperties().declareVector<mfem::VectorGridFunctionCoefficient>(
+    getCoefficients().declareVector<mfem::VectorGridFunctionCoefficient>(
         var_name, mfem_variable.getGridFunction().get());
   }
 }
@@ -329,7 +329,7 @@ MFEMProblem::addFunction(const std::string & type,
   // are only of space or only of time.
   if (std::find(SCALAR_FUNCS.begin(), SCALAR_FUNCS.end(), type) != SCALAR_FUNCS.end())
   {
-    getProperties().declareScalar<mfem::FunctionCoefficient>(
+    getCoefficients().declareScalar<mfem::FunctionCoefficient>(
         name,
 
         [&func](const mfem::Vector & p, double t) -> mfem::real_t
@@ -338,7 +338,7 @@ MFEMProblem::addFunction(const std::string & type,
   else if (std::find(VECTOR_FUNCS.begin(), VECTOR_FUNCS.end(), type) != VECTOR_FUNCS.end())
   {
     int dim = vectorFunctionDim(type, parameters);
-    getProperties().declareVector<mfem::VectorFunctionCoefficient>(
+    getCoefficients().declareVector<mfem::VectorFunctionCoefficient>(
         name,
         dim,
         [&func, dim](const mfem::Vector & p, double t, mfem::Vector & u)
@@ -366,7 +366,7 @@ MFEMProblem::addPostprocessor(const std::string & type,
   // For some reason this isn't getting called
   ExternalProblem::addPostprocessor(type, name, parameters);
   const PostprocessorValue & val = getPostprocessorValueByName(name);
-  getProperties().declareScalar<mfem::FunctionCoefficient>(
+  getCoefficients().declareScalar<mfem::FunctionCoefficient>(
       name, [&val](const mfem::Vector & p, double t) -> mfem::real_t { return val; });
 }
 
