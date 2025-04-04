@@ -1,9 +1,9 @@
-#include "MFEMMixedVectorGradientKernel.h"
+#include "MFEMVectorFEDivergenceKernel.h"
 
-registerMooseObject("PlatypusApp", MFEMMixedVectorGradientKernel);
+registerMooseObject("PlatypusApp", MFEMVectorFEDivergenceKernel);
 
 InputParameters
-MFEMMixedVectorGradientKernel::validParams()
+MFEMVectorFEDivergenceKernel::validParams()
 {
   InputParameters params = MFEMMixedBilinearFormKernel::validParams();
   params.addClassDescription(
@@ -15,7 +15,7 @@ MFEMMixedVectorGradientKernel::validParams()
   return params;
 }
 
-MFEMMixedVectorGradientKernel::MFEMMixedVectorGradientKernel(const InputParameters & parameters)
+MFEMVectorFEDivergenceKernel::MFEMVectorFEDivergenceKernel(const InputParameters & parameters)
   : MFEMMixedBilinearFormKernel(parameters),
     _coef_name(getParam<std::string>("coefficient")),
     // FIXME: The MFEM bilinear form can also handle vector and matrix
@@ -25,8 +25,8 @@ MFEMMixedVectorGradientKernel::MFEMMixedVectorGradientKernel(const InputParamete
 }
 
 mfem::BilinearFormIntegrator *
-MFEMMixedVectorGradientKernel::createBFIntegrator()
+MFEMVectorFEDivergenceKernel::createBFIntegrator()
 {
-  mfem::BilinearFormIntegrator * base_integrator = new mfem::MixedVectorGradientIntegrator(_coef);
+  mfem::BilinearFormIntegrator * base_integrator = new mfem::VectorFEDivergenceIntegrator(_coef);
   return createTransposableBFIntegrator(base_integrator);
 }
