@@ -17,5 +17,5 @@ public:
 
 protected:
   std::vector<Real> _vec_value;
-  std::shared_ptr<mfem::VectorConstantCoefficient> _vec_coef{nullptr};
+  mfem::VectorConstantCoefficient & _vec_coef;
 };
