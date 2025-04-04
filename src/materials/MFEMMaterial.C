@@ -44,7 +44,7 @@ MFEMMaterial::pointFromMFEMVector(const mfem::Vector & vec)
 MFEMMaterial::MFEMMaterial(const InputParameters & parameters)
   : MFEMGeneralUserObject(parameters),
     _block_ids(getParam<std::vector<SubdomainName>>("block")),
-    _properties(getMFEMProblem().getProperties())
+    _properties(getMFEMProblem().getCoefficients())
 {
 }
 

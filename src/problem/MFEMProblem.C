@@ -186,6 +186,16 @@ MFEMProblem::addGridFunction(const std::string & var_type,
   // Register gridfunction.
   MFEMVariable & mfem_variable = getUserObject<MFEMVariable>(var_name);
   getProblemData()._gridfunctions.Register(var_name, mfem_variable.getGridFunction());
+  if (mfem_variable.getFESpace().isScalar())
+  {
+    getCoefficients().declareScalar<mfem::GridFunctionCoefficient>(
+        var_name, mfem_variable.getGridFunction().get());
+  }
+  else
+  {
+    getCoefficients().declareVector<mfem::VectorGridFunctionCoefficient>(
+        var_name, mfem_variable.getGridFunction().get());
+  }
 }
 
 void
@@ -319,14 +329,17 @@ MFEMProblem::addFunction(const std::string & type,
   // are only of space or only of time.
   if (std::find(SCALAR_FUNCS.begin(), SCALAR_FUNCS.end(), type) != SCALAR_FUNCS.end())
   {
-    _scalar_functions[name] = makeScalarCoefficient<mfem::FunctionCoefficient>(
+    getCoefficients().declareScalar<mfem::FunctionCoefficient>(
+        name,
+
         [&func](const mfem::Vector & p, double t) -> mfem::real_t
         { return func.value(t, pointFromMFEMVector(p)); });
   }
   else if (std::find(VECTOR_FUNCS.begin(), VECTOR_FUNCS.end(), type) != VECTOR_FUNCS.end())
   {
     int dim = vectorFunctionDim(type, parameters);
-    _vector_functions[name] = makeVectorCoefficient<mfem::VectorFunctionCoefficient>(
+    getCoefficients().declareVector<mfem::VectorFunctionCoefficient>(
+        name,
         dim,
         [&func, dim](const mfem::Vector & p, double t, mfem::Vector & u)
         {
@@ -343,6 +356,18 @@ MFEMProblem::addFunction(const std::string & type,
                  type,
                  " is scalar or vector; no MFEM coefficient object created.");
   }
+}
+
+void
+MFEMProblem::addPostprocessor(const std::string & type,
+                              const std::string & name,
+                              InputParameters & parameters)
+{
+  // For some reason this isn't getting called
+  ExternalProblem::addPostprocessor(type, name, parameters);
+  const PostprocessorValue & val = getPostprocessorValueByName(name);
+  getCoefficients().declareScalar<mfem::FunctionCoefficient>(
+      name, [&val](const mfem::Vector & p, double t) -> mfem::real_t { return val; });
 }
 
 InputParameters
@@ -432,32 +457,6 @@ std::vector<VariableName>
 MFEMProblem::getAuxVariableNames()
 {
   return systemBaseAuxiliary().getVariableNames();
-}
-
-std::shared_ptr<mfem::FunctionCoefficient>
-MFEMProblem::getScalarFunctionCoefficient(const std::string & name)
-{
-  try
-  {
-    return this->_scalar_functions.at(name);
-  }
-  catch (std::out_of_range)
-  {
-    mooseError("No scalar function with name '" + name + "'.");
-  }
-}
-
-std::shared_ptr<mfem::VectorFunctionCoefficient>
-MFEMProblem::getVectorFunctionCoefficient(const std::string & name)
-{
-  try
-  {
-    return this->_vector_functions.at(name);
-  }
-  catch (std::out_of_range)
-  {
-    mooseError("No vector function with name '" + name + "'.");
-  }
 }
 
 MFEMMesh &
