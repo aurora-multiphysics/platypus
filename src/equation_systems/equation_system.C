@@ -99,6 +99,9 @@ EquationSystem::ApplyEssentialBCs()
   for (int i = 0; i < _test_var_names.size(); i++)
   {
     auto test_var_name = _test_var_names.at(i);
+    if (!_essential_bc_map.Has(test_var_name))
+      continue;
+
     // Set default value of gridfunction used in essential BC. Values
     // overwritten in applyEssentialBCs
     mfem::ParGridFunction & trial_gf(*(_xs.at(i)));
