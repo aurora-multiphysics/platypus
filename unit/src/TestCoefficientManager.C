@@ -10,11 +10,8 @@ class CheckCoefficientManager : public testing::Test
 protected:
   mfem::IsoparametricTransformation fe_transform;
   mfem::IntegrationPoint point1, point2;
-  platypus::TrackedScalarCoefficientFactory _scalar_factory;
-  platypus::TrackedVectorCoefficientFactory _vector_factory;
-  platypus::TrackedMatrixCoefficientFactory _matrix_factory;
   platypus::CoefficientManager manager;
-  CheckCoefficientManager() : manager(_scalar_factory, _vector_factory, _matrix_factory)
+  CheckCoefficientManager()
   {
     point1.Init(2);
     point1.Set2(0., 0.);

@@ -1,7 +1,6 @@
 #pragma once
 #include "equation_system.h"
 #include "MFEMContainers.h"
-#include "TrackedObjectFactory.h"
 #include "CoefficientManager.h"
 #include <fstream>
 #include <iostream>
@@ -15,10 +14,7 @@ public:
   virtual ~MFEMProblemData() { _ode_solver.reset(); };
 
   std::shared_ptr<mfem::ParMesh> _pmesh{nullptr};
-  platypus::TrackedScalarCoefficientFactory _scalar_factory;
-  platypus::TrackedVectorCoefficientFactory _vector_factory;
-  platypus::TrackedMatrixCoefficientFactory _matrix_factory;
-  platypus::CoefficientManager _coefficients{_scalar_factory, _vector_factory, _matrix_factory};
+  platypus::CoefficientManager _coefficients;
 
   std::unique_ptr<mfem::ODESolver> _ode_solver{nullptr};
   mfem::BlockVector _f;
