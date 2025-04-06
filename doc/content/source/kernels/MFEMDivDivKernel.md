@@ -20,7 +20,7 @@ This term arises from the weak form of the grad div operator
 
 ## Example Input File Syntax
 
-!listing graddiv.i
+!listing graddiv.i block=Kernels
 
 !syntax parameters /Kernels/MFEMDivDivKernel
 

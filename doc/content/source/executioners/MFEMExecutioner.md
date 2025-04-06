@@ -23,4 +23,4 @@ By default, legacy assembly of the FE problem on CPUs will be selected for robus
 
 !listing test/tests/kernels/diffusion.i block=Executioner
 
-!listing test/tests/kernels/diffusion_partial.i block=Executioner
+!listing test/tests/kernels/heattransfer.i block=Executioner

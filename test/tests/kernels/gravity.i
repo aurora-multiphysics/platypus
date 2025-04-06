@@ -1,6 +1,6 @@
 [Mesh]
   type = MFEMMesh
-  file = gold/beam-tet.mesh
+  file = ../../../data/beam-tet.mesh
   dim = 3
   uniform_refine = 2
   displacement = "displacement"
@@ -60,7 +60,7 @@
     prop_names = 'gravitational_force_density'
     prop_values = '0.0 0.0 -5e-3'
     block = 2
-  []  
+  []
 []
 
 [Kernels]
@@ -74,7 +74,7 @@
     type = MFEMVectorDomainLFKernel
     variable = displacement
     vector_coefficient = gravitational_force_density
-  []  
+  []
 []
 
 [Preconditioner]
