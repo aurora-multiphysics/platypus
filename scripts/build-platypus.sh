@@ -124,13 +124,11 @@ make_spack_env() {
             printf 'GPU backend %s detected\n' "${GPU_BACKEND}"
             if [ "${GPU_BACKEND}" = "cuda" ]; then
                 export LLVM_TYPE="llvm"
-                replace_in_file ${SPACK_MOD} "blas" "+cublas"
                 replace_in_file ${SPACK_MOD} "llvm_version" "@${LLVM_VER}"
                 replace_in_file ${SPACK_MOD} "openmpi" "openmpi@openmpi_version@ @gpu@ @gpu_arch@"
                 replace_in_file ${SPACK_MOD} "ucx" "ucx @gpu@ @gpu_arch@ +gdrcopy"
             else
                 export LLVM_TYPE="llvm-amdgpu"
-                replace_in_file ${SPACK_MOD} "blas" "+rocblas"
                 replace_in_file ${SPACK_MOD} "llvm_version" "@${AMDLLVM_VER}"
                 replace_in_file ${SPACK_MOD} "openmpi" "openmpi@openmpi_version@"
                 replace_in_file ${SPACK_MOD} "ucx" "ucx @gpu@"
