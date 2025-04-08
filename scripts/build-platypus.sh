@@ -26,7 +26,7 @@ help() {
 }
 
 clean() {
-    rm -r ${BUILD_PATH}
+    rm -rf ${BUILD_PATH}
     exit 0
 }
 
@@ -86,7 +86,7 @@ parse_options() {
 }
 
 export_config_file() {
-
+    
     INV_COMMAND="$*"
     {
         printf 'Invocation command:\n\n ./%s %s\n\n' "$(basename "$0")" "${INV_COMMAND}"
