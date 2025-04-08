@@ -20,7 +20,7 @@ MFEMVariable::validParams()
 }
 
 MFEMVariable::MFEMVariable(const InputParameters & parameters)
-  : MFEMGeneralUserObject(parameters),
+  : MFEMGeneralUserObject(parameters), Moose::FunctorBase<libMesh::Real>(name()),
     _fespace(getUserObject<MFEMFESpace>("fespace")),
     _gridfunction(buildGridFunction())
 {
