@@ -353,7 +353,7 @@ install_mfem() {
         -DCMAKE_INSTALL_PREFIX="${BUILD_PATH}"/mfem/installed \
         -DBUILD_SHARED_LIBS=YES \
         -DMFEM_USE_OPENMP=NO \
-        -DMFEM_THREAD_SAFE=YES \
+        -DMFEM_THREAD_SAFE=NO \
         -DMFEM_ENABLE_EXAMPLES=YES \
         -DMFEM_ENABLE_MINIAPPS=YES \
         -DMFEM_USE_MPI=YES \
@@ -382,6 +382,7 @@ install_moose() {
     cd "${BUILD_PATH}" || exit 1
     git clone https://github.com/idaholab/moose
     cd moose || exit 1
+    git checkout master
     ./scripts/update_and_rebuild_libmesh.sh --with-mpi
     ./scripts/update_and_rebuild_wasp.sh
 
