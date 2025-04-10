@@ -61,6 +61,29 @@ MFEMParsedCoeffMaterial::MFEMParsedCoeffMaterial(const InputParameters & paramet
     // set FParser internal feature flags
     setParserFeatureFlags(_func_F);
 
+    // parse function
+    if (_func_F->Parse(_function, variables) >= 0)
+        mooseError(
+            "Invalid function\n", _function, "\nin ParsedAux ", name(), ".\n", _func_F->ErrorMsg());
+
+    // optimize
+    if (!_disable_fpoptimizer)
+      _func_F->Optimize();
+
+    // just-in-time compile
+    if (_enable_jit)
+      {
+        // let rank 0 do the JIT compilation first
+        if (_communicator.rank() != 0)
+          _communicator.barrier();
+
+        _func_F->JITCompile();
+
+        // wait for ranks > 0 to catch up
+        if (_communicator.rank() == 0)
+          _communicator.barrier();
+      }
+
   //std::shared_ptr<mfem::ParGridFunction> _shared_grid_function = _problem_data._gridfunctions.GetShared("hello");
   //mfem::ParGridFunction & _var_grid_function = _problem_data._gridfunctions.GetRef("hello");
 
