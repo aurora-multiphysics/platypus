@@ -12,7 +12,7 @@ double  MFEMScalarParsedCoeff::Eval(mfem::ElementTransformation &T, const mfem::
     for(unsigned I=0; I<inputs.size(); I++)
     {
         //if(){//Checks if its is a scalar GridFunction
-        //  InpVals[inputs[I]] = gFuncs[inputs[I]].GetValue(T, ip);
+        //  InpVals[I] = gFuncs[inputs[I]].GetValue(T, ip);
     }
     
     return func(InpVals);
