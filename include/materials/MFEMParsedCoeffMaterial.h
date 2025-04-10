@@ -16,8 +16,18 @@ public:
   virtual ~MFEMParsedCoeffMaterial();
 
 protected:
+  /// function expression
+  std::string _function;
+  const std::vector<std::string> & _var_names;
   const std::vector<std::string> & _prop_names;
   const std::vector<Real> & _prop_values;
   unsigned int _num_props;
+  /// import coordinates and time
+  const bool _use_xyzt;
+  /// coordinate and time variable names
+  const std::vector<std::string> _xyzt;
   const MFEMProblemData & _problem_data;
+  /// function parser object for the resudual and on-diagonal Jacobian
+  SymFunctionPtr _func_F;
+
 };

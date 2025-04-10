@@ -1,4 +1,6 @@
 #include "MFEMParsedCoeffMaterial.h"
+#include <vector>
+#include <memory>
 
 registerMooseObject("PlatypusApp", MFEMParsedCoeffMaterial);
 
@@ -9,20 +11,29 @@ MFEMParsedCoeffMaterial::validParams()
   params += FunctionParserUtils<false>::validParams();
   params.addClassDescription("Declares constant material properties based on names and values "
                              "prescribed by input parameters.");
+  params.addRequiredCustomTypeParam<std::string>(
+                              "function", "FunctionExpression", "Parsed function expression to compute");
+  params.deprecateParam("function", "expression", "02/07/2024");
   params.addRequiredParam<std::vector<std::string>>(
       "prop_names", "The names of the properties this material will have");
   params.addRequiredParam<std::vector<Real>>("prop_values",
                                              "The values associated with the named properties");
-
   params.declareControllable("prop_values");
+  params.addParam<bool>(
+    "use_xyzt",
+    false,
+    "Make coordinate (x,y,z) and time (t) variables available in the function expression.");
   return params;
 }
 
 MFEMParsedCoeffMaterial::MFEMParsedCoeffMaterial(const InputParameters & parameters)
   : MFEMMaterial(parameters),
     FunctionParserUtils(parameters),
+    _var_names(getParam<std::vector<std::string>>("var_names")),
     _prop_names(getParam<std::vector<std::string>>("prop_names")),
     _prop_values(getParam<std::vector<Real>>("prop_values")),
+    _use_xyzt(getParam<bool>("use_xyzt")),
+    _xyzt({"x", "y", "z", "t"}),
     _problem_data(getMFEMProblem().getProblemData())
 {
   unsigned int num_names = _prop_names.size();
@@ -31,6 +42,36 @@ MFEMParsedCoeffMaterial::MFEMParsedCoeffMaterial(const InputParameters & paramet
   if (num_names != num_values)
     mooseError(
         "Number of prop_names must match the number of prop_values for a GenericConstantMaterial!");
+
+    // build variables argument
+    std::string variables;
+
+    // coupled field variables
+    for (const auto i : index_range(_var_names))
+      variables += (i == 0 ? "" : ",") + _var_names[i];
+
+    // positions and time
+    if (_use_xyzt)
+      for (auto & v : _xyzt)
+        variables += (variables.empty() ? "" : ",") + v;
+
+    // base function object
+    _func_F = std::make_shared<SymFunction>();
+
+    // set FParser internal feature flags
+    setParserFeatureFlags(_func_F);
+
+  //std::shared_ptr<mfem::ParGridFunction> _shared_grid_function = _problem_data._gridfunctions.GetShared("hello");
+  //mfem::ParGridFunction & _var_grid_function = _problem_data._gridfunctions.GetRef("hello");
+
+  //using GFMapType = std::vector<std::shared_ptr<mfem::ParGridFunction>>;
+ // GFMapType grid_functions;
+
+ // for (unsigned int i = 0; i < _var_names.size(); i++)
+   // grid_functions.push_back(_problem_data._gridfunctions.GetShared(_var_names[i]));
+
+  // MFEMScalarParsedCoeff( _problem_data._gridfunctions, _var_names
+  //  , std::function<double(std::vector<double>)> func_);
 
   _num_props = num_names;
   for (unsigned int i = 0; i < _num_props; i++)
