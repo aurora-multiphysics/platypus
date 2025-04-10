@@ -326,7 +326,7 @@ set_environment_vars() {
     export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${MFEM_DIR}/lib
     export MOOSE_JOBS=$compile_cores
     export LIBMESH_JOBS=$compile_cores
-    export METHOD="opt"
+    export METHOD="dbg"
 
     if [ "${GPU_BACKEND}" = "cuda" ]; then
         export CUDA_MFEM="YES"
@@ -349,11 +349,11 @@ install_mfem() {
     git checkout master
     spack load cmake
     cmake -S . -B build \
-        -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_BUILD_TYPE=Debug \
         -DCMAKE_INSTALL_PREFIX="${BUILD_PATH}"/mfem/installed \
         -DBUILD_SHARED_LIBS=YES \
         -DMFEM_USE_OPENMP=NO \
-        -DMFEM_THREAD_SAFE=YES \
+        -DMFEM_THREAD_SAFE=NO \
         -DMFEM_ENABLE_EXAMPLES=YES \
         -DMFEM_ENABLE_MINIAPPS=YES \
         -DMFEM_USE_MPI=YES \
@@ -462,7 +462,7 @@ EMACS=vim spack install
 spack load petsc
 
 # Cleaning intermediary files to use less space
-spack clean -a
+# spack clean -a
 
 set_environment_vars
 install_mfem
