@@ -68,7 +68,7 @@ parse_options() {
             PACKAGES+=("${arg#*=}")
             ;;
             -c=* | --compiler=*)
-            COMPILERS+=("${arg#*=}")
+            SPACK_COMPILER_PATH="${arg#*=}"
             ;;
             -mpicxx=* | --ompi-cxx=*)
             OMPICXX="${arg#*=}"
@@ -299,6 +299,7 @@ set_environment_vars() {
 
     export CPPFLAGS="${CPPFLAGS} -I${TIRPC_DIR}/include/tirpc"
     export LDFLAGS="${LDFLAGS} -L${TIRPC_DIR}/lib"
+    export CXXFLAGS="${CXXFLAGS} -D_GLIBCXX_USE_CXX11_ABI=1"
 
     if [ -z "${OMPICXX}" ]; then
         OMPI_CXX=$(spack location -i ${LLVM_TYPE})/bin/clang++
@@ -379,10 +380,20 @@ install_mfem() {
 }
 
 install_moose() {
+    
+    spack load py-deepdiff
+    spack load py-jinja2
+    spack load py-packaging
+    spack load py-pyyaml
+    spack load py-setuptools
+    spack load py-xmltodict
+    spack load py-pip
+
     cd "${BUILD_PATH}" || exit 1
-    git clone https://github.com/idaholab/moose
+    #git clone https://github.com/idaholab/moose
+    git clone https://github.com/Heinrich-BR/moose.git
     cd moose || exit 1
-    git checkout master
+    #git checkout master
     ./scripts/update_and_rebuild_libmesh.sh --with-mpi
     ./scripts/update_and_rebuild_wasp.sh
 
@@ -412,7 +423,8 @@ SPACK_MOD=".spack_env_platypus.yaml"
 # Name of the config file where we print the invocation options
 CONFIG_FILE="build_platypus_config.txt"
 
-# Location for the spack cache
+# Location for the spack hidden directory
+export SPACK_DISABLE_LOCAL_CONFIG=true
 export SPACK_USER_CACHE_PATH="deps"
 
 GPU_BUILD=0
@@ -423,6 +435,7 @@ AMDLLVM_VER="6.2.4"
 OPENMPI_VER="5.0.6"
 OMPICXX=""
 OMPICC=""
+SPACK_COMPILER_PATH=""
 PACKAGES=()
 COMPILERS=()
 OTHER_ARGUMENTS=()
@@ -447,7 +460,12 @@ load_spack
 make_spack_env
 
 # Will try to find a pre-installed compiler. Some version of gcc is required for this build
-spack compiler find
+if [ -z "${SPACK_COMPILER_PATH}" ]; then
+    printf "Spack compiler not set. Automatically finding compilers...\n"
+    spack compiler find
+else
+    spack compiler add ${SPACK_COMPILER_PATH}
+fi
 
 spack install bzip2
 spack load bzip2
