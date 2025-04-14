@@ -11,7 +11,7 @@ help() {
     printf "\n -mpicxx=[<path>], --ompi-cxx=[<path>]\n Path to a C++ compiler binary in case you wish to wrap the MPI compiler with one that is different to the one it was built with for the MFEM, MOOSE and Platypus builds.\n"
     printf "\n -mpicc=[<path>], --ompi-cc=[<path>]\n Path to a C compiler binary in case you wish to wrap the MPI compiler with one that is different to the one it was built with for the MFEM, MOOSE and Platypus builds.\n"
     printf "\n -p=[<name> <version> <path>], --package=[<name> <version> <path>]\n Adds an external package to the spack environment so that it is not built by spack. It is possible to add any number of packages.\n"
-    printf "\n -c=[<name> <version> <options>], --compiler=[<name> <version> <options>]\n Adds an external compiler to the spack environment. It is possible to add any number of compilers. In <options>, one would include the path to CC, CXX, F77, and FC compilers. It is not necessary to fill them all. See example below.\n"
+    printf "\n -c=<path>, --compiler=<path>\n Adds an external compiler to the spack environment to be used to build the spack packages. \n"
     printf "\n Example usage:\n"
 
     printf "\n ./scripts/build-platypus -g \\ \n"
@@ -26,7 +26,7 @@ help() {
 }
 
 clean() {
-    rm -rf ${BUILD_PATH}
+    rm -rf "${BUILD_PATH}"
     exit 0
 }
 
@@ -86,7 +86,7 @@ parse_options() {
 }
 
 export_config_file() {
-    
+
     INV_COMMAND="$*"
     {
         printf 'Invocation command:\n\n ./%s %s\n\n' "$(basename "$0")" "${INV_COMMAND}"
@@ -211,77 +211,6 @@ add_external_packages() {
 
 }
 
-parse_compiler_options() {
-    CC_PATH=""
-    CXX_PATH=""
-    F77_PATH=""
-    FC_PATH=""
-
-    for arg in "$@"; do
-        case $arg in
-            cc=* | CC=*)
-            CC_PATH="${arg#*=}"
-            ;;
-            cxx=* | CXX=*)
-            CXX_PATH="${arg#*=}"
-            ;;
-            f77=* | F77=*)
-            F77_PATH="${arg#*=}"
-            ;;
-            fc=* | FC=*)
-            FC_PATH=("${arg#*=}")
-            ;;
-            *)
-            OTHER_ARGUMENTS+=("${arg}")
-            ;;
-        esac
-    done
-
-    COMP_ARRAY=("${CC_PATH[@]}" "${CXX_PATH[@]}" "${F77_PATH[@]}" "${FC_PATH[@]}")
-    for arg in "${COMP_ARRAY[@]}"; do
-        if [ -z "$arg" ]; then
-            arg="None"
-        fi
-    done
-}
-
-add_compiler() {
-    # First argument is the package name
-    # Second argument is the version
-    # Third argument is the CC path
-    # Fourth argument is the CXX path
-    # Fifth argument is the F77 path
-    # Sixth argument is the FC path
-
-    if grep -q "$1@$2" "${SPACK_MOD}"; then
-        printf '%s compiler found in spack environment' "$1"
-    else
-        printf '  - compiler:\n      spec: %s\n      operating_system: %s\n      modules: []\n      paths:\n        cc: %s\n        cxx: %s\n        f77: %s\n        fc: %s\n' "$1@=$2" "$(spack arch -o)" "$3" "$4" "$5" "$6" >> "${SPACK_MOD}"
-    fi
-}
-
-add_external_compilers() {
-    if [ -z "${COMPILERS[*]}" ]; then
-        printf "No external compilers added\n"
-    else
-        printf "  compilers:\n" >> ${SPACK_MOD}
-        printf '\nExternal compilers:\n' >> ${CONFIG_FILE}
-        for c in "${COMPILERS[@]}"; do
-            read -ra STR_ARRAY <<< "$c"
-            parse_compiler_options "${STR_ARRAY[@]}"
-            printf "\nExternal compiler added"
-            printf '\nName: %s\n' "${STR_ARRAY[0]}"  | tee -a ${CONFIG_FILE}
-            printf 'Version: %s\n' "${STR_ARRAY[1]}" | tee -a ${CONFIG_FILE}
-            printf 'CC_PATH: %s\n' "${CC_PATH[*]}"   | tee -a ${CONFIG_FILE}
-            printf 'CXX_PATH: %s\n' "${CXX_PATH[*]}" | tee -a ${CONFIG_FILE}
-            printf 'F77_PATH: %s\n' "${F77_PATH[*]}" | tee -a ${CONFIG_FILE}
-            printf 'FC_PATH: %s\n' "${FC_PATH[*]}"   | tee -a ${CONFIG_FILE}
-            add_compiler "${STR_ARRAY[0]}" "${STR_ARRAY[1]}" "${CC_PATH[*]}" "${CXX_PATH[*]}" "${F77_PATH[*]}" "${FC_PATH[*]}"
-        done
-    fi
-
-}
-
 set_environment_vars() {
     SLU_DIR=$(spack location -i superlu-dist)
     HDF5_DIR=$(spack location -i hdf5)
@@ -380,7 +309,7 @@ install_mfem() {
 }
 
 install_moose() {
-    
+
     spack load py-deepdiff
     spack load py-jinja2
     spack load py-packaging
@@ -437,7 +366,6 @@ OMPICXX=""
 OMPICC=""
 SPACK_COMPILER_PATH=""
 PACKAGES=()
-COMPILERS=()
 OTHER_ARGUMENTS=()
 
 export BUILD_DIR_NAME="deps"
@@ -455,16 +383,15 @@ cp ${SPACK_FILE} "${BUILD_PATH}"/${SPACK_MOD}
 cd "${BUILD_PATH}" || exit 1
 
 add_external_packages
-add_external_compilers
 load_spack
 make_spack_env
 
-# Will try to find a pre-installed compiler. Some version of gcc is required for this build
+# If an external compiler is not added from the command line, spack will try to find existing compilers on the machine
 if [ -z "${SPACK_COMPILER_PATH}" ]; then
     printf "Spack compiler not set. Automatically finding compilers...\n"
     spack compiler find
 else
-    spack compiler add ${SPACK_COMPILER_PATH}
+    spack compiler add "${SPACK_COMPILER_PATH}"
 fi
 
 spack install bzip2
