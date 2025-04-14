@@ -1,4 +1,5 @@
 #include "MFEMParsedCoeffMaterial.h"
+#include "MFEMScalarParsedCoeff.h"
 #include <vector>
 #include <memory>
 
@@ -16,11 +17,6 @@ MFEMParsedCoeffMaterial::validParams()
   params.deprecateParam("function", "expression", "02/07/2024");
   params.addRequiredParam<std::vector<std::string>>(
     "var_names", "The names of the function variable names");
-  params.addRequiredParam<std::vector<std::string>>(
-      "prop_names", "The names of the properties this material will have");
-  params.addRequiredParam<std::vector<Real>>("prop_values",
-                                             "The values associated with the named properties");
-  params.declareControllable("prop_values");
   params.addParam<bool>(
     "use_xyzt",
     false,
@@ -33,18 +29,10 @@ MFEMParsedCoeffMaterial::MFEMParsedCoeffMaterial(const InputParameters & paramet
     FunctionParserUtils(parameters),
     _function(getParam<std::string>("expression")),    
     _var_names(getParam<std::vector<std::string>>("var_names")),
-    _prop_names(getParam<std::vector<std::string>>("prop_names")),
-    _prop_values(getParam<std::vector<Real>>("prop_values")),
     _use_xyzt(getParam<bool>("use_xyzt")),
     _xyzt({"x", "y", "z", "t"}),
     _problem_data(getMFEMProblem().getProblemData())
 {
-  unsigned int num_names = _prop_names.size();
-  unsigned int num_values = _prop_values.size();
-
-  if (num_names != num_values)
-    mooseError(
-        "Number of prop_names must match the number of prop_values for a GenericConstantMaterial!");
 
     // build variables argument
     std::string variables;
@@ -102,12 +90,9 @@ MFEMParsedCoeffMaterial::MFEMParsedCoeffMaterial(const InputParameters & paramet
   // MFEMScalarParsedCoeff( _problem_data._gridfunctions, _var_names
   //  , std::function<double(std::vector<double>)> func_);
 
-  _num_props = num_names;
-  for (unsigned int i = 0; i < _num_props; i++)
-  {
-    _properties.declareScalar<mfem::ConstantCoefficient>(
-        _prop_names[i], subdomainsToStrings(_block_ids), _prop_values[i]);
-  }
+    _properties.declareScalar<MFEMScalarParsedCoeff>(
+        "pared_material", subdomainsToStrings(_block_ids), _problem_data._gridfunctions, _var_names, _func_F);
+
 }
 
 MFEMParsedCoeffMaterial::~MFEMParsedCoeffMaterial() {}

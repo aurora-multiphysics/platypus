@@ -19,7 +19,7 @@ class MFEMScalarParsedCoeff : public mfem::Coefficient
 {
   private:
     platypus::GridFunctions  & gFuncs;
-    std::vector<std::string> & inputs;
+    const std::vector<std::string> & inputs;
     FunctionParserUtils<false>::SymFunctionPtr & func;
 
   public:
