@@ -15,6 +15,8 @@ MFEMParsedCoeffMaterial::validParams()
                               "function", "FunctionExpression", "Parsed function expression to compute");
   params.deprecateParam("function", "expression", "02/07/2024");
   params.addRequiredParam<std::vector<std::string>>(
+    "var_names", "The names of the function variable names");
+  params.addRequiredParam<std::vector<std::string>>(
       "prop_names", "The names of the properties this material will have");
   params.addRequiredParam<std::vector<Real>>("prop_values",
                                              "The values associated with the named properties");
@@ -29,6 +31,7 @@ MFEMParsedCoeffMaterial::validParams()
 MFEMParsedCoeffMaterial::MFEMParsedCoeffMaterial(const InputParameters & parameters)
   : MFEMMaterial(parameters),
     FunctionParserUtils(parameters),
+    _function(getParam<std::string>("expression")),    
     _var_names(getParam<std::vector<std::string>>("var_names")),
     _prop_names(getParam<std::vector<std::string>>("prop_names")),
     _prop_values(getParam<std::vector<Real>>("prop_values")),
@@ -84,14 +87,17 @@ MFEMParsedCoeffMaterial::MFEMParsedCoeffMaterial(const InputParameters & paramet
           _communicator.barrier();
       }
 
+    // reserve storage for parameter passing buffer
+    _func_params.resize(_var_names.size() + (_use_xyzt ? 4 : 0));
+
   //std::shared_ptr<mfem::ParGridFunction> _shared_grid_function = _problem_data._gridfunctions.GetShared("hello");
   //mfem::ParGridFunction & _var_grid_function = _problem_data._gridfunctions.GetRef("hello");
 
   //using GFMapType = std::vector<std::shared_ptr<mfem::ParGridFunction>>;
- // GFMapType grid_functions;
+  // GFMapType grid_functions;
 
- // for (unsigned int i = 0; i < _var_names.size(); i++)
-   // grid_functions.push_back(_problem_data._gridfunctions.GetShared(_var_names[i]));
+  // for (unsigned int i = 0; i < _var_names.size(); i++)
+  // grid_functions.push_back(_problem_data._gridfunctions.GetShared(_var_names[i]));
 
   // MFEMScalarParsedCoeff( _problem_data._gridfunctions, _var_names
   //  , std::function<double(std::vector<double>)> func_);
