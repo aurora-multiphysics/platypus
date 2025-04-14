@@ -5,6 +5,7 @@ help() {
     printf "\nUsage: ./build-platypus [options]\n"
     printf "\n Available options:\n"
     printf "\n -h, --help\n Displays this help message.\n"
+    printf "\n -cl, --clean\n Deletes the entire build directory along with all dependencies and installed files.\n"
     printf "\n -g, --gpu\n Defines a GPU build. If this option is not added, a CPU build is assumed.\n"
     printf "\n -b=[...], --gpu-backend=[...]\n Defines the GPU backend to be used. Options are cuda and rocm for NVIDIA and AMD GPUs, respectively.\n"
     printf "\n -a=[...], --gpu-arch=[...]\n Defines the target GPU architecture. For CUDA backends, use only the number. For instance, to target a GPU whose arch code is sm_80, you would add -a=80.\n"
@@ -21,7 +22,7 @@ help() {
     printf "                          -mpicc=/opt/rocm-6.2.4/bin/amdclang \\ \n"
     printf "                          -p=\"hip 6.2.4 /opt/rocm-6.2.4/\" \\ \n"
     printf "                          -p=\"rocrand 6.2.4 /opt/rocm-6.2.4/\" \\ \n"
-    printf "                          -c=\"clang 16.0.0 CXX=/opt/llvm/bin/clang++ CC=/opt/llvm/bin/clang F77=/opt/llvm/bin/flang\" \n\n"
+    printf "                          -c=\"/opt/llvm\" \n\n"
     exit 0
 }
 
