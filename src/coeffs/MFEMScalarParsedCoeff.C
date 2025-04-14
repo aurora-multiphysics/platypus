@@ -1,9 +1,9 @@
  #include "MFEMScalarParsedCoeff.h"
 
 
-MFEMScalarParsedCoeff::MFEMScalarParsedCoeff( platypus::GridFunctions  & gFuncs_
+MFEMScalarParsedCoeff::MFEMScalarParsedCoeff(const platypus::GridFunctions  & gFuncs_
     , const std::vector<std::string> & inputs_
-    , FunctionParserUtils<false>::SymFunctionPtr & func_)
+    , const FunctionParserUtils<false>::SymFunctionPtr & func_)
     : gFuncs(gFuncs_), inputs(inputs_), func(func_){}
 
 double  MFEMScalarParsedCoeff::Eval(mfem::ElementTransformation &T, const mfem::IntegrationPoint &ip)
