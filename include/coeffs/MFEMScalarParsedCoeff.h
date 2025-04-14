@@ -18,14 +18,17 @@
 class MFEMScalarParsedCoeff : public mfem::Coefficient
 {
   private:
-    const platypus::GridFunctions  & gFuncs;
-    const std::vector<std::string> & inputs;
-    const FunctionParserUtils<false>::SymFunctionPtr & func;
+    const platypus::GridFunctions  & _gFuncs;
+    const std::vector<std::string> & _inputs;
+    bool _use_xyzt;
+    const FunctionParserUtils<false>::SymFunctionPtr & _func;
+
 
   public:
-    MFEMScalarParsedCoeff(const platypus::GridFunctions  & gFuncs_
-                 , const std::vector<std::string> & inputs_
-                 , const FunctionParserUtils<false>::SymFunctionPtr & func_);
+    MFEMScalarParsedCoeff(const platypus::GridFunctions  & gFuncs
+                 , const std::vector<std::string> & inputs
+                 , bool use_xyzt
+                 , const FunctionParserUtils<false>::SymFunctionPtr & func);
 
     double Eval(mfem::ElementTransformation &T, const mfem::IntegrationPoint &ip);
 };

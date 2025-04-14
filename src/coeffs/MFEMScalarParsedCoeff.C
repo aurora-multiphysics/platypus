@@ -1,25 +1,29 @@
  #include "MFEMScalarParsedCoeff.h"
 
 
-MFEMScalarParsedCoeff::MFEMScalarParsedCoeff(const platypus::GridFunctions  & gFuncs_
-    , const std::vector<std::string> & inputs_
-    , const FunctionParserUtils<false>::SymFunctionPtr & func_)
-    : gFuncs(gFuncs_), inputs(inputs_), func(func_){}
+MFEMScalarParsedCoeff::MFEMScalarParsedCoeff(const platypus::GridFunctions  & gFuncs
+    , const std::vector<std::string> & inputs
+    , bool use_xyzt
+    , const FunctionParserUtils<false>::SymFunctionPtr & func)
+    : _gFuncs(gFuncs), _inputs(inputs), _use_xyzt(use_xyzt), _func(func){}
 
 double  MFEMScalarParsedCoeff::Eval(mfem::ElementTransformation &T, const mfem::IntegrationPoint &ip)
 {
-    std::vector<libMesh::Real> InpVals(inputs.size() + 4);
-    
-    mfem::Vector transip(3);
-    T.Transform(ip, transip);
+    std::vector<libMesh::Real> inpVals(_inputs.size() + (_use_xyzt ? 4 : 0));
 
-    for(unsigned i=0; i<inputs.size(); i++)
-      InpVals[i] = gFuncs.GetRef(inputs[i]).GetValue(T, ip);
+    for(unsigned i = 0; i < _inputs.size(); i++)
+      inpVals[i] = _gFuncs.GetRef(_inputs[i]).GetValue(T, ip);
 
-    for(unsigned i=0; i<3; i++)
-      InpVals[inputs.size()+i] = transip(i);
+    if(_use_xyzt)
+      {
+        mfem::Vector transip(3);
+        T.Transform(ip, transip);
+        
+        for(unsigned i = 0; i < 3; i++)
+          inpVals[_inputs.size()+i] = transip(i);
+        
+        inpVals[_inputs.size()+3] = GetTime();
+      }
     
-    InpVals[inputs.size()+3] = GetTime();
-    
-    return func->Eval(InpVals.data());
+    return _func->Eval(inpVals.data());
 }

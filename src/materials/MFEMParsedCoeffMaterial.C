@@ -78,20 +78,8 @@ MFEMParsedCoeffMaterial::MFEMParsedCoeffMaterial(const InputParameters & paramet
     // reserve storage for parameter passing buffer
     _func_params.resize(_var_names.size() + (_use_xyzt ? 4 : 0));
 
-  //std::shared_ptr<mfem::ParGridFunction> _shared_grid_function = _problem_data._gridfunctions.GetShared("hello");
-  //mfem::ParGridFunction & _var_grid_function = _problem_data._gridfunctions.GetRef("hello");
-
-  //using GFMapType = std::vector<std::shared_ptr<mfem::ParGridFunction>>;
-  // GFMapType grid_functions;
-
-  // for (unsigned int i = 0; i < _var_names.size(); i++)
-  // grid_functions.push_back(_problem_data._gridfunctions.GetShared(_var_names[i]));
-
-  // MFEMScalarParsedCoeff( _problem_data._gridfunctions, _var_names
-  //  , std::function<double(std::vector<double>)> func_);
-
     _properties.declareScalar<MFEMScalarParsedCoeff>(
-        "parsed_material", subdomainsToStrings(_block_ids), _problem_data._gridfunctions, _var_names, _func_F);
+        "parsed_material", subdomainsToStrings(_block_ids), _problem_data._gridfunctions, _var_names, _use_xyzt, _func_F);
 
 }
 
