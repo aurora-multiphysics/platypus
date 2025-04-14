@@ -24,7 +24,7 @@ class MFEMScalarParsedCoeff : public mfem::Coefficient
 
   public:
     MFEMScalarParsedCoeff( platypus::GridFunctions  & gFuncs_
-                 , std::vector<std::string> & inputs_
+                 , const std::vector<std::string> & inputs_
                  , FunctionParserUtils<false>::SymFunctionPtr & func_);
 
     double Eval(mfem::ElementTransformation &T, const mfem::IntegrationPoint &ip);

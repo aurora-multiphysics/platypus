@@ -2,7 +2,7 @@
 
 
 MFEMScalarParsedCoeff::MFEMScalarParsedCoeff( platypus::GridFunctions  & gFuncs_
-    , std::vector<std::string> & inputs_
+    , const std::vector<std::string> & inputs_
     , FunctionParserUtils<false>::SymFunctionPtr & func_)
     : gFuncs(gFuncs_), inputs(inputs_), func(func_){}
 

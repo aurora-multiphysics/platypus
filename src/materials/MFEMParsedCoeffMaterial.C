@@ -91,7 +91,7 @@ MFEMParsedCoeffMaterial::MFEMParsedCoeffMaterial(const InputParameters & paramet
   //  , std::function<double(std::vector<double>)> func_);
 
     _properties.declareScalar<MFEMScalarParsedCoeff>(
-        "pared_material", subdomainsToStrings(_block_ids), _problem_data._gridfunctions, _var_names, _func_F);
+        "parsed_material", subdomainsToStrings(_block_ids), _problem_data._gridfunctions, _var_names, _func_F);
 
 }
 
