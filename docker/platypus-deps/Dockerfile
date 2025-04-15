@@ -150,7 +150,7 @@ RUN cmake -G Ninja -DMFEM_DIR=/$WORKDIR/mfem/build .. && \
 WORKDIR /$WORKDIR
 RUN git clone https://github.com/idaholab/moose
 WORKDIR /$WORKDIR/moose
-RUN git checkout master && \
+RUN git checkout 6924a39be39d5bfd9093b72179e37e5b7d21f46f && \
     export MOOSE_JOBS=$compile_cores && \
     export PETSC_DIR=/$WORKDIR/petsc && \
     export CC=mpicc && \
