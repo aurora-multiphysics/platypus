@@ -12,6 +12,8 @@ MFEMParsedCoeffMaterial::validParams()
   params += FunctionParserUtils<false>::validParams();
   params.addClassDescription("Declares constant material properties based on names and values "
                              "prescribed by input parameters.");
+  params.addRequiredParam<std::string>(
+                              "prop_name", "The names of the properties this material will have");
   params.addRequiredCustomTypeParam<std::string>(
                               "function", "FunctionExpression", "Parsed function expression to compute");
   params.deprecateParam("function", "expression", "02/07/2024");
@@ -27,6 +29,7 @@ MFEMParsedCoeffMaterial::validParams()
 MFEMParsedCoeffMaterial::MFEMParsedCoeffMaterial(const InputParameters & parameters)
   : MFEMMaterial(parameters),
     FunctionParserUtils(parameters),
+    _prop_name(getParam<std::string>("prop_name")),
     _function(getParam<std::string>("expression")),    
     _var_names(getParam<std::vector<std::string>>("var_names")),
     _use_xyzt(getParam<bool>("use_xyzt")),
@@ -75,11 +78,8 @@ MFEMParsedCoeffMaterial::MFEMParsedCoeffMaterial(const InputParameters & paramet
           _communicator.barrier();
       }
 
-    // reserve storage for parameter passing buffer
-    _func_params.resize(_var_names.size() + (_use_xyzt ? 4 : 0));
-
     _properties.declareScalar<MFEMScalarParsedCoeff>(
-        "parsed_material", subdomainsToStrings(_block_ids), _problem_data._gridfunctions, _var_names, _use_xyzt, _func_F);
+      _prop_name, subdomainsToStrings(_block_ids), _problem_data._gridfunctions, _var_names, _use_xyzt, _func_F);
 
 }
 

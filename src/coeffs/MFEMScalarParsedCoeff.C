@@ -18,7 +18,7 @@ double  MFEMScalarParsedCoeff::Eval(mfem::ElementTransformation &T, const mfem::
       {
         mfem::Vector transip(3);
         T.Transform(ip, transip);
-        
+
         for(unsigned i = 0; i < 3; i++)
           inpVals[_inputs.size()+i] = transip(i);
         
