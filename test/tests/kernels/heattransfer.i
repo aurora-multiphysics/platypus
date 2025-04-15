@@ -1,6 +1,6 @@
 [Mesh]
   type = MFEMMesh
-  file = gold/mug.e
+  file = ../../../data/mug.e
   dim = 3
 []
 
@@ -39,27 +39,34 @@
     type = MFEMDiffusionKernel
     variable = temperature
     coefficient = thermal_conductivity
-  []  
+  []
   [dT_dt]
     type = MFEMTimeDerivativeMassKernel
     variable = temperature
     coefficient = volumetric_heat_capacity
-  []    
+  []
 []
 
 [BCs]
+  active = 'bottom top_convective'
   [bottom]
     type = MFEMScalarDirichletBC
     variable = temperature
     boundary = '1'
     value = 1.0
   []
-  [top]
+  [top_convective]
     type = MFEMConvectiveHeatFluxBC
     variable = temperature
     boundary = '2'
     T_infinity = reservoir_far_temperature
     heat_transfer_coefficient = heat_transfer_coefficient
+  []
+  [top_dirichlet]
+    type = MFEMScalarDirichletBC
+    variable = temperature
+    boundary = '2'
+    value = 0.0
   []
 []
 
@@ -75,18 +82,22 @@
   [boomeramg]
     type = MFEMHypreBoomerAMG
   []
+  [jacobi]
+    type = MFEMOperatorJacobiSmoother
+  []
 []
 
 [Solver]
   type = MFEMHypreGMRES
   preconditioner = boomeramg
   l_tol = 1e-16
-  l_max_its = 1000  
+  l_max_its = 1000
 []
 
 [Executioner]
   type = MFEMTransient
   device = cpu
+  assembly_level = legacy
   dt = 2.0
   start_time = 0.0
   end_time = 6.0
