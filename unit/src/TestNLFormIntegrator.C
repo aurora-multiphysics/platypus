@@ -1,16 +1,10 @@
 #include "gtest/gtest.h"
 #include "mfem.hpp"
 
-double
-ff(double u)
-{
-  return u;
-}
-double
-dff(double u)
-{
-  return 1.0;
-}
+static const double alpha = -0.5;
+
+double  ff(const double & u){ return exp(alpha*u); }
+double dff(const double & u){ return alpha*exp(alpha*u); }
 
 // Define a coefficient that, given a grid function u, function func, returns func(u)
 class NonlinearGridFunctionCoefficient : public mfem::Coefficient
