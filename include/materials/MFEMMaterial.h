@@ -2,7 +2,7 @@
 
 #include <mfem.hpp>
 #include "MFEMGeneralUserObject.h"
-#include "PropertyManager.h"
+#include "CoefficientManager.h"
 
 class MFEMMaterial : public MFEMGeneralUserObject
 {
@@ -18,5 +18,5 @@ public:
 
 protected:
   std::vector<SubdomainName> _block_ids;
-  platypus::PropertyManager & _properties;
+  platypus::CoefficientManager & _properties;
 };
