@@ -12,7 +12,7 @@ public:
   MFEMVectorFEDomainLFKernel(const InputParameters & parameters);
   ~MFEMVectorFEDomainLFKernel() override {}
 
-  virtual mfem::LinearFormIntegrator * createLFIntegrator() override;
+  virtual mfem::LinearFormIntegrator * createResidualContribution() override;
 
 protected:
   std::shared_ptr<mfem::VectorCoefficient> _vec_coef{nullptr};

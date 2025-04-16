@@ -48,9 +48,11 @@ TimeDomainEquationSystemProblemOperator::ImplicitSolve(const double dt,
   }
   BuildEquationSystemOperator(dt);
 
+  mfem::Vector zero_vec(_true_rhs.Size());
+  zero_vec = 0.0;
   _problem._nonlinear_solver->SetSolver(*_problem._jacobian_solver);
   _problem._nonlinear_solver->SetOperator(*GetEquationSystem());
-  _problem._nonlinear_solver->Mult(_true_rhs, dX_dt);
+  _problem._nonlinear_solver->Mult(zero_vec, dX_dt);
   SetTrialVariablesFromTrueVectors();
 }
 

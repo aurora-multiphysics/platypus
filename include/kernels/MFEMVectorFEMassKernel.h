@@ -12,7 +12,7 @@ public:
   MFEMVectorFEMassKernel(const InputParameters & parameters);
   ~MFEMVectorFEMassKernel() override {}
 
-  virtual mfem::BilinearFormIntegrator * createBFIntegrator() override;
+  virtual mfem::BilinearFormIntegrator * createJacobianContribution() override;
 
 protected:
   std::string _coef_name;

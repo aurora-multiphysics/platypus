@@ -12,7 +12,7 @@ public:
   MFEMDivDivKernel(const InputParameters & parameters);
   ~MFEMDivDivKernel() override {}
 
-  virtual mfem::BilinearFormIntegrator * createBFIntegrator() override;
+  virtual mfem::BilinearFormIntegrator * createJacobianContribution() override;
 
 protected:
   std::string _coef_name;

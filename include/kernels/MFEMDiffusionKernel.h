@@ -11,7 +11,7 @@ public:
 
   MFEMDiffusionKernel(const InputParameters & parameters);
 
-  virtual mfem::BilinearFormIntegrator * createBFIntegrator() override;
+  virtual mfem::BilinearFormIntegrator * createJacobianContribution() override;
 
 protected:
   std::string _coef_name;
