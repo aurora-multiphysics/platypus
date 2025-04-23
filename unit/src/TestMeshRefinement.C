@@ -24,6 +24,7 @@ TEST_F(MFEMMeshRefinementTest, DiffusionRefinement)
   int dim               = pmesh.Dimension();
   int sdim              = pmesh.SpaceDimension();
 
+
   int order = 1;
 
   // construct problem operator
@@ -101,8 +102,6 @@ TEST_F(MFEMMeshRefinementTest, DiffusionRefinement)
   // solve!
   problem_operator->Solve( X );
 
-  problem_operator->_true_x.Print(std::cout);
-  
   // Check L2 norm of residual
   mfem::Vector Y( problem_operator->_true_x.Size() );
   eqn_system->Mult( problem_operator->_true_x, Y );
