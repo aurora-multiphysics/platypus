@@ -84,35 +84,7 @@ TEST_F(MFEMMeshRefinementTest, DiffusionRefinement)
 
   _mfem_problem->addMFEMNonlinearSolver();
 
-  // TODO: rest of test
-  ////////////////////////////////
-  ////////////////////////////////
-  // mfem::Array<int> ess_tdof_list, ess_bdr;
-  // if (pmesh.bdr_attributes.Size())
-  // {
-  //   ess_bdr.SetSize(pmesh.bdr_attributes.Max());
-  //   ess_bdr = 1;
-  //   fespace.GetEssentialTrueDofs(ess_bdr, ess_tdof_list);
-  // }
-  // mfem::FunctionCoefficient f(fexact);
-  // mfem::ParLinearForm b(&fespace);
-  // b.AddDomainIntegrator(new mfem::DomainLFIntegrator(f));
-  // b.Assemble();
-  //
-  // mfem::ParBilinearForm a(&fespace);
-  // mfem::ConstantCoefficient one(1.0);
-  // a.AddDomainIntegrator(new mfem::DiffusionIntegrator(one));
-  // a.Assemble();
-  //
-  // mfem::ParGridFunction x(&fespace);
-  // mfem::FunctionCoefficient uex(uexact);
-  // x = 0.0;
-  // x.ProjectBdrCoefficient(uex, ess_bdr);
-  //
-  // mfem::OperatorPtr A;
-  // mfem::Vector B, X;
-  // a.FormLinearSystem(ess_tdof_list, x, b, A, X, B); <- call this in equation system
-  //
+  // Finished initialisation...
   mfem::BlockVector    X;
 
   eqn_system->Init(
@@ -129,7 +101,14 @@ TEST_F(MFEMMeshRefinementTest, DiffusionRefinement)
   // solve!
   problem_operator->Solve( X );
 
-  ASSERT_EQ(1+1,2);
+  problem_operator->_true_x.Print(std::cout);
+  
+  // Check L2 norm of residual
+  mfem::Vector Y( problem_operator->_true_x.Size() );
+  eqn_system->Mult( problem_operator->_true_x, Y );
+  Y -= problem_operator->_true_rhs;
+  
+  ASSERT_LE(Y.Norml2(), 1E-5);
 }
 
 
