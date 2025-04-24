@@ -373,6 +373,13 @@ EquationSystem::BuildMixedBilinearForms()
 void
 EquationSystem::UpdateEquationSystem()
 {
+  // update these grid functions too
+  for (int i = 0; i < _test_var_names.size(); i++)
+  {
+    _xs.at(i)->Update();
+    _dxdts.at(i)->Update();
+  }
+
   // Apply boundary conditions
   ApplyEssentialBCs();
 

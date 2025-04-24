@@ -6,6 +6,11 @@
 #include "MFEMParaViewDataCollection.h"
 #include "MFEMSteady.h"
 
+static double SolveEquationAndCheckResidual(
+  std::unique_ptr<platypus::EquationSystemProblemOperator> &,
+  std::shared_ptr<platypus::EquationSystem> &,
+  mfem::BlockVector &
+);
 
 class MFEMMeshRefinementTest : public MFEMObjectUnitTest
 {
@@ -63,7 +68,6 @@ TEST_F(MFEMMeshRefinementTest, DiffusionRefinement)
   InputParameters kernel_params                   = _factory.getValidParams("MFEMDiffusionKernel");
   kernel_params.set<std::string>("variable")      = "diffused";
   kernel_params.set<std::string>("coefficient")   = "diffusivity";
-  // auto & kernel                                   = addObject<MFEMDiffusionKernel>("MFEMDiffusionKernel", "kernel1", kernel_params);
   _mfem_problem->addKernel("MFEMDiffusionKernel", "kernel1", kernel_params);
 
   // construct precon
@@ -99,6 +103,28 @@ TEST_F(MFEMMeshRefinementTest, DiffusionRefinement)
   problem_operator->SetGridFunctions();
   problem_operator->Init( X );
   
+  auto residual = SolveEquationAndCheckResidual( problem_operator, eqn_system, X );
+  ASSERT_LE(residual, 1E-5);
+  
+  std::cout << "Before refinement. pmesh.GetNE()=" << pmesh.GetNE() << "\n";
+  pmesh.UniformRefinement();
+  std::cout << "After refinement. pmesh.GetNE()= " << pmesh.GetNE() << "\n";
+  
+  _mfem_problem->updateFESpaces();
+  
+  problem_operator->SetGridFunctions();
+  
+  residual = SolveEquationAndCheckResidual( problem_operator, eqn_system, X );
+  
+  // ASSERT_LE(residual, 1E-6);
+}
+
+
+static double SolveEquationAndCheckResidual(
+  std::unique_ptr<platypus::EquationSystemProblemOperator> & problem_operator,
+  std::shared_ptr<platypus::EquationSystem> &                eqn_system,
+  mfem::BlockVector & X
+) {
   // solve!
   problem_operator->Solve( X );
 
@@ -106,8 +132,8 @@ TEST_F(MFEMMeshRefinementTest, DiffusionRefinement)
   mfem::Vector Y( problem_operator->_true_x.Size() );
   eqn_system->Mult( problem_operator->_true_x, Y );
   Y -= problem_operator->_true_rhs;
-  
-  ASSERT_LE(Y.Norml2(), 1E-5);
+
+  return Y.Norml2();
 }
 
 
