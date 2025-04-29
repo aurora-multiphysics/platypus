@@ -110,7 +110,7 @@ RUN make install prefix=/$WORKDIR/libCEED/build
 WORKDIR /$WORKDIR
 RUN git clone https://github.com/mfem/mfem.git
 WORKDIR /$WORKDIR/mfem 
-RUN git checkout 9f2d103b4bb87b76e1ed6b018652a680640fd639 && mkdir build
+RUN git checkout master && mkdir build
 WORKDIR /$WORKDIR/mfem/build
 RUN cmake .. \
     -DCMAKE_INSTALL_PREFIX=/$WORKDIR/mfem/installed \
