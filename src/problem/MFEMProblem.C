@@ -403,20 +403,6 @@ MFEMProblem::addMFEMFESpaceFromMOOSEVariable(InputParameters & parameters)
 }
 
 void
-MFEMProblem::updateFESpaces()
-{
-  for (const auto & fe_space_pair : _problem_data._fespaces)
-  {
-    fe_space_pair.second->Update();
-  }
-  for (const auto & gridfunction_pair : _problem_data._gridfunctions)
-  {
-    gridfunction_pair.second->Update();
-  }
-  _problem_data._eqn_system->UpdateEquationSystem();
-}
-
-void
 MFEMProblem::displaceMesh()
 {
   // Displace mesh

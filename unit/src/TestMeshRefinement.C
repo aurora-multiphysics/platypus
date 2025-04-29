@@ -104,11 +104,8 @@ TEST_F(MFEMMeshRefinementTest, DiffusionRefinement)
   auto residual = SolveEquationAndCheckResidual( problem_operator, eqn_system, X );
   ASSERT_LE(residual, 1E-5);
 
-  pmesh.UniformRefinement();
-
-  _mfem_problem->updateFESpaces();
-
-  problem_operator->SetGridFunctions();
+  // Refine the mesh
+  problem_operator->UniformRefinement();
 
   residual = SolveEquationAndCheckResidual( problem_operator, eqn_system, X );
   ASSERT_LE(residual, 1E-5);

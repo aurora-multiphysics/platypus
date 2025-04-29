@@ -50,4 +50,18 @@ ProblemOperatorInterface::SetTrialVariablesFromTrueVectors()
   }
 }
 
+void
+ProblemOperatorInterface::UniformRefinement(int num_refinements)
+{
+  // Uniformly refine the mesh
+  for (int i=0; i<num_refinements; i++)
+    _problem._pmesh->UniformRefinement();
+
+  // Update the FE spaces
+  _problem.updateFESpaces();
+
+  // Reset the grid functions
+  SetGridFunctions();
+}
+
 }
