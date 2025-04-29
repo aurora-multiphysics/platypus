@@ -29,7 +29,6 @@ TEST_F(MFEMMeshRefinementTest, DiffusionRefinement)
   int dim               = pmesh.Dimension();
   int sdim              = pmesh.SpaceDimension();
 
-
   int order = 1;
 
   // construct problem operator
@@ -76,12 +75,11 @@ TEST_F(MFEMMeshRefinementTest, DiffusionRefinement)
   _mfem_problem->addMFEMPreconditioner("MFEMHypreBoomerAMG", "precon1", precon_params);
 
   // construct solver
-  InputParameters solver_params          = _factory.getValidParams("MFEMHypreGMRES");
+  InputParameters solver_params          = _factory.getValidParams("MFEMHyprePCG");
   solver_params.set<double>("l_tol")     = 1e-7;
   solver_params.set<double>("l_abs_tol") = 1e-5;
-  _mfem_problem->addMFEMSolver("MFEMHypreGMRES", "solver1", solver_params);
+  _mfem_problem->addMFEMSolver("MFEMHyprePCG", "solver1", solver_params);
   
-
   // next, the variables
   InputParameters var_params                = _factory.getValidParams("MFEMVariable");
   var_params.set<UserObjectName>("fespace") = "H1FESpace";
@@ -105,18 +103,15 @@ TEST_F(MFEMMeshRefinementTest, DiffusionRefinement)
   
   auto residual = SolveEquationAndCheckResidual( problem_operator, eqn_system, X );
   ASSERT_LE(residual, 1E-5);
-  
-  std::cout << "Before refinement. pmesh.GetNE()=" << pmesh.GetNE() << "\n";
+
   pmesh.UniformRefinement();
-  std::cout << "After refinement. pmesh.GetNE()= " << pmesh.GetNE() << "\n";
-  
+
   _mfem_problem->updateFESpaces();
-  
+
   problem_operator->SetGridFunctions();
-  
+
   residual = SolveEquationAndCheckResidual( problem_operator, eqn_system, X );
-  
-  // ASSERT_LE(residual, 1E-6);
+  ASSERT_LE(residual, 1E-5);
 }
 
 
