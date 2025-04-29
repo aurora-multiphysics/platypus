@@ -21,7 +21,10 @@ export METHOD=dbg
 export LIBMESH_JOBS=$compile_cores
 export MOOSE_JOBS=$compile_cores
 export LDFLAGS="-L$LD_LIBRARY_PATH"
-export ADDITIONAL_CPPFLAGS="-DLIBMESH_ENABLE_UNIQUE_ID"
+# workaround MOOSE's VTK external nlohmann workaround
+# https://github.com/idaholab/moose/commit/f47a89cdbc0ea3f454352e2f86bd0fd5703447c2
+export ADDITIONAL_CPPFLAGS="-DLIBMESH_ENABLE_UNIQUE_ID -DMOOSE_VTK_NLOHMANN_INCLUDED"
+export ADDITIONAL_CXXFLAGS="-std=c++17"
 export FC=mpif90
 export F77=mpif77
 export F90=mpif90
@@ -66,8 +69,8 @@ cd moose
     --with-f77=mpif77 \
     --with-f90=mpif90 \
     --with-mpi="$SPACK_VIEW" \
-    --with-mpi-include="$SPACK_VIEW" \
-    --with-mpi-lib="$SPACK_VIEW" \
+    --with-mpi-include="$SPACK_VIEW/include" \
+    --with-mpi-lib="$SPACK_VIEW/lib" \
     --with-netcdf="$SPACK_VIEW"
 ./scripts/update_and_rebuild_wasp.sh
 make -C framework -j "$compile_cores" -B
