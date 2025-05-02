@@ -14,7 +14,6 @@ MFEMVectorBoundaryIntegratedBC::validParams()
   return params;
 }
 
-// TODO: Currently assumes the vector function coefficient is 3D
 MFEMVectorBoundaryIntegratedBC::MFEMVectorBoundaryIntegratedBC(const InputParameters & parameters)
   : MFEMIntegratedBC(parameters),
     _vec_value(getParam<std::vector<Real>>("values")),
