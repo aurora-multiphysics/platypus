@@ -201,5 +201,5 @@ using MFEMVectorCoefficientName = MooseFunctorName;
 // DerivativeStringClass(MFEMVectorCoefficientName);
 
 /// This type is used for objects that expect mfem::MatrixCoefficient objects
-using MFEMMatrixrCoefficientName = MooseFunctorName;
+using MFEMMatrixCoefficientName = MooseFunctorName;
 // DerivativeStringClass(MFEMMatrixCoefficientName);
