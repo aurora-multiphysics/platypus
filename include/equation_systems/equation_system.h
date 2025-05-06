@@ -57,7 +57,7 @@ public:
   virtual void BuildLinearForms();
   virtual void BuildBilinearForms();
   virtual void BuildMixedBilinearForms();
-  virtual void BuildEquationSystem();
+  virtual void BuildEquationSystem(platypus::GridFunctions & gridfunctions);
 
   // Form linear system, with essential boundary conditions accounted for
   virtual void FormLinearSystem(mfem::OperatorHandle & op,
@@ -204,7 +204,9 @@ protected:
 
   mutable mfem::OperatorHandle _jacobian;
   mutable mfem::Vector _trueRHS;
+  mutable mfem::BlockVector _trueX _r_tmp;
   mfem::AssemblyLevel _assembly_level;
+  platypus::GridFunctions * _gfuncs;
 };
 
 /*
