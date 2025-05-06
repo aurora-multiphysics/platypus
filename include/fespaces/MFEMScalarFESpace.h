@@ -8,6 +8,10 @@ public:
 
   MFEMScalarFESpace(const InputParameters & parameters);
 
+  virtual bool isScalar() const { return true; }
+
+  virtual bool isVector() const { return false; }
+
 protected:
   /// Get the name of the desired FECollection.
   virtual std::string getFECName() const;

@@ -11,5 +11,5 @@ public:
   void ApplyBC(mfem::GridFunction & gridfunc, mfem::Mesh * mesh_) override;
 
 protected:
-  std::shared_ptr<mfem::ConstantCoefficient> _coef{nullptr};
+  mfem::ConstantCoefficient & _coef;
 };
