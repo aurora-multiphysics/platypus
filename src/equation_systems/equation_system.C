@@ -175,8 +175,8 @@ EquationSystem::FormLegacySystem(mfem::OperatorHandle & op,
 {
 
   // Allocate block operator
-  _h_blocks.DeleteAll();
-  _h_blocks.SetSize(_test_var_names.size(), _test_var_names.size());
+  //_h_blocks.DeleteAll();
+  //_h_blocks.SetSize(_test_var_names.size(), _test_var_names.size());
   // Form diagonal blocks.
   for (int i = 0; i < _test_var_names.size(); i++)
   {
@@ -240,13 +240,74 @@ EquationSystem::BuildJacobian(mfem::BlockVector & trueX, mfem::BlockVector & tru
   FormLinearSystem(_jacobian, trueX, trueRHS);
 }
 
+void CopyVec(const mfem::Vector & x, mfem::Vector & y){ y = x;}
+
+void
+EquationSystem::UpdateJacobian() const
+{
+  _h_blocks.DeleteAll();
+  _h_blocks.SetSize(_test_var_names.size(), _test_var_names.size());
+
+  for (int i = 0; i < _test_var_names.size(); i++)
+    {
+      auto & test_var_name = _test_var_names.at(i);
+      auto blf = _blfs.Get(test_var_name);
+      mfem::OperatorHandle aux_a;
+      blf->Update();
+      blf->Assemble();
+      blf->FormSystemMatrix(_ess_tdof_lists.at(i), aux_a);
+      _h_blocks(i, i) = static_cast<mfem::HypreParMatrix*>(aux_a.Ptr());
+    }
+
+    // Form off-diagonal blocks
+    for (int i = 0; i < _test_var_names.size(); i++)
+    {
+      auto test_var_name = _test_var_names.at(i);
+      for (int j = 0; j < _test_var_names.size(); j++)
+      {
+        auto trial_var_name = _test_var_names.at(j);
+        if (_mblfs.Has(test_var_name) && _mblfs.Get(test_var_name)->Has(trial_var_name))
+        {
+          auto mblf = _mblfs.Get(test_var_name)->Get(trial_var_name);
+          mfem::OperatorHandle aux_a;
+          mblf->Update();
+          mblf->Assemble();
+          mblf->FormRectangularSystemMatrix(empty_tdof,_ess_tdof_lists.at(j), aux_a);
+          _h_blocks(i, j) = static_cast<mfem::HypreParMatrix*>(aux_a.Ptr());
+        }
+      }
+    }
+
+    _jacobian.Reset(mfem::HypreParMatrixFromBlocks(_h_blocks));
+}
+
 void
 EquationSystem::Mult(const mfem::Vector & x, mfem::Vector & residual) const
 {
-  _jacobian->Mult(x, residual);
   x.HostRead();
+  CopyVec(x,_trueX);
+
+  for (int i = 0; i < _trial_var_names.size(); i++)
+    {
+      auto & trial_var_name = _trial_var_names.at(i);
+      _gfuncs->Get(trial_var_name)->Distribute(&(_trueX.GetBlock(i)));
+    }
+
+  for (int i = 0; i < _test_var_names.size(); i++)
+    {
+      auto & test_var_name = _test_var_names.at(i);
+      auto lf = _lfs.GetShared(test_var_name);
+      lf->Assemble();
+      lf->ParallelAssemble(_r_tmp.GetBlock(i));
+      _r_tmp.GetBlock(i).SetSubVector(_ess_tdof_lists.at(i) , 0.00);
+    }
+
+  //CopyVec(_r_tmp, residual);
+  _jacobian->Mult(x, residual);
+  residual -= _r_tmp;
+  // residual -= _trueRHS;
   residual.HostRead();
-  residual -= _trueRHS;
+ // UpdateJacobian();
 }
 
 mfem::Operator &
@@ -312,7 +373,7 @@ EquationSystem::BuildLinearForms()
     auto lf = _lfs.GetShared(test_var_name);
     ApplyDomainLFIntegrators(test_var_name, lf, _kernels_map);
     ApplyBoundaryLFIntegrators(test_var_name, lf, _integrated_bc_map);
-    lf->Assemble();
+    lf->Assemble(); //<-------  Don't need it????
   }
 }
 
@@ -333,7 +394,7 @@ EquationSystem::BuildBilinearForms()
     ApplyDomainBLFIntegrators<mfem::ParBilinearForm>(
         test_var_name, test_var_name, blf, _kernels_map);
     // Assemble
-    blf->Assemble();
+    blf->Assemble(); //<-------  Don't need it????
   }
 }
 
@@ -363,7 +424,7 @@ EquationSystem::BuildMixedBilinearForms()
         ApplyDomainBLFIntegrators<mfem::ParMixedBilinearForm>(
             trial_var_name, test_var_name, mblf, _kernels_map);
         // Assemble mixed bilinear forms
-        mblf->Assemble();
+        mblf->Assemble(); //<-------  Don't need it????
         // Register mixed bilinear forms associated with a single trial variable
         // for the current test variable
         test_mblfs->Register(trial_var_name, mblf);
@@ -376,8 +437,14 @@ EquationSystem::BuildMixedBilinearForms()
 }
 
 void
-EquationSystem::BuildEquationSystem()
+EquationSystem::BuildEquationSystem(platypus::GridFunctions & gridfunctions, mfem::Array<int> & btoffsets)
 {
+  _gfuncs = &gridfunctions;
+  _block_true_offsets = &btoffsets;
+  _trueX.Update(*_block_true_offsets);
+  _r_tmp.Update(*_block_true_offsets);
+  _h_blocks.DeleteAll();
+  _h_blocks.SetSize(_test_var_names.size(), _test_var_names.size());
   BuildBilinearForms();
   BuildMixedBilinearForms();
   BuildLinearForms();

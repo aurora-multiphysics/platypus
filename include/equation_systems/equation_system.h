@@ -57,7 +57,7 @@ public:
   virtual void BuildLinearForms();
   virtual void BuildBilinearForms();
   virtual void BuildMixedBilinearForms();
-  virtual void BuildEquationSystem(platypus::GridFunctions & gridfunctions);
+  virtual void BuildEquationSystem(platypus::GridFunctions & gridfunctions, mfem::Array<int> & btoffsets);
 
   // Form linear system, with essential boundary conditions accounted for
   virtual void FormLinearSystem(mfem::OperatorHandle & op,
@@ -82,6 +82,8 @@ public:
   // Update variable from solution vector after solve
   virtual void RecoverFEMSolution(mfem::BlockVector & trueX,
                                   platypus::GridFunctions & gridfunctions);
+
+  void UpdateJacobian() const;
 
   std::vector<mfem::Array<int>> _ess_tdof_lists;
 
@@ -192,7 +194,7 @@ protected:
   std::vector<std::unique_ptr<mfem::ParGridFunction>> _xs;
   std::vector<std::unique_ptr<mfem::ParGridFunction>> _dxdts;
 
-  mfem::Array2D<const mfem::HypreParMatrix *> _h_blocks;
+  mutable mfem::Array2D<const mfem::HypreParMatrix *> _h_blocks;
 
   // Arrays to store kernels to act on each component of weak form. Named
   // according to test variable
@@ -204,9 +206,11 @@ protected:
 
   mutable mfem::OperatorHandle _jacobian;
   mutable mfem::Vector _trueRHS;
-  mutable mfem::BlockVector _trueX _r_tmp;
+  mutable mfem::BlockVector _trueX, _r_tmp;
   mfem::AssemblyLevel _assembly_level;
   platypus::GridFunctions * _gfuncs;
+  mfem::Array<int> * _block_true_offsets;
+  mfem::Array<int> empty_tdof;
 };
 
 /*
