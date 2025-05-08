@@ -68,7 +68,7 @@ public:
   FormSystem(mfem::OperatorHandle & op, mfem::BlockVector & trueX, mfem::BlockVector & trueRHS);
   virtual void FormLegacySystem(mfem::OperatorHandle & op,
                                 mfem::BlockVector & trueX,
-                                mfem::BlockVector & trueRHS);
+                                mfem::BlockVector & trueRHS) const; 
 
   // Build linear system, with essential boundary conditions accounted for
   virtual void BuildJacobian(mfem::BlockVector & trueX, mfem::BlockVector & trueRHS);
@@ -238,7 +238,7 @@ public:
   virtual void BuildBilinearForms() override;
   virtual void FormLegacySystem(mfem::OperatorHandle & op,
                                 mfem::BlockVector & truedXdt,
-                                mfem::BlockVector & trueRHS) override;
+                                mfem::BlockVector & trueRHS) const override;
   virtual void FormSystem(mfem::OperatorHandle & op,
                           mfem::BlockVector & truedXdt,
                           mfem::BlockVector & trueRHS) override;

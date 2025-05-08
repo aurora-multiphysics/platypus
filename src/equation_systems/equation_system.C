@@ -171,7 +171,7 @@ EquationSystem::FormSystem(mfem::OperatorHandle & op,
 void
 EquationSystem::FormLegacySystem(mfem::OperatorHandle & op,
                                  mfem::BlockVector & trueX,
-                                 mfem::BlockVector & trueRHS)
+                                 mfem::BlockVector & trueRHS) const
 {
 
   // Allocate block operator
@@ -302,11 +302,15 @@ EquationSystem::Mult(const mfem::Vector & x, mfem::Vector & residual) const
       _r_tmp.GetBlock(i).SetSubVector(_ess_tdof_lists.at(i) , 0.00);
     }
 
-  //CopyVec(_r_tmp, residual);
-  _jacobian->Mult(x, residual);
-  residual -= _r_tmp;
-  // residual -= _trueRHS;
+  //CopyVec(_r_tmp, residual)
+  FormLegacySystem(_jacobian, _trueX, _r_tmp);
+  _jacobian->Mult(_trueX, residual);
   residual.HostRead();
+  residual -= _r_tmp;
+  //CopyVec(residual, _r_tmp);
+  // residual -= _trueRHS;
+  //FormLegacySystem(_jacobian, _trueX, _r_tmp);
+  //CopyVec(_r_tmp, residual);
  // UpdateJacobian();
 }
 
@@ -563,7 +567,7 @@ TimeDependentEquationSystem::BuildBilinearForms()
 void
 TimeDependentEquationSystem::FormLegacySystem(mfem::OperatorHandle & op,
                                               mfem::BlockVector & truedXdt,
-                                              mfem::BlockVector & trueRHS)
+                                              mfem::BlockVector & trueRHS) const
 {
 
   // Allocate block operator
