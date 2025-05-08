@@ -16,7 +16,16 @@ public:
   // Defaults to the name of the test variable labelling the weak form.
   virtual const std::string & getTrialVariableName() const override;
 
+  // Create transposable integrator
+  mfem::BilinearFormIntegrator *
+  createTransposableBFIntegrator(mfem::BilinearFormIntegrator * base_integrator);
+
+  // Derived classes must implement this to provide the base integrator
+  virtual mfem::BilinearFormIntegrator * createBFIntegrator() override = 0;
+
 protected:
   // Name of the trial variable that the kernel is applied to.
   std::string _trial_var_name;
+  // Bool controlling whether to add the transpose of the integrator to the system
+  bool _transpose;
 };
