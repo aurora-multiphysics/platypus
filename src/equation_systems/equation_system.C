@@ -285,12 +285,12 @@ void
 EquationSystem::Mult(const mfem::Vector & x, mfem::Vector & residual) const
 {
   x.HostRead();
-  CopyVec(x,_trueX);
+  CopyVec(x,_trueBlockX);
 
   for (int i = 0; i < _trial_var_names.size(); i++)
     {
       auto & trial_var_name = _trial_var_names.at(i);
-      _gfuncs->Get(trial_var_name)->Distribute(&(_trueX.GetBlock(i)));
+      _gfuncs->Get(trial_var_name)->Distribute(&(_trueBlockX.GetBlock(i)));
     }
 
   for (int i = 0; i < _test_var_names.size(); i++)
@@ -302,17 +302,13 @@ EquationSystem::Mult(const mfem::Vector & x, mfem::Vector & residual) const
       //_r_tmp.GetBlock(i).SetSubVector(_ess_tdof_lists.at(i) , 0.00);
     }
 
-  //CopyVec(_r_tmp, residual)
-  //FormLegacySystem(_jacobian, _trueX, _r_tmp);
-   FormLinearSystem(_jacobian, _trueX, _r_tmp);
-  _jacobian->Mult(_trueX, residual);
+  UpdateJacobian();
+  FormLinearSystem(_jacobian, _trueBlockX, _trueBlockRHS);
+  _jacobian->Mult(_trueBlockX, residual);
   residual.HostRead();
-  residual -= _r_tmp;
-  //CopyVec(residual, _r_tmp);
+  residual -= _trueBlockRHS;
+
   // residual -= _trueRHS;
-  //FormLegacySystem(_jacobian, _trueX, _r_tmp);
-  //CopyVec(_r_tmp, residual);
- // UpdateJacobian();
 }
 
 mfem::Operator &
@@ -446,8 +442,8 @@ EquationSystem::BuildEquationSystem(platypus::GridFunctions & gridfunctions, mfe
 {
   _gfuncs = &gridfunctions;
   _block_true_offsets = &btoffsets;
-  _trueX.Update(*_block_true_offsets);
-  _r_tmp.Update(*_block_true_offsets);
+  _trueBlockX.Update(*_block_true_offsets);
+  _trueBlockRHS.Update(*_block_true_offsets);
   _h_blocks.DeleteAll();
   _h_blocks.SetSize(_test_var_names.size(), _test_var_names.size());
   BuildBilinearForms();

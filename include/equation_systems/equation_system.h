@@ -206,7 +206,7 @@ protected:
 
   mutable mfem::OperatorHandle _jacobian;
   mutable mfem::Vector _trueRHS;
-  mutable mfem::BlockVector _trueX, _r_tmp;
+  mutable mfem::BlockVector _trueBlockX, _trueBlockRHS;
   mfem::AssemblyLevel _assembly_level;
   platypus::GridFunctions * _gfuncs;
   mfem::Array<int> * _block_true_offsets;
