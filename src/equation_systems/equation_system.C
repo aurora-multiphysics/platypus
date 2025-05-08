@@ -127,7 +127,7 @@ EquationSystem::ApplyEssentialBCs()
 void
 EquationSystem::FormLinearSystem(mfem::OperatorHandle & op,
                                  mfem::BlockVector & trueX,
-                                 mfem::BlockVector & trueRHS)
+                                 mfem::BlockVector & trueRHS) const
 {
 
   switch (_assembly_level)
@@ -147,7 +147,7 @@ EquationSystem::FormLinearSystem(mfem::OperatorHandle & op,
 void
 EquationSystem::FormSystem(mfem::OperatorHandle & op,
                            mfem::BlockVector & trueX,
-                           mfem::BlockVector & trueRHS)
+                           mfem::BlockVector & trueRHS) const
 {
   auto & test_var_name = _test_var_names.at(0);
   auto blf = _blfs.Get(test_var_name);
@@ -298,12 +298,13 @@ EquationSystem::Mult(const mfem::Vector & x, mfem::Vector & residual) const
       auto & test_var_name = _test_var_names.at(i);
       auto lf = _lfs.GetShared(test_var_name);
       lf->Assemble();
-      lf->ParallelAssemble(_r_tmp.GetBlock(i));
-      _r_tmp.GetBlock(i).SetSubVector(_ess_tdof_lists.at(i) , 0.00);
+      //lf->ParallelAssemble(_r_tmp.GetBlock(i));
+      //_r_tmp.GetBlock(i).SetSubVector(_ess_tdof_lists.at(i) , 0.00);
     }
 
   //CopyVec(_r_tmp, residual)
-  FormLegacySystem(_jacobian, _trueX, _r_tmp);
+  //FormLegacySystem(_jacobian, _trueX, _r_tmp);
+   FormLinearSystem(_jacobian, _trueX, _r_tmp);
   _jacobian->Mult(_trueX, residual);
   residual.HostRead();
   residual -= _r_tmp;
@@ -612,7 +613,7 @@ TimeDependentEquationSystem::FormLegacySystem(mfem::OperatorHandle & op,
 void
 TimeDependentEquationSystem::FormSystem(mfem::OperatorHandle & op,
                                         mfem::BlockVector & truedXdt,
-                                        mfem::BlockVector & trueRHS)
+                                        mfem::BlockVector & trueRHS) const
 {
   auto & test_var_name = _test_var_names.at(0);
   auto td_blf = _td_blfs.Get(test_var_name);
