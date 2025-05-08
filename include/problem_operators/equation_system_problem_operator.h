@@ -17,6 +17,7 @@ public:
   void SetGridFunctions() override;
   void Init(mfem::BlockVector & X) override;
   virtual void Solve(mfem::Vector & X) override;
+  void SetUpAMR();
 
   ~EquationSystemProblemOperator() override = default;
 
@@ -31,7 +32,13 @@ public:
   }
 
 private:
-  std::shared_ptr<platypus::EquationSystem> _equation_system{nullptr};
+  std::shared_ptr<platypus::EquationSystem>     _equation_system{nullptr};
+  std::shared_ptr<mfem::ErrorEstimator>         _error_estimator;
+  std::unique_ptr<mfem::ThresholdRefiner>       _refiner;
+  std::unique_ptr<mfem::H1_FECollection>        _smooth_flux_fec;
+  std::unique_ptr<mfem::L2_FECollection>        _flux_fec;
+  std::unique_ptr<mfem::ParFiniteElementSpace>  _smooth_flux_fes;
+  std::unique_ptr<mfem::ParFiniteElementSpace>  _flux_fes;
 };
 
 } // namespace platypus
