@@ -72,4 +72,11 @@
     requirement = 'Platypus shall have the ability to solve for an irrotational vortext in two dimensions.'
     abs_zero = 1e-6
   []
+  [./ParsedCoeffNLDiffusion]
+    type = XMLDiff
+    input = parsedcoeffdiffusion.i
+    xmldiff = 'OutputData/ParsedCoeffNLDiffusion/Run0/Run0.pvd
+                OutputData/ParsedCoeffNLDiffusion/Run0/Cycle000001/proc000000.vtu'
+    requirement = 'Platypus shall have the ability to solve a diffusion problem with parsed in general non-linear coeff set up from MOOSE and produce the same result as a native MFEM run.'
+  []
 []
