@@ -66,6 +66,15 @@ EquationSystemProblemOperator::SetUpAMR()
 }
 
 
+bool 
+EquationSystemProblemOperator::HRefine()
+{
+  _refiner->Apply( *_problem._pmesh );
+
+  return _refiner->Stop();
+}
+
+
 void
 EquationSystemProblemOperator::Solve(mfem::Vector & X)
 {

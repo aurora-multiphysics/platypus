@@ -51,17 +51,29 @@ ProblemOperatorInterface::SetTrialVariablesFromTrueVectors()
 }
 
 void
-ProblemOperatorInterface::UniformRefinement(int num_refinements)
+ProblemOperatorInterface::UpdateAfterRefinement()
 {
-  // Uniformly refine the mesh
-  for (int i=0; i<num_refinements; i++)
-    _problem._pmesh->UniformRefinement();
-
   // Update the FE spaces
   _problem.updateFESpaces();
 
   // Reset the grid functions
   SetGridFunctions();
+
+  // TODO: Is it possible to do this first? We need to update again afterwards
+  // otherwise.
+  // if ( _problem._pmesh->NonConforming() )
+  //   _problem._pmesh->Rebalance();
+}
+
+void
+ProblemOperatorInterface::UniformRefinement(int num_refinements)
+{
+  // Uniformly refine the mesh
+  for (int i=0; i<num_refinements; i++)
+  {
+    _problem._pmesh->UniformRefinement();
+    UpdateAfterRefinement();
+  }
 }
 
 }
