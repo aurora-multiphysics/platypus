@@ -2,8 +2,7 @@ MFEM_DIR ?= $(APPLICATION_DIR)/../mfem/installed
 
 include $(MFEM_DIR)/share/mfem/config.mk
 
-ADDITIONAL_INCLUDES += $(MFEM_INCFLAGS)
-ADDITIONAL_LIBS     += $(MFEM_LIBS) -lmfem-common
+NEW_MFEM_INCFLAGS = $(shell echo "$(MFEM_INCFLAGS)" | sed -E 's/COMPILE_LANGUAGE:CXX>:SHELL:[^>]*>//g')
 
-$(info ADDITIONAL_INCLUDES = $(ADDITIONAL_INCLUDES));
-$(info ADDITIONAL_LIBS     = $(ADDITIONAL_LIBS));
+ADDITIONAL_INCLUDES += $(NEW_MFEM_INCFLAGS)
+ADDITIONAL_LIBS     += $(MFEM_LIBS) -lmfem-common

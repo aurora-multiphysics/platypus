@@ -1,0 +1,36 @@
+# This is a Spack Environment file.
+#
+# It describes a set of packages to be installed, along with
+# configuration settings.
+spack:
+  # add package specs to the `specs` list
+  specs:
+  - cmake@3.27
+  - readline@8.1
+  - libpng
+  - gslib cflags="-O3 -fPIC"
+  - libtirpc
+  - libtool
+  - netcdf-c +parallel-netcdf
+  - py-deepdiff
+  - py-jinja2
+  - py-packaging
+  - py-pyyaml
+  - py-setuptools
+  - py-xmltodict
+  - py-pip
+  - zlib
+  - python
+  - libceed @gpu@ @gpu_arch@
+  - petsc +batch +fortran +hdf5 +hypre +metis +mpi +superlu-dist @gpu@ @gpu_arch@
+  - @openmpi@ fabrics=ucx schedulers=slurm
+  - @ucx@ +rdmacm +cma +rc +ud +dc +mlx5_dv +ib_hw_tm +dm
+  - hdf5 +cxx +fortran +hl +mpi +shared
+  - hypre@2.32.0 +mpi +shared +superlu-dist +fortran @gpu_aware_mpi@ @gpu@ @gpu_arch@
+  - superlu-dist +parmetis +shared @gpu@ @gpu_arch@
+  - slepc @gpu@ @gpu_arch@
+  - conduit
+  - @llvm@@llvm_version@
+  view: true
+  concretizer:
+    unify: true
