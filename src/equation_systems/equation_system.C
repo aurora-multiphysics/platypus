@@ -302,7 +302,7 @@ EquationSystem::Mult(const mfem::Vector & x, mfem::Vector & residual) const
       //_r_tmp.GetBlock(i).SetSubVector(_ess_tdof_lists.at(i) , 0.00);
     }
 
-  UpdateJacobian();
+  //UpdateJacobian();
   FormLinearSystem(_jacobian, _trueBlockX, _trueBlockRHS);
   _jacobian->Mult(_trueBlockX, residual);
   residual.HostRead();
