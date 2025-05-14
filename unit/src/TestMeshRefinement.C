@@ -4,7 +4,7 @@
 #include "MFEMHypreBoomerAMG.h"
 #include "equation_system_problem_operator.h"
 #include "MFEMParaViewDataCollection.h"
-#include "MFEMSteady.h"
+#include "MFEMEstimator.h"
 
 static double SolveEquationAndCheckResidual(
   std::unique_ptr<platypus::EquationSystemProblemOperator> &,
@@ -30,7 +30,6 @@ public:
     auto & problem_data      = _mfem_problem->getProblemData();
     problem_data._eqn_system = std::make_shared<platypus::EquationSystem>();
     auto eqn_system          = problem_data._eqn_system;
-    
     // FE space
     InputParameters fespace_params             = _factory.getValidParams("MFEMScalarFESpace");
     fespace_params.set<MooseEnum>("fec_type")  = "H1";
@@ -137,11 +136,22 @@ TEST_F(MFEMMeshRefinementTest, AMRRefinement)
   auto problem_operator = std::make_unique<platypus::EquationSystemProblemOperator>(problem_data);
   problem_operator->SetGridFunctions();
   problem_operator->Init( X );
+
+  std::string kernel_name   = "kernel1";
+  std::string test_variable = "diffused";
+  std::string estimator     = "MFEMZienkiewiczZhuEstimator";
+
+  InputParameters estimator_params = _factory.getValidParams("MFEMZienkiewiczZhuEstimator");
+  estimator_params.set<std::string>("kernel_name")   = "kernel1";
+  estimator_params.set<std::string>("test_variable") = "diffused";
+  estimator_params.set<std::string>("estimator")     = "MFEMZienkiewiczZhuEstimator";
+
+  problem_operator->SetUpAMR( estimator, kernel_name, estimator_params );
   
   double residual;
   bool   stop = false; // ask the problem operator if we have refined enough
 
-  for (int i=0; i<20 && !stop ; i++) {
+  for (int i=0; i<50 && !stop ; i++) {
     std::cout << "Starting amr iteration " << (i+1) << "\n";
     std::cout << "Total number of mesh points: " << pmesh.GetNE() << "\n";
     residual = SolveEquationAndCheckResidual( problem_operator, eqn_system, X );

@@ -2,6 +2,7 @@
 #include "problem_operator.h"
 #include "problem_operator_interface.h"
 #include "equation_system_interface.h"
+#include "MFEMEstimator.h"
 
 namespace platypus
 {
@@ -10,14 +11,16 @@ class EquationSystemProblemOperator : public ProblemOperator, public EquationSys
 {
 public:
   EquationSystemProblemOperator(MFEMProblemData & problem)
-    : ProblemOperator(problem), _equation_system(problem._eqn_system)
+    : ProblemOperator(problem), _equation_system(problem._eqn_system), _use_amr(false)
   {
   }
 
   void SetGridFunctions() override;
   void Init(mfem::BlockVector & X) override;
   virtual void Solve(mfem::Vector & X) override;
-  void SetUpAMR();
+
+  //! Call this with the parameters for the Estimator
+  void SetUpAMR(std::string estimator_type, std::string estimator_name, InputParameters estimator_params);
   bool HRefine();
 
   ~EquationSystemProblemOperator() override = default;
@@ -33,13 +36,18 @@ public:
   }
 
 private:
-  std::shared_ptr<platypus::EquationSystem>     _equation_system{nullptr};
-  std::shared_ptr<mfem::ErrorEstimator>         _error_estimator;
-  std::unique_ptr<mfem::ThresholdRefiner>       _refiner;
-  std::unique_ptr<mfem::H1_FECollection>        _smooth_flux_fec;
-  std::unique_ptr<mfem::L2_FECollection>        _flux_fec;
-  std::unique_ptr<mfem::ParFiniteElementSpace>  _smooth_flux_fes;
-  std::unique_ptr<mfem::ParFiniteElementSpace>  _flux_fes;
+  std::shared_ptr<platypus::EquationSystem> _equation_system{nullptr};
+  std::shared_ptr<MFEMEstimator>            _estimator;
+  std::unique_ptr<mfem::ThresholdRefiner>   _refiner;
+
+
+  /**
+  *
+  * For now, use a bool to determine whether we use amr
+  *
+  *
+  */
+  bool _use_amr;
 };
 
 } // namespace platypus
