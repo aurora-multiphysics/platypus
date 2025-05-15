@@ -48,7 +48,7 @@ public:
   virtual void AddKernel(std::shared_ptr<MFEMKernel> kernel);
   virtual void AddIntegratedBC(std::shared_ptr<MFEMIntegratedBC> kernel);
   virtual void AddEssentialBC(std::shared_ptr<MFEMEssentialBC> bc);
-  virtual void ApplyEssentialBCs();
+  virtual void ApplyEssentialBCs() const;
 
   // Build forms
   virtual void Init(platypus::GridFunctions & gridfunctions,
@@ -85,7 +85,7 @@ public:
 
   void UpdateJacobian() const;
 
-  std::vector<mfem::Array<int>> _ess_tdof_lists;
+  mutable std::vector<mfem::Array<int>> _ess_tdof_lists;
 
 protected:
   bool VectorContainsName(const std::vector<std::string> & the_vector,

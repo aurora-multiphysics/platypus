@@ -93,7 +93,7 @@ EquationSystem::AddEssentialBC(std::shared_ptr<MFEMEssentialBC> bc)
 }
 
 void
-EquationSystem::ApplyEssentialBCs()
+EquationSystem::ApplyEssentialBCs() const
 {
   _ess_tdof_lists.resize(_test_var_names.size());
   for (int i = 0; i < _test_var_names.size(); i++)
@@ -237,7 +237,13 @@ EquationSystem::BuildJacobian(mfem::BlockVector & trueX, mfem::BlockVector & tru
 {
   height = trueX.Size();
   width = trueRHS.Size();
-  FormLinearSystem(_jacobian, trueX, trueRHS);
+  //Update the grid functions
+  for (int i = 0; i < _trial_var_names.size(); i++)
+  {
+    auto & trial_var_name = _trial_var_names.at(i);
+    _xs.at(i)->Distribute(&(trueX.GetBlock(i)));
+  }
+  UpdateJacobian();
 }
 
 void CopyVec(const mfem::Vector & x, mfem::Vector & y){ y = x;}
@@ -284,31 +290,41 @@ EquationSystem::UpdateJacobian() const
 void
 EquationSystem::Mult(const mfem::Vector & x, mfem::Vector & residual) const
 {
+  //Update the grid functions
   x.HostRead();
   CopyVec(x,_trueBlockX);
-
   for (int i = 0; i < _trial_var_names.size(); i++)
     {
       auto & trial_var_name = _trial_var_names.at(i);
-      _gfuncs->Get(trial_var_name)->Distribute(&(_trueBlockX.GetBlock(i)));
+      //_gfuncs->Get(trial_var_name)->Distribute(&(_trueBlockX.GetBlock(i)));
+      _trueBlockX.GetBlock(i).SetSubVector(_ess_tdof_lists.at(i), 5.0);
+      _xs.at(i)->Distribute(&(_trueBlockX.GetBlock(i)));
     }
 
+  // Apply boundary conditions
+  ApplyEssentialBCs();
+
+  //Update the residual form
   for (int i = 0; i < _test_var_names.size(); i++)
     {
       auto & test_var_name = _test_var_names.at(i);
       auto lf = _lfs.GetShared(test_var_name);
       lf->Assemble();
-      //lf->ParallelAssemble(_r_tmp.GetBlock(i));
-      //_r_tmp.GetBlock(i).SetSubVector(_ess_tdof_lists.at(i) , 0.00);
+      lf->ParallelAssemble(_trueBlockRHS.GetBlock(i));
     }
 
-  //UpdateJacobian();
-  FormLinearSystem(_jacobian, _trueBlockX, _trueBlockRHS);
+  UpdateJacobian();
   _jacobian->Mult(_trueBlockX, residual);
   residual.HostRead();
   residual -= _trueBlockRHS;
 
-  // residual -= _trueRHS;
+  //Apply the boundary conditions
+  CopyVec(residual,_trueBlockRHS);
+  for(int i = 0; i < _test_var_names.size(); i++)
+  {
+    _trueBlockRHS.GetBlock(i).SetSubVector(_ess_tdof_lists.at(i) , 0.00);
+  }
+  residual = _trueBlockRHS;
 }
 
 mfem::Operator &
