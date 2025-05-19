@@ -12,7 +12,7 @@ public:
   MFEMMixedScalarCurlKernel(const InputParameters & parameters);
   ~MFEMMixedScalarCurlKernel() override {}
 
-  virtual mfem::BilinearFormIntegrator * createBFIntegrator() override;
+  virtual mfem::BilinearFormIntegrator * createMBFIntegrator() override;
 
 protected:
   MFEMScalarCoefficientName _coef_name;
