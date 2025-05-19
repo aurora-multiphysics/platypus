@@ -2,9 +2,9 @@
 
 ## Summary
 
-Solves a transient heat conduction problem with a
-  boundary parameterized by a heat transfer coefficient that exchanges heat with a thermal
-  reservoir.
+Solves a transient heat conduction problem with a boundary
+parameterized by a heat transfer coefficient that exchanges heat
+with a thermal reservoir.
 
 ## Description
 
@@ -23,10 +23,10 @@ the initial condition $T(t=0)=0.0$.
 
 In this example, we solve this using the weak form
 
-!equation
-\left(\rho c_p \frac{\partial T}{\partial t}, v\right)_\Omega + (k \vec \nabla T, \vec \nabla v)_\Omega
-- (k \vec \nabla T \cdot \hat n, v)_{\partial \Omega}
-= 0 \,\,\, \forall v \in V
+\begin{equation}
+\left(\rho c_p \frac{\partial T}{\partial t}, v\right)_\Omega + (k \vec \nabla T, \vec \nabla v)_\Omega -
+(k \vec \nabla T \cdot \hat n, v)_{\partial \Omega} = 0 \,\,\, \forall v \in V
+\end{equation}
 
 where
 

@@ -11,11 +11,15 @@ MFEMMixedBilinearFormKernel::validParams()
       "",
       "The trial variable this kernel is acting on and which will be solved for. If empty "
       "(default), it will be the same as the test variable.");
+  params.addParam<bool>(
+      "transpose", false, "If true, adds the transpose of the integrator to the system instead.");
   return params;
 }
 
 MFEMMixedBilinearFormKernel::MFEMMixedBilinearFormKernel(const InputParameters & parameters)
-  : MFEMKernel(parameters), _trial_var_name(getParam<std::string>("trial_variable"))
+  : MFEMKernel(parameters),
+    _trial_var_name(getParam<std::string>("trial_variable")),
+    _transpose(getParam<bool>("transpose"))
 {
   if (_trial_var_name == "")
   {
@@ -27,4 +31,15 @@ const std::string &
 MFEMMixedBilinearFormKernel::getTrialVariableName() const
 {
   return _trial_var_name;
+}
+
+mfem::BilinearFormIntegrator *
+MFEMMixedBilinearFormKernel::createTransposableBFIntegrator(
+    mfem::BilinearFormIntegrator * base_integrator)
+{
+  if (_transpose)
+  {
+    return new mfem::TransposeIntegrator(base_integrator);
+  }
+  return base_integrator;
 }

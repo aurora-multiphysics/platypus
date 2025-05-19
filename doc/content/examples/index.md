@@ -30,3 +30,12 @@ starting point for users to adapt:
   on a cuboid domain, discretized using $H(\mathrm{div})$ conforming
   Raviart-Thomas elements. This example is based on [MFEM Example 4](https://mfem.org/examples/)
   and is relevant for solving Maxwell's equations using potentials without the Coulomb gauge.
+
+## Fluids
+
+- [Darcy Problem](examples/Darcy.md): Solves a simple 2D/3D mixed Darcy problem corresponding to the saddle point system.
+  We discretize with Raviart-Thomas finite elements (velocity $ \mathbf{u} $) and
+  piecewise discontinuous polynomials (pressure $p$).
+  This example demonstrates the use of transpose in the input file used in mixed problems with different trial and
+  test variables when setting up block matrices.
+  This example is based on [MFEM Example 5](https://mfem.org/examples/).
