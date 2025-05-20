@@ -1,5 +1,5 @@
 #include "equation_system.h"
-
+#include "/home/kchockalingam/projects/mfem/general/forall.hpp"
 namespace platypus
 {
 
@@ -121,6 +121,9 @@ EquationSystem::ApplyEssentialBCs()
       }
     }
     trial_gf.FESpace()->GetEssentialTrueDofs(global_ess_markers, _ess_tdof_lists.at(i));
+   // std::cout << "******** Variable name ***********  " << test_var_name << "  " << i << " **********************" << std::endl;
+   // _ess_tdof_lists.at(i).Print(std::cout);
+
   }
 }
 
@@ -175,8 +178,9 @@ EquationSystem::FormLegacySystem(mfem::OperatorHandle & op,
 {
 
   // Allocate block operator
-  //_h_blocks.DeleteAll();
-  //_h_blocks.SetSize(_test_var_names.size(), _test_var_names.size());
+  _h_blocks.DeleteAll();
+  _h_blocks.SetSize(_test_var_names.size(), _test_var_names.size());
+  std::cout << "********** I AM HERE ******************************************" << std::endl;
   // Form diagonal blocks.
   for (int i = 0; i < _test_var_names.size(); i++)
   {
@@ -240,7 +244,7 @@ EquationSystem::BuildJacobian(mfem::BlockVector & trueX, mfem::BlockVector & tru
   FormLinearSystem(_jacobian, trueX, trueRHS);
 }
 
-void CopyVec(const mfem::Vector & x, mfem::Vector & y){ y = x;}
+
 
 void
 EquationSystem::UpdateJacobian() const
@@ -281,15 +285,44 @@ EquationSystem::UpdateJacobian() const
     _jacobian.Reset(mfem::HypreParMatrixFromBlocks(_h_blocks));
 }
 
+void CopyVec(const mfem::Vector & x, mfem::Vector & y){ y = x;}
+
+void applyDirchValues(const mfem::Vector &k, mfem::Vector &y, mfem::Array<int> dofs)
+{
+  if(dofs.Size() > 0){ //Only apply if there are constrained DOF's
+
+    const bool use_dev = dofs.UseDevice() || k.UseDevice() || y.UseDevice();
+    const int n = dofs.Size();
+
+    // Use read+write access for X - we only modify some of its entries
+
+    auto d_X = y.ReadWrite(use_dev);
+    auto d_y = k.Read(use_dev);
+    auto d_dofs = dofs.Read(use_dev);
+
+    mfem::forall_switch(use_dev, n, [=] MFEM_HOST_DEVICE (int i)
+    {
+      const int dof_i = d_dofs[i];
+
+      if (dof_i >= 0)   d_X[dof_i]    =  d_y[dof_i];
+      if (!(dof_i >= 0))d_X[-1-dof_i] = -d_y[-1-dof_i];
+     });
+  }
+};
+ 
+
 void
 EquationSystem::Mult(const mfem::Vector & x, mfem::Vector & residual) const
 {
   x.HostRead();
   CopyVec(x,_trueBlockX);
 
+  _trueBlockRHS = 0.0;
+ 
   for (int i = 0; i < _trial_var_names.size(); i++)
     {
       auto & trial_var_name = _trial_var_names.at(i);
+      applyDirchValues(*(_xs.at(i)), _trueBlockX.GetBlock(i), _ess_tdof_lists.at(i));
       _gfuncs->Get(trial_var_name)->Distribute(&(_trueBlockX.GetBlock(i)));
     }
 
@@ -298,17 +331,17 @@ EquationSystem::Mult(const mfem::Vector & x, mfem::Vector & residual) const
       auto & test_var_name = _test_var_names.at(i);
       auto lf = _lfs.GetShared(test_var_name);
       lf->Assemble();
-      //lf->ParallelAssemble(_r_tmp.GetBlock(i));
-      //_r_tmp.GetBlock(i).SetSubVector(_ess_tdof_lists.at(i) , 0.00);
+     // lf->ParallelAssemble(_trueBlockRHS.GetBlock(i));
+     // _trueBlockRHS.GetBlock(i).SetSubVector(_ess_tdof_lists.at(i) , 0.00);
     }
 
   //UpdateJacobian();
-  FormLinearSystem(_jacobian, _trueBlockX, _trueBlockRHS);
+   FormLinearSystem(_jacobian, _trueBlockX, _trueBlockRHS);
   _jacobian->Mult(_trueBlockX, residual);
   residual.HostRead();
   residual -= _trueBlockRHS;
 
-  // residual -= _trueRHS;
+  //residual -= _trueRHS;
 }
 
 mfem::Operator &
@@ -568,9 +601,10 @@ TimeDependentEquationSystem::FormLegacySystem(mfem::OperatorHandle & op,
 {
 
   // Allocate block operator
-  _h_blocks.DeleteAll();
-  _h_blocks.SetSize(_test_var_names.size(), _test_var_names.size());
+  //_h_blocks.DeleteAll();
+  //_h_blocks.SetSize(_test_var_names.size(), _test_var_names.size());
   // Form diagonal blocks.
+    std::cout << "********** TIME: I AM HERE ******************************************" << std::endl;
   for (int i = 0; i < _test_var_names.size(); i++)
   {
     auto & test_var_name = _test_var_names.at(i);
@@ -579,7 +613,7 @@ TimeDependentEquationSystem::FormLegacySystem(mfem::OperatorHandle & op,
     auto lf = _lfs.Get(test_var_name);
     // if implicit, add contribution to linear form from terms involving state
     // variable at previous timestep: {
-    blf->AddMult(*_trial_variables.Get(test_var_name), *lf, -1.0);
+     blf->AddMult(*_trial_variables.Get(test_var_name), *lf, -1.0);
     // }
     mfem::Vector aux_x, aux_rhs;
     // Update solution values on Dirichlet values to be in terms of du/dt instead of u
