@@ -124,8 +124,42 @@ EquationSystem::ApplyEssentialBCs()
   }
 }
 
+//Gets a subset of a Vector/Gridfunction and
+//copies into another vector (used for Dirch
+//BC's)
+void applyDirchValues(const Vector &k, Vector &y, Array<int> dofs)
+{
+  if(dofs.Size() > 0){ //Only apply if there are constrained DOF's
+    const bool use_dev = dofs.UseDevice() || k.UseDevice() || y.UseDevice();
+    const int n = dofs.Size();
+    // Use read+write access for X - we only modify some of its entries
+    auto d_X = y.ReadWrite(use_dev);
+    auto d_y = k.Read(use_dev);
+    auto d_dofs = dofs.Read(use_dev);
+    mfem::forall_switch(use_dev, n, [=] MFEM_HOST_DEVICE (int i)
+    {
+      const int dof_i = d_dofs[i];
+      if (dof_i >= 0)   d_X[dof_i]    =  d_y[dof_i];
+      if (!(dof_i >= 0))d_X[-1-dof_i] = -d_y[-1-dof_i];
+    });
+  }
+};
+
+//Copy one vector into another (used for indirect casting)
+//e.g. copy between block-vector, Gfunction and vector 
+void CopyVec(const Vector & x, Vector & y){y = x;};
+
 void
 EquationSystem::UpdateSolutionGridFunctions(const Vector & x) const{
+  x.HostRead();
+  CopyVec(x,_trueBlockX);
+  for (int i = 0; i < _trial_var_names.size(); i++)
+    {
+      auto & trial_var_name = _trial_var_names.at(i);
+      //_gfuncs->Get(trial_var_name)->Distribute(&(_trueBlockX.GetBlock(i)));
+      _trueBlockX.GetBlock(i).SetSubVector(_ess_tdof_lists.at(i), 5.0);
+      _xs.at(i)->Distribute(&(_trueBlockX.GetBlock(i)));
+    }
 
 };
 
