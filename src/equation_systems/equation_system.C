@@ -285,6 +285,7 @@ EquationSystem::BuildJacobian(mfem::BlockVector & trueX, mfem::BlockVector & tru
 void
 EquationSystem::Mult(const mfem::Vector & x, mfem::Vector & residual) const
 {
+  UpdateSolutionGridFunctions(x);
   _jacobian->Mult(x, residual);
   x.HostRead();
   residual.HostRead();
