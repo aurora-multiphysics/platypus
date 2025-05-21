@@ -125,6 +125,11 @@ EquationSystem::ApplyEssentialBCs()
 }
 
 void
+EquationSystem::UpdateSolutionGridFunctions(const Vector & x) const{
+
+};
+
+void
 EquationSystem::FormLinearSystem(mfem::OperatorHandle & op,
                                  mfem::BlockVector & trueX,
                                  mfem::BlockVector & trueRHS)
