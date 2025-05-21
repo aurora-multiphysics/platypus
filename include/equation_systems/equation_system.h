@@ -63,7 +63,7 @@ public:
   //non-linear problems 
   virtual void UpdateSolutionGridFunctions(const Vector & x) const;
   virtual void ReassembleResidualForms();
-  virtual void ReassembleJacobianForms();
+  virtual void ReassembleJacobianOperator();
 
   // Form linear system, with essential boundary conditions accounted for
   virtual void FormLinearSystem(mfem::OperatorHandle & op,
