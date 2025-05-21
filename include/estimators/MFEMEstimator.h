@@ -27,6 +27,7 @@ protected:
   // Name of (the test variable associated with) the weak form that the kernel is applied to.
   std::string                           _test_var_name;
   std::string                           _kernel_name;
+  std::string                           _fe_space_name;
   std::shared_ptr<mfem::ErrorEstimator> _error_estimator;
 
 };

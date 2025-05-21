@@ -17,6 +17,8 @@ public:
   // Computes the auxvariable.
   virtual void execute() override;
 
+  virtual void update() override;
+
 protected:
   // Name of source MFEMVariable to take the gradient of.
   VariableName _source_var_name;

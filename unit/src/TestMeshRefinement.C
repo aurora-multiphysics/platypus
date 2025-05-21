@@ -115,65 +115,6 @@ TEST_F(MFEMMeshRefinementTest, DiffusionRefinement)
   ASSERT_LE(residual, 1E-5);
 }
 
-TEST_F(MFEMMeshRefinementTest, AMRRefinement)
-{
-  // fetch the references which we init during the constructor
-  auto & problem_data = _mfem_problem->getProblemData();
-  auto eqn_system     = problem_data._eqn_system;
-
-  mfem::ParMesh & pmesh = _mfem_mesh_ptr->getMFEMParMesh();
-
-  // Finished initialisation...
-  mfem::BlockVector    X;
-
-  eqn_system->Init(
-    problem_data._gridfunctions,
-    problem_data._fespaces,
-    mfem::AssemblyLevel::LEGACY
-  );
-
-  // problem operator
-  auto problem_operator = std::make_unique<platypus::EquationSystemProblemOperator>(problem_data);
-  problem_operator->SetGridFunctions();
-  problem_operator->Init( X );
-
-  std::string kernel_name   = "kernel1";
-  std::string test_variable = "diffused";
-  std::string estimator     = "MFEMZienkiewiczZhuEstimator";
-
-  InputParameters estimator_params = _factory.getValidParams("MFEMZienkiewiczZhuEstimator");
-  estimator_params.set<std::string>("kernel_name")   = "kernel1";
-  estimator_params.set<std::string>("test_variable") = "diffused";
-  estimator_params.set<std::string>("estimator")     = "MFEMZienkiewiczZhuEstimator";
-
-  problem_operator->SetUpAMR( estimator, kernel_name, estimator_params );
-  
-  double residual;
-  bool   stop = false; // ask the problem operator if we have refined enough
-
-  for (int i=0; i<50 && !stop ; i++) {
-    std::cout << "Starting amr iteration " << (i+1) << "\n";
-    std::cout << "Total number of mesh points: " << pmesh.GetNE() << "\n";
-    residual = SolveEquationAndCheckResidual( problem_operator, eqn_system, X );
-
-    // h-refine the mesh, and capture whether we need to stop
-    stop = problem_operator->HRefine();
-
-    // update fe spaces and grid functions
-    problem_operator->UpdateAfterRefinement();
-    
-    // if ( pmesh.Nonconforming() ) {
-    //   pmesh.Rebalance();
-    //   problem_operator->UpdateAfterRefinement();
-    // }
-
-    std::cout << "Residual was " << residual << "\n";
-
-  }
-
-  ASSERT_EQ(1+1,2);
-}
-
 
 /*++++++++++++++++++++++++++++ HELPER FUNCTIONS ++++++++++++++++++++++++++++*/
 

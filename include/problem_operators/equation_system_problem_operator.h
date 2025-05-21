@@ -20,8 +20,9 @@ public:
   virtual void Solve(mfem::Vector & X) override;
 
   //! Call this with the parameters for the Estimator
-  void SetUpAMR(std::string estimator_type, std::string estimator_name, InputParameters estimator_params);
-  bool HRefine();
+  void AddEstimator(std::shared_ptr<MFEMEstimator> estimator) override;
+  void SetUpAMR() override;
+  bool HRefine()  override;
 
   ~EquationSystemProblemOperator() override = default;
 

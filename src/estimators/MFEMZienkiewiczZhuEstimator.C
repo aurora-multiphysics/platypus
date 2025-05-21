@@ -11,6 +11,10 @@ MFEMZienkiewiczZhuEstimator::validParams()
 // Make sure we don't do this until all the grid functions etc are set up!
 MFEMZienkiewiczZhuEstimator::MFEMZienkiewiczZhuEstimator(const InputParameters & params)
   : MFEMEstimator(params)
+{}
+
+
+mfem::ErrorEstimator * MFEMZienkiewiczZhuEstimator::createEstimator()
 {
   MFEMProblemData & problem = getMFEMProblem().getProblemData();
   mfem::BilinearFormIntegrator* integ;
@@ -29,7 +33,7 @@ MFEMZienkiewiczZhuEstimator::MFEMZienkiewiczZhuEstimator(const InputParameters &
   }
   
   // fetch the order, dim and sdim
-  auto fec  = problem._fecs.GetShared( _test_var_name );
+  auto fec  = problem._fecs.GetShared( _fe_space_name );
   int order = fec->GetOrder();
   
   int dim  = problem._pmesh->Dimension();
@@ -50,11 +54,6 @@ MFEMZienkiewiczZhuEstimator::MFEMZienkiewiczZhuEstimator(const InputParameters &
   
   // finally, initialise the estimator
   _error_estimator = std::make_shared<mfem::L2ZienkiewiczZhuEstimator>( *integ, *gridfunction, *_flux_fes, *_smooth_flux_fes );
-}
-
-
-mfem::ErrorEstimator * MFEMZienkiewiczZhuEstimator::createEstimator()
-{
   return _error_estimator.get();
 }
 
