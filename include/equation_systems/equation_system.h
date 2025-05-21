@@ -54,11 +54,16 @@ public:
   virtual void Init(platypus::GridFunctions & gridfunctions,
                     const platypus::FESpaces & fespaces,
                     mfem::AssemblyLevel assembly_level);
-  virtual void UpdateSolutionGridFunctions(const Vector & x) const;
   virtual void BuildLinearForms();
   virtual void BuildBilinearForms();
   virtual void BuildMixedBilinearForms();
   virtual void BuildEquationSystem();
+
+  //Reassembly routines needed for solving
+  //non-linear problems 
+  virtual void UpdateSolutionGridFunctions(const Vector & x) const;
+  virtual void ReassembleResidualForms();
+  virtual void ReassembleJacobianForms();
 
   // Form linear system, with essential boundary conditions accounted for
   virtual void FormLinearSystem(mfem::OperatorHandle & op,
