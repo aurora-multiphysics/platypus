@@ -54,7 +54,7 @@ public:
   virtual void Init(platypus::GridFunctions & gridfunctions,
                     const platypus::FESpaces & fespaces,
                     mfem::AssemblyLevel assembly_level);
-  virtual void UpdateSolutionGridFunctions(const Vector & x);
+  virtual void UpdateSolutionGridFunctions(const Vector & x) const;
   virtual void BuildLinearForms();
   virtual void BuildBilinearForms();
   virtual void BuildMixedBilinearForms();
