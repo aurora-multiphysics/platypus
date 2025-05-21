@@ -126,7 +126,8 @@ EquationSystem::ApplyEssentialBCs()
 
 //Gets a subset of a Vector/Gridfunction and
 //copies into another vector (used for Dirch
-//BC's)
+//BC's can be considered as extension of
+//SetSubVector)
 void applyDirchValues(const Vector &k, Vector &y, Array<int> dofs)
 {
   if(dofs.Size() > 0){ //Only apply if there are constrained DOF's
@@ -149,18 +150,20 @@ void applyDirchValues(const Vector &k, Vector &y, Array<int> dofs)
 //e.g. copy between block-vector, Gfunction and vector 
 void CopyVec(const Vector & x, Vector & y){y = x;};
 
+//Updates the main grid functions in problem Data
+//as all integrator coefficients are stored there
+//(In non-linear problems (grid-function dependant
+//they need to be updated before reassembly occurs)
 void
 EquationSystem::UpdateSolutionGridFunctions(const Vector & x) const{
   x.HostRead();
   CopyVec(x,_trueBlockX);
   for (int i = 0; i < _trial_var_names.size(); i++)
-    {
-      auto & trial_var_name = _trial_var_names.at(i);
-      //_gfuncs->Get(trial_var_name)->Distribute(&(_trueBlockX.GetBlock(i)));
-      _trueBlockX.GetBlock(i).SetSubVector(_ess_tdof_lists.at(i), 5.0);
-      _xs.at(i)->Distribute(&(_trueBlockX.GetBlock(i)));
-    }
-
+  {
+    auto & trial_var_name = _trial_var_names.at(i);
+    applyDirchValues(*(_xs.at(i)), _trueBlockX.GetBlock(i), _ess_tdof_lists.at(i))
+    _XSgfuncs->Get(trial_var_name)->Distribute(&(_trueBlockX.GetBlock(i)));
+  }
 };
 
 void
