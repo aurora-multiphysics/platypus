@@ -205,6 +205,7 @@ protected:
 
   mutable mfem::OperatorHandle _jacobian;
   mutable mfem::Vector _trueRHS;
+  mutable mfem::BlockVector _trueBlockRHS, _trueBlockX;
   mfem::AssemblyLevel _assembly_level;
 };
 
