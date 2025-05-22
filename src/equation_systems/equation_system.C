@@ -282,10 +282,21 @@ EquationSystem::BuildJacobian(mfem::BlockVector & trueX, mfem::BlockVector & tru
   FormLinearSystem(_jacobian, trueX, trueRHS);
 }
 
+void ReassembleResidualForms(Vector & residual) const{
+  residual.HostRead();
+  for (int i = 0; i < _trial_var_names.size(); i++)
+  {
+    auto & trial_var_name = _trial_var_names.at(i);
+  //  applyDirchValues(*(_xs.at(i)), _trueBlockX.GetBlock(i), _ess_tdof_lists.at(i))
+//_lfs
+  }
+};
+
 void
 EquationSystem::Mult(const mfem::Vector & x, mfem::Vector & residual) const
 {
   UpdateSolutionGridFunctions(x);
+  ReassembleResidualForms(residual);
   _jacobian->Mult(x, residual);
   x.HostRead();
   residual.HostRead();
