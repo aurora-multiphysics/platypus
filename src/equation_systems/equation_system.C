@@ -344,6 +344,42 @@ EquationSystem::Mult(const mfem::Vector & x, mfem::Vector & residual) const
   //residual -= _trueRHS;
 }
 
+
+void
+TimeDependentEquationSystem::Mult(const mfem::Vector & trueBlockdXdt, mfem::Vector & residual) const
+{
+  trueBlockdXdt.HostRead();
+  CopyVec(trueBlockdXdt, _trueBlockdXdt);
+
+  _trueBlockRHS = 0.0;
+ 
+  for (int i = 0; i < _trial_var_names.size(); i++)
+    {
+      auto & trial_var_name = _trial_var_names.at(i);
+      std::cout << " trial_var_name  " << trial_var_name << std::endl;
+     // applyDirchValues(*(_xs.at(i)), _trueBlockX.GetBlock(i), _ess_tdof_lists.at(i));
+      _trueBlockdXdt.GetBlock(i).SetSubVector(_ess_tdof_lists.at(i) , 0.00);
+      _gfuncs->Get(trial_var_name)->Distribute(&(_trueBlockdXdt.GetBlock(i)));
+    }
+
+  for (int i = 0; i < _test_var_names.size(); i++)
+    {
+      auto & test_var_name = _test_var_names.at(i);
+      auto lf = _lfs.GetShared(test_var_name);
+      lf->Assemble();
+     // lf->ParallelAssemble(_trueBlockRHS.GetBlock(i));
+     // _trueBlockRHS.GetBlock(i).SetSubVector(_ess_tdof_lists.at(i) , 0.00);
+    }
+
+  //UpdateJacobian();
+   FormLinearSystem(_jacobian, _trueBlockdXdt, _trueBlockRHS);
+  _jacobian->Mult(_trueBlockdXdt, residual);
+  residual.HostRead();
+  residual -= _trueBlockRHS;
+  
+  //truedXdt -= _trueRHS;
+}
+
 mfem::Operator &
 EquationSystem::GetGradient(const mfem::Vector & u) const
 {
@@ -477,6 +513,7 @@ EquationSystem::BuildEquationSystem(platypus::GridFunctions & gridfunctions, mfe
   _block_true_offsets = &btoffsets;
   _trueBlockX.Update(*_block_true_offsets);
   _trueBlockRHS.Update(*_block_true_offsets);
+  _trueBlockdXdt.Update(*_block_true_offsets);
   _h_blocks.DeleteAll();
   _h_blocks.SetSize(_test_var_names.size(), _test_var_names.size());
   BuildBilinearForms();
