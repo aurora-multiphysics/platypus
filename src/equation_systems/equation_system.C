@@ -362,6 +362,12 @@ TimeDependentEquationSystem::Mult(const mfem::Vector & trueBlockdXdt, mfem::Vect
       _gfuncs->Get(trial_var_name)->Distribute(&(_trueBlockdXdt.GetBlock(i)));
     }
 
+    for (int i = 0; i < _test_var_names.size(); i++)
+    {
+      auto & test_var_name = _test_var_names.at(i);
+      applyDirchValues(*(_xs.at(i)), *(_gfuncs->Get(test_var_name)),_ess_tdof_lists.at(i));
+    }
+
   for (int i = 0; i < _test_var_names.size(); i++)
     {
       auto & test_var_name = _test_var_names.at(i);
