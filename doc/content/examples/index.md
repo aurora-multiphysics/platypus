@@ -17,7 +17,7 @@ starting point for users to adapt:
 ## Mechanical Problems
 
 - [Linear Elasticity](examples/LinearElasticity.md): Solves a 3D linear elasticity problem for
-  the deformation of a multi-material cantiliver beam. This example
+  the deformation of a multi-material cantilever beam. This example
   is based on [MFEM Example 2](https://mfem.org/examples/).
 
 ## Electromagnetic Problems
@@ -30,3 +30,11 @@ starting point for users to adapt:
   on a cuboid domain, discretized using $H(\mathrm{div})$ conforming
   Raviart-Thomas elements. This example is based on [MFEM Example 4](https://mfem.org/examples/)
   and is relevant for solving Maxwell's equations using potentials without the Coulomb gauge.
+
+## Fluids
+
+- [Darcy Problem](examples/Darcy.md): Solves a 2D mixed Darcy problem. This is a saddle point
+  problem, discretized using Raviart-Thomas finite elements (velocity $\vec u$) and
+  piecewise discontinuous polynomials (pressure $p$). This example demonstrates the use of
+  transposition in the input file for mixed problems with different trial and test variables.
+  This example is based on [MFEM Example 5](https://mfem.org/examples/).
