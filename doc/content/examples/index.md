@@ -17,7 +17,7 @@ starting point for users to adapt:
 ## Mechanical Problems
 
 - [Linear Elasticity](examples/LinearElasticity.md): Solves a 3D linear elasticity problem for
-  the deformation of a multi-material cantiliver beam. This example
+  the deformation of a multi-material cantilever beam. This example
   is based on [MFEM Example 2](https://mfem.org/examples/).
 
 ## Electromagnetic Problems
