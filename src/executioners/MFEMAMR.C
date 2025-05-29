@@ -6,8 +6,11 @@
 registerMooseObject("PlatypusApp", MFEMAMR);
 
 /**
-  TODO: Try and get rebalance working
   TODO: Support multiple aux kernels in a block
+
+  Note the way that estimators are set up - by fetching a single grid function
+  via a single variable/test_var_name. We may need to modify this class to support
+  estimators on multiple variables.
 */
 
 InputParameters

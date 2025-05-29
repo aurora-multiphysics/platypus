@@ -56,13 +56,15 @@ ProblemOperatorInterface::UpdateAfterRefinement()
   // Update the FE spaces
   _problem.updateFESpaces();
 
+  if ( _problem._pmesh->Nonconforming() )
+  {
+    _problem._pmesh->Rebalance();
+    // Update FESpaces again to account for rebalancing
+    _problem.updateFESpaces();
+  }
+
   // Reset the grid functions
   SetGridFunctions();
-
-  // TODO: Is it possible to do this first? We need to update again afterwards
-  // otherwise.
-  // if ( _problem._pmesh->NonConforming() )
-  //   _problem._pmesh->Rebalance();
 }
 
 void

@@ -84,8 +84,8 @@
 [Solver]
   type = MFEMHyprePCG
   preconditioner = boomeramg
-  l_tol = 1e-7
-  l_abs_tol = 1e-5
+  l_tol = 1e-16
+  l_abs_tol = 1e-16
   l_max_its = 1000  
 []
 
@@ -100,10 +100,7 @@
 [Outputs]
   [ParaViewDataCollection]
     type = MFEMParaViewDataCollection
-    file_base = OutputData/Diffusion
+    file_base = OutputData/Diffusion_amr
     vtk_format = ASCII
   []
 []
-
-# for now we don't bother with an adaptivity block. Instead, let's just pass the things we need
-# down into the executioner and let the platypus code handle the rest
