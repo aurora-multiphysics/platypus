@@ -1,4 +1,4 @@
-MFEM_DIR ?= $(APPLICATION_DIR)/../mfem/installed
+MFEM_DIR=/home/srathore/mfem/installed
 
 include $(MFEM_DIR)/share/mfem/config.mk
 
