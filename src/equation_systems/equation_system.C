@@ -1,4 +1,5 @@
 #include "equation_system.h"
+#include "../../../mfem/installed/include/mfem/general/forall.hpp"
 
 namespace platypus
 {
@@ -128,7 +129,7 @@ EquationSystem::ApplyEssentialBCs()
 //copies into another vector (used for Dirch
 //BC's can be considered as extension of
 //SetSubVector)
-void applyDirchValues(const Vector &k, Vector &y, Array<int> dofs)
+void applyDirchValues(const mfem::Vector &k, mfem::Vector &y, mfem::Array<int> dofs)
 {
   if(dofs.Size() > 0){ //Only apply if there are constrained DOF's
     const bool use_dev = dofs.UseDevice() || k.UseDevice() || y.UseDevice();
@@ -148,20 +149,20 @@ void applyDirchValues(const Vector &k, Vector &y, Array<int> dofs)
 
 //Copy one vector into another (used for indirect casting)
 //e.g. copy between block-vector, Gfunction and vector 
-void CopyVec(const Vector & x, Vector & y){y = x;};
+void CopyVec(const mfem::Vector & x, mfem::Vector & y){y = x;};
 
 //Updates the main grid functions in problem Data
 //as all integrator coefficients are stored there
 //(In non-linear problems (grid-function dependant
 //they need to be updated before reassembly occurs)
 void
-EquationSystem::UpdateSolutionGridFunctions(const Vector & x) const{
+EquationSystem::UpdateSolutionGridFunctions(const mfem::Vector & x) const{
   x.HostRead();
   CopyVec(x,_trueBlockX);
   for (int i = 0; i < _trial_var_names.size(); i++)
   {
     auto & trial_var_name = _trial_var_names.at(i);
-    applyDirchValues(*(_xs.at(i)), _trueBlockX.GetBlock(i), _ess_tdof_lists.at(i))
+    applyDirchValues(*(_xs.at(i)), _trueBlockX.GetBlock(i), _ess_tdof_lists.at(i));
     _XSgfuncs->Get(trial_var_name)->Distribute(&(_trueBlockX.GetBlock(i)));
   }
 };
@@ -282,7 +283,8 @@ EquationSystem::BuildJacobian(mfem::BlockVector & trueX, mfem::BlockVector & tru
   FormLinearSystem(_jacobian, trueX, trueRHS);
 }
 
-void ReassembleResidualForms(Vector & residual) const{
+void
+EquationSystem::ReassembleResidualForms(mfem::Vector & residual) const{
   residual.HostRead();
   for (int i = 0; i < _trial_var_names.size(); i++)
   {
@@ -291,6 +293,9 @@ void ReassembleResidualForms(Vector & residual) const{
 //_lfs
   }
 };
+
+void
+EquationSystem::ReassembleJacobianOperator() const{}
 
 void
 EquationSystem::Mult(const mfem::Vector & x, mfem::Vector & residual) const

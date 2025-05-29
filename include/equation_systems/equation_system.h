@@ -61,8 +61,8 @@ public:
 
   //Reassembly routines needed for solving
   //non-linear problems 
-  virtual void UpdateSolutionGridFunctions(const Vector & x) const;
-  virtual void ReassembleResidualForms(Vector & residual) const;
+  virtual void UpdateSolutionGridFunctions(const mfem::Vector & x) const;
+  virtual void ReassembleResidualForms(mfem::Vector & residual) const;
   virtual void ReassembleJacobianOperator() const;
 
   // Form linear system, with essential boundary conditions accounted for
