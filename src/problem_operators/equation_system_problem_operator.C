@@ -44,14 +44,42 @@ TODO: should probably call an error if _use_amr is set to false
 bool 
 EquationSystemProblemOperator::HRefine()
 {
+  bool output = false;
   if ( _use_amr ) {
     _refiner->Apply( *_problem._pmesh );
   
-    return _refiner->Stop();
+    output = _refiner->Stop();
+
+    // update after refinement as well; previously this was done in the executioner
+    UpdateAfterRefinement();
   }
-  return false;
+  return output;
 }
 
+bool 
+EquationSystemProblemOperator::PRefine(std::shared_ptr<mfem::ParFiniteElementSpace> fespace)
+{
+  bool output = false;
+  if ( _use_amr ) {
+    mfem::Array<mfem::pRefinement> prefinements;
+    mfem::Array<mfem::Refinement>  refinements;
+
+    _refiner->MarkWithoutRefining(*_problem._pmesh, refinements);
+
+    output = (_problem._pmesh->ReduceInt(refinements.Size()) == 0LL);
+
+    prefinements.SetSize(refinements.Size());
+    for (int i=0; i<refinements.Size(); i++)
+    {
+      prefinements[i].index = refinements[i].index;
+      prefinements[i].delta = 1;  // Increase the element order by 1
+    }
+
+    fespace->PRefineAndUpdate(prefinements);
+    UpdateAfterRefinement();
+  }
+  return output;
+}
 
 void
 EquationSystemProblemOperator::Solve(mfem::Vector & X)

@@ -124,9 +124,12 @@ MFEMAMR::execute()
   {
     _problem_operator->Solve(_problem_data._f);
 
+    // fetch shared pointer to the fe space we are working on
+    auto fespace = _problem_data._fespaces.GetShared( _fe_space_name );
+    
+    _problem_operator->PRefine( fespace );
+    _problem_operator->Solve(_problem_data._f);
     _problem_operator->HRefine();
-    _problem_operator->UpdateAfterRefinement();
-
     _problem_operator->Solve(_problem_data._f);
   }
 

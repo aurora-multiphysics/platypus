@@ -23,6 +23,7 @@ public:
   void AddEstimator(std::shared_ptr<MFEMEstimator> estimator) override;
   void SetUpAMR() override;
   bool HRefine()  override;
+  bool PRefine(std::shared_ptr<mfem::ParFiniteElementSpace> fespace) override;
 
   ~EquationSystemProblemOperator() override = default;
 
