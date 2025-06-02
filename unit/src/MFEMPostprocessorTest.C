@@ -49,8 +49,34 @@ TEST_F(MFEMPostprocessorTest, MFEML2Error)
   _scalar_var->ProjectCoefficient(twos);
   EXPECT_GT(l2_pp.getValue(), 1.);
 
-  _scalar_var->ProjectCoefficient(*_mfem_problem->getScalarFunctionCoefficient("scalar_ones"));
+  _scalar_var->ProjectCoefficient(
+      _mfem_problem->getCoefficients().getScalarCoefficient("scalar_ones"));
   EXPECT_LT(l2_pp.getValue(), 1e-12);
+}
+
+/**
+ * Test a corresponding coefficient has been created for MFEML2Error.
+ */
+TEST_F(MFEMPostprocessorTest, MFEML2ErrorCoefficient)
+{
+  InputParameters pp_params = _factory.getValidParams("MFEML2Error");
+  pp_params.set<FunctionName>("function") = "scalar_ones";
+  pp_params.set<VariableName>("variable") = "scalar_var";
+  _mfem_problem->addPostprocessor("MFEML2Error", "ppl2", pp_params);
+  auto & l2_pp = _mfem_problem->getUserObject<MFEML2Error>("ppl2");
+  auto & l2_coef = _mfem_problem->getCoefficients().getScalarCoefficient("ppl2");
+
+  mfem::ConstantCoefficient twos(2.);
+  _scalar_var->ProjectCoefficient(twos);
+  l2_pp.getValue();
+
+  mfem::IsoparametricTransformation fe_transform;
+  mfem::IntegrationPoint point;
+  point.Init(2);
+  point.Set2(0., 0.);
+  fe_transform.SetIdentityTransformation(mfem::Geometry::SQUARE);
+
+  EXPECT_EQ(l2_coef.Eval(fe_transform, point), l2_pp.getCurrentValue());
 }
 
 /**
@@ -67,6 +93,7 @@ TEST_F(MFEMPostprocessorTest, MFEMVectorL2Error)
   _vector_var->ProjectCoefficient(twos);
   EXPECT_GT(l2_pp.getValue(), 1.);
 
-  _vector_var->ProjectCoefficient(*_mfem_problem->getVectorFunctionCoefficient("vector_ones"));
+  _vector_var->ProjectCoefficient(
+      _mfem_problem->getCoefficients().getVectorCoefficient("vector_ones"));
   EXPECT_LT(l2_pp.getValue(), 1e-12);
 }

@@ -1,4 +1,5 @@
 #include "MFEMVectorDirichletBCBase.h"
+#include "MFEMProblem.h"
 
 InputParameters
 MFEMVectorDirichletBCBase::validParams()
@@ -13,7 +14,8 @@ MFEMVectorDirichletBCBase::validParams()
 MFEMVectorDirichletBCBase::MFEMVectorDirichletBCBase(const InputParameters & parameters)
   : MFEMEssentialBC(parameters),
     _vec_value(getParam<std::vector<Real>>("values")),
-    _vec_coef(getMFEMProblem().makeVectorCoefficient<mfem::VectorConstantCoefficient>(
+    _vec_coef(getMFEMProblem().getCoefficients().declareVector<mfem::VectorConstantCoefficient>(
+        "__VectorDirichletBC_" + parameters.get<std::string>("_unique_name"),
         mfem::Vector(_vec_value.data(), _vec_value.size())))
 {
 }

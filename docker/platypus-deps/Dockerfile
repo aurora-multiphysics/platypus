@@ -110,7 +110,7 @@ RUN make install prefix=/$WORKDIR/libCEED/build
 WORKDIR /$WORKDIR
 RUN git clone https://github.com/mfem/mfem.git
 WORKDIR /$WORKDIR/mfem 
-RUN git checkout master && mkdir build
+RUN git checkout 9f2d103b4bb87b76e1ed6b018652a680640fd639 && mkdir build
 WORKDIR /$WORKDIR/mfem/build
 RUN cmake .. \
     -DCMAKE_INSTALL_PREFIX=/$WORKDIR/mfem/installed \
@@ -150,7 +150,7 @@ RUN cmake -G Ninja -DMFEM_DIR=/$WORKDIR/mfem/build .. && \
 WORKDIR /$WORKDIR
 RUN git clone https://github.com/idaholab/moose
 WORKDIR /$WORKDIR/moose
-RUN git checkout master && \
+RUN git checkout 6924a39be39d5bfd9093b72179e37e5b7d21f46f && \
     export MOOSE_JOBS=$compile_cores && \
     export PETSC_DIR=/$WORKDIR/petsc && \
     export CC=mpicc && \

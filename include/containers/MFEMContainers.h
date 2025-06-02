@@ -5,6 +5,7 @@
 #include <memory>
 #include <vector>
 #include <mfem.hpp>
+#include "MooseTypes.h"
 
 namespace platypus
 {
@@ -186,3 +187,19 @@ using FECollections = platypus::NamedFieldsMap<mfem::FiniteElementCollection>;
 using FESpaces = platypus::NamedFieldsMap<mfem::ParFiniteElementSpace>;
 using GridFunctions = platypus::NamedFieldsMap<mfem::ParGridFunction>;
 } // namespace platypus
+
+// FIXME: Making these real MOOSE derived string types requires
+// modifying Moose::Builder::extractParams and maybe
+// Moose::InputParameters::getMooseType as well.
+
+/// This type is used for objects that expect mfem::Coefficient objects
+using MFEMScalarCoefficientName = MooseFunctorName;
+// DerivativeStringClass(MFEMScalarCoefficientName);
+
+/// This type is used for objects that expect mfem::VectorCoefficient objects
+using MFEMVectorCoefficientName = MooseFunctorName;
+// DerivativeStringClass(MFEMVectorCoefficientName);
+
+/// This type is used for objects that expect mfem::MatrixCoefficient objects
+using MFEMMatrixCoefficientName = MooseFunctorName;
+// DerivativeStringClass(MFEMMatrixCoefficientName);
