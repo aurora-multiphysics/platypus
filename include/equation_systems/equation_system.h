@@ -206,7 +206,7 @@ protected:
 
   mutable mfem::OperatorHandle _jacobian;
   mutable mfem::Vector _trueRHS;
-  mutable mfem::BlockVector _trueBlockX, _trueBlockRHS, _trueBlockdXdt;
+  mutable mfem::BlockVector _trueBlockX, _trueBlockRHS, _trueBlockdXdt, _trueBlockX_Old;
   mfem::AssemblyLevel _assembly_level;
   platypus::GridFunctions * _gfuncs;
   mfem::Array<int> * _block_true_offsets;
@@ -244,6 +244,8 @@ public:
                           mfem::BlockVector & trueRHS) const override;
 
  virtual void Mult(const mfem::Vector & _trueBlockdXdt, mfem::Vector & residual) const override;
+
+ void update_old_state();
 };
 
 } // namespace platypus
