@@ -257,7 +257,7 @@ set_environment_vars() {
     export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${MFEM_DIR}/lib
     export MOOSE_JOBS=$compile_cores
     export LIBMESH_JOBS=$compile_cores
-    export METHOD="opt"
+    export METHOD="dbg"
 
     if [ "${GPU_BACKEND}" = "cuda" ]; then
         export CUDA_MFEM="YES"
@@ -280,7 +280,7 @@ install_mfem() {
     git checkout master
     spack load cmake
     cmake -S . -B build \
-        -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_BUILD_TYPE=Debug \
         -DCMAKE_CXX_STANDARD=14 \
         -DCMAKE_INSTALL_PREFIX="${BUILD_PATH}"/mfem/installed \
         -DBUILD_SHARED_LIBS=YES \
@@ -308,6 +308,7 @@ install_mfem() {
         -DHYPRE_VERSION=23200
     cd build || exit
     make install -j $compile_cores
+# cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_STANDARD=14 -DCMAKE_INSTALL_PREFIX="${BUILD_PATH}"/mfem/installed -DBUILD_SHARED_LIBS=YES -DMFEM_USE_OPENMP=NO -DMFEM_THREAD_SAFE=NO -DMFEM_ENABLE_EXAMPLES=YES -DMFEM_ENABLE_MINIAPPS=YES -DMFEM_USE_MPI=YES -DMFEM_USE_CUDA=NO -DMFEM_USE_METIS_5=YES -DMFEM_USE_SUPERLU=YES -DMFEM_USE_NETCDF=YES -DMFEM_USE_GSLIB=YES -DMFEM_USE_CONDUIT=YES -DGSLIB_DIR="${GSLIB_DIR}" -DCONDUIT_DIR="${CONDUIT_DIR}" -DHDF5_DIR="${HDF5_DIR}" -DCEED_DIR="${CEED_DIR}" -DSuperLUDist_DIR="${SLU_DIR}" -DSuperLUDist_VERSION_OK=YES -DHYPRE_VERSION=23200
 }
 
 install_axom() {
@@ -316,8 +317,8 @@ install_axom() {
     cd axom-repo || exit 1
 
     # the mfem repo has a cmake file that we can use
-    python3 ./config-build.py -hc ${BUILD_PATH}/mfem/miniapps/tribol/axom-gcc-notpl.cmake -bt Release -DCMAKE_INSTALL_PREFIX=${BUILD_PATH}/axom -DAXOM_ENABLE_MIR=NO -DAXOM_ENABLE_SINA=NO || exit 1
-    cd build-axom-gcc-notpl-release || exit 1
+    python3 ./config-build.py -hc ${BUILD_PATH}/mfem/miniapps/tribol/axom-gcc-notpl.cmake -bt Debug -DCMAKE_INSTALL_PREFIX=${BUILD_PATH}/axom -DAXOM_ENABLE_MIR=NO -DAXOM_ENABLE_SINA=NO || exit 1
+    cd build-axom-gcc-notpl-debug || exit 1
     make -j $compile_cores install || exit 1
 }
 
@@ -330,14 +331,14 @@ install_tribol() {
     # cf https://github.com/LLNL/Tribol/issues/133
     git clone https://github.com/sean-baccas/Tribol --recursive tribol-repo
     cd tribol-repo || exit 1
-    python3 ./config-build.py -hc ${BUILD_PATH}/mfem/miniapps/tribol/tribol-gcc-basictpl.cmake -bt Release -DCMAKE_INSTALL_PREFIX=${BUILD_PATH}/tribol -DMFEM_DIR=${BUILD_PATH}/mfem/build/ || exit 1
-    cd build-tribol-gcc-basictpl-release || exit 1
+    python3 ./config-build.py -hc ${BUILD_PATH}/mfem/miniapps/tribol/tribol-gcc-basictpl.cmake -bt Debug -DCMAKE_INSTALL_PREFIX=${BUILD_PATH}/tribol -DMFEM_DIR=${BUILD_PATH}/mfem/build/ || exit 1
+    cd build-tribol-gcc-basictpl-debug || exit 1
     make -j $compile_cores install || exit 1
 
     # finally reconfigure mfem
     cd ${BUILD_PATH}/mfem
     cmake -S . -B build \
-        -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_BUILD_TYPE=Debug \
         -DCMAKE_CXX_STANDARD=14 \
         -DCMAKE_INSTALL_PREFIX="${BUILD_PATH}"/mfem/installed \
         -DBUILD_SHARED_LIBS=YES \
@@ -398,7 +399,6 @@ install_platypus() {
     cd "${ROOT_PATH}" || exit 1
 
     echo "Building platypus..."
-    # This is only here until the PR is merged since it is needed for AMD builds
     make -j"$compile_cores"
     ./run_tests -j"$compile_cores"
 }
@@ -465,14 +465,14 @@ spack concretize -f
 
 # Using vim instead of emacs to avoid a parsing bug in the autoconf installation
 EMACS=vim spack install
-spack load petsc
+# spack load petsc
 
-# Cleaning intermediary files to use less space
-spack clean -a
+# # Cleaning intermediary files to use less space
+# # spack clean -a
 
-set_environment_vars
-install_mfem
-install_axom
-install_tribol
-install_moose
-install_platypus
+# set_environment_vars
+# install_mfem
+# install_axom
+# install_tribol
+# install_moose
+# install_platypus

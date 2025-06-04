@@ -23,8 +23,6 @@ MFEMContactTest::Run()
   int rank;
   MPI_Comm_rank(MPI_COMM_WORLD,&rank);
 
-  std::cout << "Inside unit test on rank " << rank << "\n";
-
   int ref_levels = 2;             // number of times to uniformly refine the serial mesh
   mfem::real_t lambda = 50.0;     // Lame parameter lambda
   mfem::real_t mu     = 50.0;     // Lame parameter mu (shear modulus)
@@ -37,9 +35,9 @@ MFEMContactTest::Run()
   std::set<int>  nonmortar_attrs({5});
 
   std::vector<std::set<int>> fixed_attrs(dim);
-  fixed_attrs[0] = {1}; // x=0 plane of both blocks
-  fixed_attrs[1] = {2}; // y=0 plane of both blocks
-  fixed_attrs[2] = {3, 6};
+  fixed_attrs[0] = {1};    // x=0 plane of both blocks
+  fixed_attrs[1] = {2};    // y=0 plane of both blocks
+  fixed_attrs[2] = {3, 6}; // 3: z=0 plane of bottom block; 6: z=1.99 plane of top block
   mfem::Mesh serial_mesh(mesh_file);
   for (int i = 0; i < ref_levels; ++i)
   {
@@ -49,7 +47,6 @@ MFEMContactTest::Run()
   mfem::ParMesh mesh(MPI_COMM_WORLD, serial_mesh);
 
   serial_mesh.Clear();
-
 
   // Create an H1 finite element space on the mesh for displacements/forces
   mfem::H1_FECollection fec(order, dim);
@@ -78,6 +75,7 @@ MFEMContactTest::Run()
           ess_bdr[xfixed_attr-1] = 1;
         }
         mfem::Array<int> new_ess_vdof_marker;
+
         fespace.GetEssentialVDofs(ess_bdr, new_ess_vdof_marker, i);
         for (int j = 0; j < new_ess_vdof_marker.Size(); ++j)
         {
@@ -89,10 +87,17 @@ MFEMContactTest::Run()
     mfem::FiniteElementSpace::MarkerToList(ess_tdof_marker, ess_tdof_list);
   }
 
+  std::cout << "Printing ess_tdofs: ";
+  for (int i=0; i<ess_tdof_list.Size(); i++)
+    std::cout << ess_tdof_list[i] << ", ";
+  std::cout << "\n";
+
   // Create small deformation linear elastic bilinear form
   mfem::ParBilinearForm a(&fespace);
   mfem::ConstantCoefficient lambda_coeff(lambda);
   mfem::ConstantCoefficient mu_coeff(mu);
+
+  // handled in equation system
   a.AddDomainIntegrator(new mfem::ElasticityIntegrator(lambda_coeff, mu_coeff));
 
   // Compute elasticity contribution to tangent stiffness matrix
@@ -127,7 +132,7 @@ MFEMContactTest::Run()
   // registerMfemCouplingScheme(). It's lifetime coincides with the lifetime of
   // the coupling scheme, so the host code can reference and update it as
   // needed.
-  auto& pressure = tribol::getMfemPressure(coupling_scheme_id); 
+  auto& pressure = tribol::getMfemPressure(coupling_scheme_id);
   
   std::cout << "Number of pressure unknowns: " <<
     pressure.ParFESpace()->GlobalTrueVSize() << std::endl;
@@ -141,7 +146,7 @@ MFEMContactTest::Run()
   // #4: Update contact mesh decomposition so the on-rank Tribol meshes
   // coincide with the current configuration of the mesh. This must be called
   // before tribol::update().
-  tribol::updateMfemParallelDecomposition();  
+  tribol::updateMfemParallelDecomposition();
   
   // #5: Update contact gaps, forces, and tangent stiffness contributions
   int cycle = 1;   // pseudo cycle
@@ -161,6 +166,13 @@ MFEMContactTest::Run()
 
   // Convert block operator to a single HypreParMatrix
   mfem::Array2D<const mfem::HypreParMatrix*> hypre_blocks(2, 2);
+
+  // this is the "contact" part - everything execpt fro mtop left i nthe system matrix
+
+  /*
+  
+  INSERT THIS CRUDELY INTO FORMLEGACY SYSTEM
+  */
   for (int i{0}; i < 2; ++i)
   {
     for (int j{0}; j < 2; ++j)

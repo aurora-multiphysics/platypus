@@ -1,5 +1,10 @@
 #include "equation_system.h"
 
+// TODO move these headers
+#include "axom/slic.hpp"
+#include "tribol/interface/tribol.hpp"
+#include "tribol/interface/mfem_tribol.hpp"
+
 namespace platypus
 {
 
@@ -92,6 +97,20 @@ EquationSystem::AddEssentialBC(std::shared_ptr<MFEMEssentialBC> bc)
   _essential_bc_map.GetRef(test_var_name).push_back(std::move(bc));
 }
 
+// copied the above. not sure if it needs to have extra stuff like the integrated bcs method
+void
+EquationSystem::AddContactBC(std::shared_ptr<MFEMContactBC> bc)
+{
+  AddTestVariableNameIfMissing(bc->getTestVariableName());
+  auto test_var_name = bc->getTestVariableName();
+  if (!_contact_bc_map.Has(test_var_name))
+  {
+    auto bcs = std::make_shared<std::vector<std::shared_ptr<MFEMContactBC>>>();
+    _contact_bc_map.Register(test_var_name, std::move(bcs));
+  }
+  _contact_bc_map.GetRef(test_var_name).push_back(std::move(bc));
+}
+
 void
 EquationSystem::ApplyEssentialBCs()
 {
@@ -106,7 +125,7 @@ EquationSystem::ApplyEssentialBCs()
     mfem::ParMesh * pmesh(_test_pfespaces.at(i)->GetParMesh());
     trial_gf = 0.0;
     trial_gf_time_derivatives = 0.0;
-
+    
     auto bcs = _essential_bc_map.GetRef(test_var_name);
     mfem::Array<int> global_ess_markers(pmesh->bdr_attributes.Max());
     global_ess_markers = 0;
@@ -122,6 +141,60 @@ EquationSystem::ApplyEssentialBCs()
     }
     trial_gf.FESpace()->GetEssentialTrueDofs(global_ess_markers, _ess_tdof_lists.at(i));
   }
+}
+
+void
+EquationSystem::ApplyContactBCs()
+{
+  // the tdofs list should be resized during ApplyEssentialBCs(), but we need to do it here since we skip over it at the minute
+  if ( _ess_tdof_lists.size() <  _test_var_names.size() )  _ess_tdof_lists.resize(_test_var_names.size());
+
+  // These need to be passed in through the input file somehow
+  std::vector<std::set<int>> fixed_attrs(3);
+  fixed_attrs[0] = {1};    // x=0 plane of both blocks
+  fixed_attrs[1] = {2};    // y=0 plane of both blocks
+  fixed_attrs[2] = {3, 6}; // 3: z=0 plane of bottom block; 6: z=1.99 plane of top block
+
+  std::cout << "Printing off _ess_tdof_lists.at(0) at " << __FILE__ << ":" << __LINE__ << "\n";
+  for (int i=0; i<_ess_tdof_lists.at(0).Size(); i++)
+    std::cout << _ess_tdof_lists.at(0)[i] << " ";
+  std::cout << "\n";
+  
+  // loop over each of the test var names
+  for (int i = 0; i < _test_var_names.size(); i++)
+  {
+    auto test_var_name = _test_var_names.at(i);
+    // take a ref to the fespace
+    mfem::ParFiniteElementSpace* fespace = _test_pfespaces.at(i);
+    mfem::ParMesh *              pmesh(_test_pfespaces.at(i)->GetParMesh());
+    mfem::Array<int>             ess_vdof_marker(fespace->GetVSize());
+    ess_vdof_marker = 0;
+
+    std::cout << "Made it to " << __FILE__ << ":" << __LINE__ << "\n";
+    // now loop over each dimension - hardcode to 3
+    for ( int d=0; d<3; d++ )
+    {
+      mfem::Array<int> ess_bdr(pmesh->bdr_attributes.Max());
+      ess_bdr = 0;
+      for (auto xfixed_attr : fixed_attrs[d])
+        ess_bdr[xfixed_attr-1] = 1;
+      
+      mfem::Array<int> new_ess_vdof_marker;
+      fespace->GetEssentialVDofs(ess_bdr, new_ess_vdof_marker, d);
+      
+      for (int j = 0; j < new_ess_vdof_marker.Size(); ++j)
+        ess_vdof_marker[j] = ess_vdof_marker[j] || new_ess_vdof_marker[j];
+    }
+
+    mfem::Array<int> ess_tdof_marker;
+    fespace->GetRestrictionMatrix()->BooleanMult(ess_vdof_marker, ess_tdof_marker);
+    mfem::FiniteElementSpace::MarkerToList(ess_tdof_marker, _ess_tdof_lists.at(i));
+  }
+
+  std::cout << "Printing off _ess_tdof_lists.at(0) at " << __FILE__ << ":" << __LINE__ << "\n";
+  for (int i=0; i<_ess_tdof_lists.at(0).Size(); i++)
+    std::cout << _ess_tdof_lists.at(0)[i] << " ";
+  std::cout << "\n";
 }
 
 void
@@ -171,15 +244,23 @@ EquationSystem::FormLegacySystem(mfem::OperatorHandle & op,
                                  mfem::BlockVector & trueRHS)
 {
 
+  std::cout << "Modifying EquationSystem::FormLegacySystem so that _h_blocks is the correct size for a test\n";
+
   // Allocate block operator
   _h_blocks.DeleteAll();
-  _h_blocks.SetSize(_test_var_names.size(), _test_var_names.size());
+  // _h_blocks.SetSize(_test_var_names.size(), _test_var_names.size());
+  _h_blocks.SetSize(2,2); // harcording
   // Form diagonal blocks.
-  for (int i = 0; i < _test_var_names.size(); i++)
+
+  // warning - pressure is now a member of this list
+  // can just do i < 1 below
+  // for (int i = 0; i < _test_var_names.size(); i++)
+  for (int i = 0; i < 1; i++)
   {
     auto & test_var_name = _test_var_names.at(i);
+    std::cout << "At " << __FILE__ << ":" << __LINE__ << ". Var name is " << test_var_name << "\n";
     auto blf = _blfs.Get(test_var_name);
-    auto lf = _lfs.Get(test_var_name);
+    auto lf  = _lfs.Get(test_var_name);
     mfem::Vector aux_x, aux_rhs;
     mfem::HypreParMatrix * aux_a = new mfem::HypreParMatrix;
     // Ownership of aux_a goes to the blf
@@ -188,35 +269,57 @@ EquationSystem::FormLegacySystem(mfem::OperatorHandle & op,
     trueX.GetBlock(i) = aux_x;
     trueRHS.GetBlock(i) = aux_rhs;
   }
+  
+  /******************** Place the Tribol stuff into the off-diagonal parts **********************/
+  int coupling_scheme_id = 0;
+  auto A_blk = tribol::getMfemBlockJacobian(coupling_scheme_id);
+  // A_blk->SetBlock(0, 0, A.release());
+
+  for (int i=0; i<2; i++)
+  for (int j=0; j<2; j++)
+    if ( not( i==0 and j==0 ) ) {
+      std::cout << "i,j= " << i << "," << j << ". height and width are " << A_blk->GetBlock(i, j).Height() << ", " << A_blk->GetBlock(i, j).Width() << "\n";
+      _h_blocks(i,j) = dynamic_cast<const mfem::HypreParMatrix*>(&A_blk->GetBlock(i, j));
+    }
+
+  mfem::BlockVector B_blk(A_blk->RowOffsets());
+  
+  mfem::Vector gap;
+  tribol::getMfemGap(coupling_scheme_id, gap); // gap on ldofs
+  auto& pressure  = tribol::getMfemPressure(coupling_scheme_id);
+  auto& P_submesh = *pressure.ParFESpace()->GetProlongationMatrix();
+  auto& gap_true = B_blk.GetBlock(1); // gap tdof vectorParFESpace()
+  P_submesh.MultTranspose(gap, gap_true);
 
   // Form off-diagonal blocks
-  for (int i = 0; i < _test_var_names.size(); i++)
-  {
-    auto test_var_name = _test_var_names.at(i);
-    for (int j = 0; j < _test_var_names.size(); j++)
-    {
-      auto trial_var_name = _test_var_names.at(j);
+  // for (int i = 0; i < _test_var_names.size(); i++)
+  // {
+  //   auto test_var_name = _test_var_names.at(i);
+  //   for (int j = 0; j < _test_var_names.size(); j++)
+  //   {
+  //     auto trial_var_name = _test_var_names.at(j);
 
-      mfem::Vector aux_x, aux_rhs;
-      mfem::ParLinearForm aux_lf(_test_pfespaces.at(i));
-      aux_lf = 0.0;
-      if (_mblfs.Has(test_var_name) && _mblfs.Get(test_var_name)->Has(trial_var_name))
-      {
-        auto mblf = _mblfs.Get(test_var_name)->Get(trial_var_name);
-        mfem::HypreParMatrix * aux_a = new mfem::HypreParMatrix;
-        // Ownership of aux_a goes to the blf
-        mblf->FormRectangularLinearSystem(_ess_tdof_lists.at(j),
-                                          _ess_tdof_lists.at(i),
-                                          *(_xs.at(j)),
-                                          aux_lf,
-                                          *aux_a,
-                                          aux_x,
-                                          aux_rhs);
-        _h_blocks(i, j) = aux_a;
-        trueRHS.GetBlock(i) += aux_rhs;
-      }
-    }
-  }
+  //     mfem::Vector aux_x, aux_rhs;
+  //     mfem::ParLinearForm aux_lf(_test_pfespaces.at(i));
+  //     aux_lf = 0.0;
+  //     if (_mblfs.Has(test_var_name) && _mblfs.Get(test_var_name)->Has(trial_var_name))
+  //     {
+  //       auto mblf = _mblfs.Get(test_var_name)->Get(trial_var_name);
+  //       mfem::HypreParMatrix * aux_a = new mfem::HypreParMatrix;
+  //       // Ownership of aux_a goes to the blf
+  //       mblf->FormRectangularLinearSystem(_ess_tdof_lists.at(j),
+  //                                         _ess_tdof_lists.at(i),
+  //                                         *(_xs.at(j)),
+  //                                         aux_lf,
+  //                                         *aux_a,
+  //                                         aux_x,
+  //                                         aux_rhs);
+  //       _h_blocks(i, j) = aux_a;
+  //       trueRHS.GetBlock(i) += aux_rhs;
+  //     }
+  //   }
+  // }
+
   // Sync memory
   for (int i = 0; i < _test_var_names.size(); i++)
   {
@@ -268,23 +371,23 @@ EquationSystem::Init(platypus::GridFunctions & gridfunctions,
                      mfem::AssemblyLevel assembly_level)
 {
   _assembly_level = assembly_level;
-
   for (auto & test_var_name : _test_var_names)
   {
     if (!gridfunctions.Has(test_var_name))
     {
       MFEM_ABORT("Test variable " << test_var_name
-                                  << " requested by equation system during initialisation was "
-                                     "not found in gridfunctions");
-    }
-    // Store pointers to variable FESpaces
+        << " requested by equation system during initialisation was "
+        "not found in gridfunctions");
+      }
+      // Store pointers to variable FESpaces
     _test_pfespaces.push_back(gridfunctions.Get(test_var_name)->ParFESpace());
     // Create auxiliary gridfunctions for applying Dirichlet conditions
     _xs.emplace_back(
+      std::make_unique<mfem::ParGridFunction>(gridfunctions.Get(test_var_name)->ParFESpace()));
+      _dxdts.emplace_back(
         std::make_unique<mfem::ParGridFunction>(gridfunctions.Get(test_var_name)->ParFESpace()));
-    _dxdts.emplace_back(
-        std::make_unique<mfem::ParGridFunction>(gridfunctions.Get(test_var_name)->ParFESpace()));
-    _trial_variables.Register(test_var_name, gridfunctions.GetShared(test_var_name));
+        _trial_variables.Register(test_var_name, gridfunctions.GetShared(test_var_name));
+        
   }
 }
 
@@ -294,12 +397,17 @@ EquationSystem::BuildLinearForms()
   // Register linear forms
   for (int i = 0; i < _test_var_names.size(); i++)
   {
+    std::cout << "Made it to " << __FILE__ << ":" << __LINE__ << "\n";
     auto test_var_name = _test_var_names.at(i);
     _lfs.Register(test_var_name, std::make_shared<mfem::ParLinearForm>(_test_pfespaces.at(i)));
     _lfs.GetRef(test_var_name) = 0.0;
   }
   // Apply boundary conditions
-  ApplyEssentialBCs();
+  std::cout << "At location " << __FILE__ << ":" << __LINE__ << "\n";
+  std::cout << "Skipping Essential BCs since we don't need them now. The methods we write into ApplyContactBCs should go into AddContactBCs()\n";
+  if (false)  ApplyEssentialBCs();
+
+  ApplyContactBCs();
 
   for (auto & test_var_name : _test_var_names)
   {
@@ -322,12 +430,13 @@ EquationSystem::BuildBilinearForms()
 
     // Apply kernels
     auto blf = _blfs.GetShared(test_var_name);
+
     blf->SetAssemblyLevel(_assembly_level);
     ApplyBoundaryBLFIntegrators<mfem::ParBilinearForm>(
         test_var_name, test_var_name, blf, _integrated_bc_map);
     ApplyDomainBLFIntegrators<mfem::ParBilinearForm>(
         test_var_name, test_var_name, blf, _kernels_map);
-    // Assemble
+        // Assemble
     blf->Assemble();
   }
 }
@@ -373,8 +482,11 @@ EquationSystem::BuildMixedBilinearForms()
 void
 EquationSystem::BuildEquationSystem()
 {
+  std::cout << "Made it to " << __FILE__ << ":" << __LINE__ << "\n";
   BuildBilinearForms();
+  std::cout << "Made it to " << __FILE__ << ":" << __LINE__ << "\n";
   BuildMixedBilinearForms();
+  std::cout << "Made it to " << __FILE__ << ":" << __LINE__ << "\n";
   BuildLinearForms();
 }
 

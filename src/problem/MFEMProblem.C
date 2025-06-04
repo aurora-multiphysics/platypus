@@ -117,8 +117,23 @@ MFEMProblem::addBoundaryCondition(const std::string & bc_name,
     else
     {
       mooseError("Cannot add boundary condition with name '" + name +
-                 "' because there is no corresponding equation system.");
+        "' because there is no corresponding equation system.");
+      }
+  }
+  else if (dynamic_cast<const MFEMContactBC *>(mfem_bc_uo) != nullptr)
+  {
+    auto object_ptr = getUserObject<MFEMContactBC>(name).getSharedPtr();
+    auto mfem_bc = std::dynamic_pointer_cast<MFEMContactBC>(object_ptr);
+    mfem_bc->getBoundaries();
+    if (getProblemData()._eqn_system)
+    {
+      getProblemData()._eqn_system->AddContactBC(std::move(mfem_bc));
     }
+    else
+    {
+      mooseError("Cannot add boundary condition with name '" + name +
+        "' because there is no corresponding equation system.");
+      }   
   }
   else
   {
@@ -315,6 +330,7 @@ MFEMProblem::addFunction(const std::string & type,
 {
   ExternalProblem::addFunction(type, name, parameters);
   auto & func = getFunction(name);
+
   // FIXME: Do we want to have optimised versions for when functions
   // are only of space or only of time.
   if (std::find(SCALAR_FUNCS.begin(), SCALAR_FUNCS.end(), type) != SCALAR_FUNCS.end())

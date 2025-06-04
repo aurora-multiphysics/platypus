@@ -2,6 +2,7 @@
 #include "mfem/miniapps/common/pfem_extras.hpp"
 #include "MFEMIntegratedBC.h"
 #include "MFEMEssentialBC.h"
+#include "MFEMContactBC.h"
 #include "MFEMContainers.h"
 #include "MFEMKernel.h"
 #include "MFEMMixedBilinearFormKernel.h"
@@ -48,7 +49,9 @@ public:
   virtual void AddKernel(std::shared_ptr<MFEMKernel> kernel);
   virtual void AddIntegratedBC(std::shared_ptr<MFEMIntegratedBC> kernel);
   virtual void AddEssentialBC(std::shared_ptr<MFEMEssentialBC> bc);
+  virtual void AddContactBC(std::shared_ptr<MFEMContactBC> bc);
   virtual void ApplyEssentialBCs();
+  virtual void ApplyContactBCs();
 
   // Build forms
   virtual void Init(platypus::GridFunctions & gridfunctions,
@@ -201,6 +204,7 @@ protected:
   platypus::NamedFieldsMap<platypus::NamedFieldsMap<std::vector<std::shared_ptr<MFEMIntegratedBC>>>>
       _integrated_bc_map;
   platypus::NamedFieldsMap<std::vector<std::shared_ptr<MFEMEssentialBC>>> _essential_bc_map;
+  platypus::NamedFieldsMap<std::vector<std::shared_ptr<MFEMContactBC>>  > _contact_bc_map;
 
   mutable mfem::OperatorHandle _jacobian;
 
