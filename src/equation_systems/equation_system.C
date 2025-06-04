@@ -701,6 +701,7 @@ TimeDependentEquationSystem::FormSystem(mfem::OperatorHandle & op,
                                         mfem::BlockVector & truedXdt,
                                         mfem::BlockVector & trueRHS) const
 {
+  std::cout << "********** TIME FormSystem: I AM HERE ******************************************" << std::endl;
   auto & test_var_name = _test_var_names.at(0);
   auto td_blf = _td_blfs.Get(test_var_name);
   auto blf = _blfs.Get(test_var_name);
@@ -710,13 +711,15 @@ TimeDependentEquationSystem::FormSystem(mfem::OperatorHandle & op,
 
   // The AddMult method in mfem::BilinearForm is not defined for non-legacy assembly
   mfem::Vector lf_prev(lf->Size());
-  blf->Mult(*_trial_variables.Get(test_var_name), lf_prev);
+  //blf->Mult(*_trial_variables.Get(test_var_name), lf_prev);
+  blf->Mult(_trueBlockX_Old.GetBlock(0), lf_prev);
   *lf -= lf_prev;
   // }
   mfem::Vector aux_x, aux_rhs;
   // Update solution values on Dirichlet values to be in terms of du/dt instead of u
   mfem::Vector bc_x = *(_xs.at(0).get());
-  bc_x -= *_trial_variables.Get(test_var_name);
+  //bc_x -= *_trial_variables.Get(test_var_name);
+  bc_x -= _trueBlockX_Old.GetBlock(0);
   bc_x /= _dt_coef.constant;
 
   // Form linear system for operator acting on vector of du/dt
