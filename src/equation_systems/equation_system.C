@@ -121,9 +121,6 @@ EquationSystem::ApplyEssentialBCs()
       }
     }
     trial_gf.FESpace()->GetEssentialTrueDofs(global_ess_markers, _ess_tdof_lists.at(i));
-   // std::cout << "******** Variable name ***********  " << test_var_name << "  " << i << " **********************" << std::endl;
-   // _ess_tdof_lists.at(i).Print(std::cout);
-
   }
 }
 
@@ -180,7 +177,6 @@ EquationSystem::FormLegacySystem(mfem::OperatorHandle & op,
   // Allocate block operator
   _h_blocks.DeleteAll();
   _h_blocks.SetSize(_test_var_names.size(), _test_var_names.size());
-  std::cout << "********** I AM HERE ******************************************" << std::endl;
   // Form diagonal blocks.
   for (int i = 0; i < _test_var_names.size(); i++)
   {
@@ -249,18 +245,13 @@ EquationSystem::BuildJacobian(mfem::BlockVector & trueX, mfem::BlockVector & tru
 void
 EquationSystem::UpdateJacobian() const
 {
-  _h_blocks.DeleteAll();
-  _h_blocks.SetSize(_test_var_names.size(), _test_var_names.size());
 
   for (int i = 0; i < _test_var_names.size(); i++)
     {
       auto & test_var_name = _test_var_names.at(i);
       auto blf = _blfs.Get(test_var_name);
-      mfem::OperatorHandle aux_a;
       blf->Update();
       blf->Assemble();
-      blf->FormSystemMatrix(_ess_tdof_lists.at(i), aux_a);
-      _h_blocks(i, i) = static_cast<mfem::HypreParMatrix*>(aux_a.Ptr());
     }
 
     // Form off-diagonal blocks
@@ -273,16 +264,12 @@ EquationSystem::UpdateJacobian() const
         if (_mblfs.Has(test_var_name) && _mblfs.Get(test_var_name)->Has(trial_var_name))
         {
           auto mblf = _mblfs.Get(test_var_name)->Get(trial_var_name);
-          mfem::OperatorHandle aux_a;
           mblf->Update();
           mblf->Assemble();
-          mblf->FormRectangularSystemMatrix(empty_tdof,_ess_tdof_lists.at(j), aux_a);
-          _h_blocks(i, j) = static_cast<mfem::HypreParMatrix*>(aux_a.Ptr());
         }
       }
     }
 
-    _jacobian.Reset(mfem::HypreParMatrixFromBlocks(_h_blocks));
 }
 
 void CopyVec(const mfem::Vector & x, mfem::Vector & y){ y = x;}
@@ -331,29 +318,41 @@ EquationSystem::Mult(const mfem::Vector & x, mfem::Vector & residual) const
       auto & test_var_name = _test_var_names.at(i);
       auto lf = _lfs.GetShared(test_var_name);
       lf->Assemble();
-     // lf->ParallelAssemble(_trueBlockRHS.GetBlock(i));
-     // _trueBlockRHS.GetBlock(i).SetSubVector(_ess_tdof_lists.at(i) , 0.00);
+      lf->ParallelAssemble(_trueBlockRHS.GetBlock(i));
     }
 
-  //UpdateJacobian();
+   UpdateJacobian();
    FormLinearSystem(_jacobian, _trueBlockX, _trueBlockRHS);
   _jacobian->Mult(_trueBlockX, residual);
   residual.HostRead();
   residual -= _trueBlockRHS;
-
-  //residual -= _trueRHS;
 }
 
 void
 TimeDependentEquationSystem::update_old_state()
 {
-    // Update solution values on Dirichlet values to be in terms of du/dt instead of u
+  // Update solution values on Dirichlet values to be in terms of du/dt instead of u
   for (int i = 0; i < _test_var_names.size(); i++)
     {
      auto & test_var_name = _test_var_names.at(i);
-     //Below is a horrible hack - this has to be before the mult is called
      CopyVec(*_trial_variables.Get(test_var_name), _trueBlockX_Old.GetBlock(i));
     }
+}
+
+
+void
+TimeDependentEquationSystem::UpdateJacobian() const
+{
+  EquationSystem::UpdateJacobian();
+
+  for (int i = 0; i < _test_var_names.size(); i++)
+    {
+      auto & test_var_name = _test_var_names.at(i);
+      auto td_blf = _td_blfs.Get(test_var_name);
+      td_blf->Update();
+      td_blf->Assemble();
+    }
+
 }
 
 void
@@ -366,9 +365,7 @@ TimeDependentEquationSystem::Mult(const mfem::Vector & truedXdt, mfem::Vector & 
 
   for (int i = 0; i < _trial_var_names.size(); i++)
     {
-      auto & trial_var_name = _trial_var_names.at(i);
-      std::cout << " trial_var_name  " << trial_var_name << std::endl;
-      //_trueBlockdXdt.GetBlock(i).SetSubVector(_ess_tdof_lists.at(i) , 0.00);
+       auto & trial_var_name = _trial_var_names.at(i);
       _gfuncs->Get(trial_var_name)->Distribute(&(_trueBlockdXdt.GetBlock(i)));
     }
     
@@ -386,14 +383,12 @@ TimeDependentEquationSystem::Mult(const mfem::Vector & truedXdt, mfem::Vector & 
       lf->ParallelAssemble(_trueBlockRHS.GetBlock(i));
     }
 
-  //UpdateJacobian();
+   UpdateJacobian();
    FormLinearSystem(_jacobian, _trueBlockdXdt, _trueBlockRHS);
    
   _jacobian->Mult(_trueBlockdXdt, residual);
   residual.HostRead();
   residual -= _trueBlockRHS;
-  
-  //residual -= _trueRHS;
 }
 
 mfem::Operator &
@@ -653,12 +648,7 @@ TimeDependentEquationSystem::FormLegacySystem(mfem::OperatorHandle & op,
                                               mfem::BlockVector & truedXdt,
                                               mfem::BlockVector & trueRHS) const
 {
-
-  // Allocate block operator
-  _h_blocks.DeleteAll();
-  _h_blocks.SetSize(_test_var_names.size(), _test_var_names.size());
   // Form diagonal blocks.
-    std::cout << "********** TIME: I AM HERE ******************************************" << std::endl;
   for (int i = 0; i < _test_var_names.size(); i++)
   {
     auto & test_var_name = _test_var_names.at(i);
@@ -667,13 +657,11 @@ TimeDependentEquationSystem::FormLegacySystem(mfem::OperatorHandle & op,
     auto lf = _lfs.Get(test_var_name);
     // if implicit, add contribution to linear form from terms involving state
     // variable at previous timestep: {
-    // blf->AddMult(*_trial_variables.Get(test_var_name), *lf, -1.0);
      blf->AddMult(_trueBlockX_Old.GetBlock(i), *lf, -1.0);
     // }
     mfem::Vector aux_x, aux_rhs;
     // Update solution values on Dirichlet values to be in terms of du/dt instead of u
     mfem::Vector bc_x = *(_xs.at(i).get());
-    //bc_x -= *_trial_variables.Get(test_var_name);
     bc_x -= _trueBlockX_Old.GetBlock(i);
     bc_x /= _dt_coef.constant;
 
@@ -701,7 +689,6 @@ TimeDependentEquationSystem::FormSystem(mfem::OperatorHandle & op,
                                         mfem::BlockVector & truedXdt,
                                         mfem::BlockVector & trueRHS) const
 {
-  std::cout << "********** TIME FormSystem: I AM HERE ******************************************" << std::endl;
   auto & test_var_name = _test_var_names.at(0);
   auto td_blf = _td_blfs.Get(test_var_name);
   auto blf = _blfs.Get(test_var_name);
@@ -711,14 +698,14 @@ TimeDependentEquationSystem::FormSystem(mfem::OperatorHandle & op,
 
   // The AddMult method in mfem::BilinearForm is not defined for non-legacy assembly
   mfem::Vector lf_prev(lf->Size());
-  //blf->Mult(*_trial_variables.Get(test_var_name), lf_prev);
+
   blf->Mult(_trueBlockX_Old.GetBlock(0), lf_prev);
   *lf -= lf_prev;
   // }
   mfem::Vector aux_x, aux_rhs;
   // Update solution values on Dirichlet values to be in terms of du/dt instead of u
   mfem::Vector bc_x = *(_xs.at(0).get());
-  //bc_x -= *_trial_variables.Get(test_var_name);
+
   bc_x -= _trueBlockX_Old.GetBlock(0);
   bc_x /= _dt_coef.constant;
 

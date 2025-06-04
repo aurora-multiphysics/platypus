@@ -83,7 +83,7 @@ public:
   virtual void RecoverFEMSolution(mfem::BlockVector & trueX,
                                   platypus::GridFunctions & gridfunctions);
 
-  void UpdateJacobian() const;
+  virtual void UpdateJacobian() const;
 
   std::vector<mfem::Array<int>> _ess_tdof_lists;
 
@@ -246,6 +246,8 @@ public:
  virtual void Mult(const mfem::Vector & _trueBlockdXdt, mfem::Vector & residual) const override;
 
  void update_old_state();
+
+ virtual void UpdateJacobian() const override;
 };
 
 } // namespace platypus
