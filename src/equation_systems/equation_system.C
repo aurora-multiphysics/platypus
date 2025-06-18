@@ -374,8 +374,14 @@ EquationSystem::BuildMixedBilinearForms()
 }
 
 void
-EquationSystem::BuildEquationSystem()
+EquationSystem::BuildEquationSystem(platypus::GridFunctions & gridfunctions, mfem::Array<int> & btoffsets)
 {
+  _gfuncs = &gridfunctions;
+  _block_true_offsets = &btoffsets;
+  _trueBlockX.Update(*_block_true_offsets);
+  _trueBlockRHS.Update(*_block_true_offsets);
+  _trueBlockdXdt.Update(*_block_true_offsets);
+  _trueBlockX_Old.Update(*_block_true_offsets);
   BuildBilinearForms();
   BuildMixedBilinearForms();
   BuildLinearForms();
