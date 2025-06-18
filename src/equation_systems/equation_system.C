@@ -665,6 +665,9 @@ TimeDependentEquationSystem::FormLegacySystem(mfem::OperatorHandle & op,
     bc_x -= _trueBlockX_Old.GetBlock(i);
     bc_x /= _dt_coef.constant;
 
+    //for(int i = 0; i < bc_x.Size(); i++)
+    //   std::cout << std::setw(12) << bc_x(i) << std::endl;
+
     // Form linear system for operator acting on vector of du/dt
     mfem::HypreParMatrix * aux_a = new mfem::HypreParMatrix;
     // Ownership of aux_a goes to the blf
