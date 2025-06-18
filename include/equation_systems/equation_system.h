@@ -210,7 +210,7 @@ protected:
   mfem::Array<int> * _block_true_offsets;
   mfem::Array<int> empty_tdof;
 
-  void Update_timeVars(const mfem::real_t & dt, const mfem::real_t & time, const mfem::Vector & X_Old)
+  void Update_timeVars(const mfem::real_t & dt, const mfem::real_t & time, const mfem::Vector & X_Old);
 };
 
 /*
