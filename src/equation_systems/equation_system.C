@@ -265,7 +265,7 @@ void applyDirchValues(const mfem::Vector &k, mfem::Vector &y, mfem::Array<int> d
 };
 
 void
-Update_timeVars(const mfem::real_t & dt, const mfem::real_t time, const mfem::Vector & X_Old)
+Update_timeVars(const mfem::real_t & dt, const mfem::real_t & time, const mfem::Vector & X_Old)
 {
   //Update the old vector
   CopyVec(X_Old, _trueBlockX_Old);
