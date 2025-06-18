@@ -105,10 +105,8 @@ EquationSystem::ApplyEssentialBCs()
     // Set default value of gridfunction used in essential BC. Values
     // overwritten in applyEssentialBCs
     mfem::ParGridFunction & trial_gf(*(_xs.at(i)));
-    mfem::ParGridFunction & trial_gf_time_derivatives(*(_dxdts.at(i)));
     mfem::ParMesh * pmesh(_test_pfespaces.at(i)->GetParMesh());
     trial_gf = 0.0;
-    trial_gf_time_derivatives = 0.0;
 
     auto bcs = _essential_bc_map.GetRef(test_var_name);
     mfem::Array<int> global_ess_markers(pmesh->bdr_attributes.Max());
@@ -271,7 +269,7 @@ Update_timeVars(const mfem::real_t & dt, const mfem::real_t & time, const mfem::
   CopyVec(X_Old, _trueBlockX_Old);
 
   //Update the xs boundary conditions
-
+  ApplyEssentialBCs();
 
   // Update the dxdts boundary conditions
   for (int i = 0; i < _test_var_names.size(); i++)
@@ -564,14 +562,14 @@ TimeDependentEquationSystem::FormLegacySystem(mfem::OperatorHandle & op,
     // }
     mfem::Vector aux_x, aux_rhs;
     // Update solution values on Dirichlet values to be in terms of du/dt instead of u
-    mfem::Vector bc_x = *(_xs.at(i).get());
-    bc_x -= *_trial_variables.Get(test_var_name);
-    bc_x /= _dt_coef.constant;
+    //mfem::Vector bc_x = *(_xs.at(i).get());
+    //bc_x -= *_trial_variables.Get(test_var_name);
+    //bc_x /= _dt_coef.constant;
 
     // Form linear system for operator acting on vector of du/dt
     mfem::HypreParMatrix * aux_a = new mfem::HypreParMatrix;
     // Ownership of aux_a goes to the blf
-    td_blf->FormLinearSystem(_ess_tdof_lists.at(i), bc_x, *lf, *aux_a, aux_x, aux_rhs);
+    td_blf->FormLinearSystem(_ess_tdof_lists.at(i), *(_dxdts.at(i)), *lf, *aux_a, aux_x, aux_rhs);
     _h_blocks(i, i) = aux_a;
     truedXdt.GetBlock(i) = aux_x;
     trueRHS.GetBlock(i) = aux_rhs;
@@ -603,14 +601,14 @@ TimeDependentEquationSystem::FormSystem(mfem::OperatorHandle & op,
   // }
   mfem::Vector aux_x, aux_rhs;
   // Update solution values on Dirichlet values to be in terms of du/dt instead of u
-  mfem::Vector bc_x = *(_xs.at(0).get());
-  bc_x -= *_trial_variables.Get(test_var_name);
-  bc_x /= _dt_coef.constant;
+//  mfem::Vector bc_x = *(_xs.at(0).get());
+//  bc_x -= *_trial_variables.Get(test_var_name);
+//  bc_x /= _dt_coef.constant;
 
   // Form linear system for operator acting on vector of du/dt
   mfem::OperatorPtr * aux_a = new mfem::OperatorPtr;
   // Ownership of aux_a goes to the blf
-  td_blf->FormLinearSystem(_ess_tdof_lists.at(0), bc_x, *lf, *aux_a, aux_x, aux_rhs);
+  td_blf->FormLinearSystem(_ess_tdof_lists.at(0), *(_dxdts.at(i)), *lf, *aux_a, aux_x, aux_rhs);
 
   truedXdt.GetBlock(0) = aux_x;
   trueRHS.GetBlock(0) = aux_rhs;
