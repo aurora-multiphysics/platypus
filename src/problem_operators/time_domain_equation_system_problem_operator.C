@@ -18,7 +18,7 @@ void
 TimeDomainEquationSystemProblemOperator::Init(mfem::BlockVector & X)
 {
   TimeDomainProblemOperator::Init(X);
-  GetEquationSystem()->BuildEquationSystem();
+  GetEquationSystem()->BuildEquationSystem(_problem._gridfunctions, _block_true_offsets);
 }
 
 void
