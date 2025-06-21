@@ -263,7 +263,7 @@ void applyDirchValues(const mfem::Vector &k, mfem::Vector &y, mfem::Array<int> d
 };
 
 void
-Update_timeVars(const mfem::real_t & dt, const mfem::real_t & time, const mfem::Vector & X_Old)
+EquationSystem::Update_timeVars(const mfem::real_t & dt, const mfem::real_t & time, const mfem::Vector & X_Old)
 {
   //Update the old vector
   CopyVec(X_Old, _trueBlockX_Old);
@@ -608,7 +608,7 @@ TimeDependentEquationSystem::FormSystem(mfem::OperatorHandle & op,
   // Form linear system for operator acting on vector of du/dt
   mfem::OperatorPtr * aux_a = new mfem::OperatorPtr;
   // Ownership of aux_a goes to the blf
-  td_blf->FormLinearSystem(_ess_tdof_lists.at(0), *(_dxdts.at(i)), *lf, *aux_a, aux_x, aux_rhs);
+  td_blf->FormLinearSystem(_ess_tdof_lists.at(0), *(_dxdts.at(0)), *lf, *aux_a, aux_x, aux_rhs);
 
   truedXdt.GetBlock(0) = aux_x;
   trueRHS.GetBlock(0) = aux_rhs;

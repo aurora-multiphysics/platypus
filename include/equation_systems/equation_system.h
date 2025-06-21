@@ -83,6 +83,8 @@ public:
   virtual void RecoverFEMSolution(mfem::BlockVector & trueX,
                                   platypus::GridFunctions & gridfunctions);
 
+  void Update_timeVars(const mfem::real_t & dt, const mfem::real_t & time, const mfem::Vector & X_Old);
+
   std::vector<mfem::Array<int>> _ess_tdof_lists;
 
 protected:
@@ -209,8 +211,6 @@ protected:
   platypus::GridFunctions * _gfuncs;
   mfem::Array<int> * _block_true_offsets;
   mfem::Array<int> empty_tdof;
-
-  void Update_timeVars(const mfem::real_t & dt, const mfem::real_t & time, const mfem::Vector & X_Old);
 };
 
 /*
