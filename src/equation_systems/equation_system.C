@@ -285,7 +285,31 @@ EquationSystem::Update_timeVars(const mfem::real_t & dt, const mfem::real_t & ti
 void
 EquationSystem::Mult(const mfem::Vector & x, mfem::Vector & residual) const
 {
-  _jacobian->Mult(x, residual);
+  CopyVec(x,_trueBlockX);
+  for (int i = 0; i < _trial_var_names.size(); i++)
+  {
+    auto & trial_var_name = _trial_var_names.at(i);
+    applyDirchValues(*(_xs.at(i)), _trueBlockX.GetBlock(i), _ess_tdof_lists.at(i));
+    _gfuncs->Get(trial_var_name)->Distribute(&(_trueBlockX.GetBlock(i)));
+  }
+
+  _jacobian->Mult(_trueBlockX, residual);
+  x.HostRead();
+  residual.HostRead();
+}
+
+void
+TimeDependentEquationSystem::Mult(const mfem::Vector & x, mfem::Vector & residual) const
+{
+  CopyVec(x,_trueBlockX);
+  for (int i = 0; i < _trial_var_names.size(); i++)
+  {
+    auto & trial_var_name = _trial_var_names.at(i);
+    applyDirchValues(*(_dxdts.at(i)), _trueBlockX.GetBlock(i), _ess_tdof_lists.at(i));
+    _gfuncs->Get(trial_var_name)->Distribute(&(_trueBlockX.GetBlock(i)));
+  }
+
+  _jacobian->Mult(_trueBlockX, residual);
   x.HostRead();
   residual.HostRead();
 }
