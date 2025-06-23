@@ -322,6 +322,14 @@ EquationSystem::Mult(const mfem::Vector & x, mfem::Vector & residual) const
     _gfuncs->Get(trial_var_name)->Distribute(&(_trueBlockX.GetBlock(i)));
   }
 
+  for (int i = 0; i < _test_var_names.size(); i++)
+  {
+    auto & test_var_name = _test_var_names.at(i);
+    auto lf = _lfs.GetShared(test_var_name);
+    lf->Assemble();
+    lf->ParallelAssemble(_trueBlockRHS.GetBlock(i));
+  }
+
   UpdateJacobian();
   FormLinearSystem(_jacobian,  _trueBlockX,  _trueBlockRHS);
   _jacobian->Mult(_trueBlockX, residual);
@@ -338,6 +346,14 @@ TimeDependentEquationSystem::Mult(const mfem::Vector & dXdt, mfem::Vector & resi
     auto & trial_var_name = _trial_var_names.at(i);
     applyDirchValues(*(_dxdts.at(i)), _trueBlockdXdt.GetBlock(i), _ess_tdof_lists.at(i));
     _gfuncs->Get(trial_var_name)->Distribute(&(_trueBlockdXdt.GetBlock(i)));
+  }
+
+  for (int i = 0; i < _test_var_names.size(); i++)
+  {
+    auto & test_var_name = _test_var_names.at(i);
+    auto lf = _lfs.GetShared(test_var_name);
+    lf->Assemble();
+    lf->ParallelAssemble(_trueBlockRHS.GetBlock(i));
   }
 
   UpdateJacobian();
