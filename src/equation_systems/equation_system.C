@@ -237,6 +237,35 @@ EquationSystem::BuildJacobian(mfem::BlockVector & trueX, mfem::BlockVector & tru
   FormLinearSystem(_jacobian, trueX, trueRHS);
 }
 
+void
+EquationSystem::UpdateJacobian() const
+{
+
+  for (int i = 0; i < _test_var_names.size(); i++)
+    {
+      auto & test_var_name = _test_var_names.at(i);
+      auto blf = _blfs.Get(test_var_name);
+      blf->Update();
+      blf->Assemble();
+    }
+
+    // Form off-diagonal blocks
+    for (int i = 0; i < _test_var_names.size(); i++)
+    {
+      auto test_var_name = _test_var_names.at(i);
+      for (int j = 0; j < _test_var_names.size(); j++)
+      {
+        auto trial_var_name = _test_var_names.at(j);
+        if (_mblfs.Has(test_var_name) && _mblfs.Get(test_var_name)->Has(trial_var_name))
+        {
+          auto mblf = _mblfs.Get(test_var_name)->Get(trial_var_name);
+          mblf->Update();
+          mblf->Assemble();
+        }
+      }
+    }
+}
+
 void CopyVec(const mfem::Vector & x, mfem::Vector & y){ y = x;}
 
 void applyDirchValues(const mfem::Vector &k, mfem::Vector &y, mfem::Array<int> dofs)
@@ -293,6 +322,7 @@ EquationSystem::Mult(const mfem::Vector & x, mfem::Vector & residual) const
     _gfuncs->Get(trial_var_name)->Distribute(&(_trueBlockX.GetBlock(i)));
   }
 
+  FormLinearSystem(_jacobian,  _trueBlockX,  _trueBlockRHS);
   _jacobian->Mult(_trueBlockX, residual);
   x.HostRead();
   residual.HostRead();
@@ -309,16 +339,6 @@ TimeDependentEquationSystem::Mult(const mfem::Vector & dXdt, mfem::Vector & resi
     _gfuncs->Get(trial_var_name)->Distribute(&(_trueBlockdXdt.GetBlock(i)));
   }
 
-/*  _trueBlockX=0.00;
-  add(_trueBlockX_Old, _dt_coef.constant, _trueBlockdXdt, _trueBlockX);
-  std::cout << _dt_coef.constant << std::endl;
-
-  for (int i = 0; i < _test_var_names.size(); i++)
-  {
-    auto & test_var_name = _test_var_names.at(i);
-//    applyDirchValues(*(_xs.at(i)), _trueBlockX.GetBlock(i), _ess_tdof_lists.at(i));
-    _gfuncs->Get(test_var_name)->Distribute(&(_trueBlockX.GetBlock(i)));
-  }*/
   FormLinearSystem(_jacobian,  _trueBlockdXdt,  _trueBlockRHS);
   _jacobian->Mult(_trueBlockdXdt, residual);
   dXdt.HostRead();
