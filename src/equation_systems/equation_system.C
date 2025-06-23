@@ -322,6 +322,7 @@ EquationSystem::Mult(const mfem::Vector & x, mfem::Vector & residual) const
     _gfuncs->Get(trial_var_name)->Distribute(&(_trueBlockX.GetBlock(i)));
   }
 
+  UpdateJacobian();
   FormLinearSystem(_jacobian,  _trueBlockX,  _trueBlockRHS);
   _jacobian->Mult(_trueBlockX, residual);
   x.HostRead();
@@ -339,6 +340,7 @@ TimeDependentEquationSystem::Mult(const mfem::Vector & dXdt, mfem::Vector & resi
     _gfuncs->Get(trial_var_name)->Distribute(&(_trueBlockdXdt.GetBlock(i)));
   }
 
+  UpdateJacobian();
   FormLinearSystem(_jacobian,  _trueBlockdXdt,  _trueBlockRHS);
   _jacobian->Mult(_trueBlockdXdt, residual);
   dXdt.HostRead();
