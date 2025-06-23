@@ -335,6 +335,7 @@ EquationSystem::Mult(const mfem::Vector & x, mfem::Vector & residual) const
   _jacobian->Mult(_trueBlockX, residual);
   x.HostRead();
   residual.HostRead();
+  residual -= _trueBlockRHS;
 }
 
 void
@@ -361,6 +362,7 @@ TimeDependentEquationSystem::Mult(const mfem::Vector & dXdt, mfem::Vector & resi
   _jacobian->Mult(_trueBlockdXdt, residual);
   dXdt.HostRead();
   residual.HostRead();
+  residual -= _trueBlockRHS;
 }
 
 mfem::Operator &
