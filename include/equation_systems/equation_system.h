@@ -62,13 +62,15 @@ public:
   // Form linear system, with essential boundary conditions accounted for
   virtual void FormLinearSystem(mfem::OperatorHandle & op,
                                 mfem::BlockVector & trueX,
-                                mfem::BlockVector & trueRHS);
+                                mfem::BlockVector & trueRHS) const;
 
-  virtual void
-  FormSystem(mfem::OperatorHandle & op, mfem::BlockVector & trueX, mfem::BlockVector & trueRHS);
+  virtual void FormSystem(mfem::OperatorHandle & op
+                        , mfem::BlockVector & trueX
+                        , mfem::BlockVector & trueRHS) const;
+
   virtual void FormLegacySystem(mfem::OperatorHandle & op,
                                 mfem::BlockVector & trueX,
-                                mfem::BlockVector & trueRHS);
+                                mfem::BlockVector & trueRHS) const;
 
   // Build linear system, with essential boundary conditions accounted for
   virtual void BuildJacobian(mfem::BlockVector & trueX, mfem::BlockVector & trueRHS);
@@ -85,7 +87,7 @@ public:
 
   void Update_timeVars(const mfem::real_t & dt, const mfem::real_t & time, const mfem::Vector & X_Old);
 
-  std::vector<mfem::Array<int>> _ess_tdof_lists;
+  mutable std::vector<mfem::Array<int>> _ess_tdof_lists;
 
 protected:
   bool VectorContainsName(const std::vector<std::string> & the_vector,
@@ -194,7 +196,7 @@ protected:
   std::vector<std::unique_ptr<mfem::ParGridFunction>> _xs;
   std::vector<std::unique_ptr<mfem::ParGridFunction>> _dxdts;
 
-  mfem::Array2D<const mfem::HypreParMatrix *> _h_blocks;
+  mutable mfem::Array2D<const mfem::HypreParMatrix *> _h_blocks;
 
   // Arrays to store kernels to act on each component of weak form. Named
   // according to test variable
@@ -238,10 +240,10 @@ public:
   virtual void BuildBilinearForms() override;
   virtual void FormLegacySystem(mfem::OperatorHandle & op,
                                 mfem::BlockVector & truedXdt,
-                                mfem::BlockVector & trueRHS) override;
+                                mfem::BlockVector & trueRHS) const override;
   virtual void FormSystem(mfem::OperatorHandle & op,
                           mfem::BlockVector & truedXdt,
-                          mfem::BlockVector & trueRHS) override;
+                          mfem::BlockVector & trueRHS) const override;
 
   /// Compute residual y = Mu
   void Mult(const mfem::Vector & u, mfem::Vector & residual) const override;
