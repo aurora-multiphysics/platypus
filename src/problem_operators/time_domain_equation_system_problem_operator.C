@@ -28,7 +28,7 @@ TimeDomainEquationSystemProblemOperator::ImplicitSolve(const double dt,
 {
   dX_dt = 0.0;
  
-  GetEquationSystem()->update_old_state();
+  GetEquationSystem()->update_old_state(dt, GetTime(), X);
   
   SetTestVariablesFromTrueVectors();
   for (unsigned int ind = 0; ind < _trial_variables.size(); ++ind)

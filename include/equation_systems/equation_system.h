@@ -245,7 +245,7 @@ public:
 
  virtual void Mult(const mfem::Vector & _trueBlockdXdt, mfem::Vector & residual) const override;
 
- void update_old_state();
+ void update_old_state(const mfem::real_t & dt, const mfem::real_t & time, const mfem::Vector & X_Old);
 
  virtual void UpdateJacobian() const override;
 };
