@@ -13,6 +13,5 @@ electromagnetics app
 [Apollo](https://github.com/aurora-multiphysics/apollo) that uses MFEM
 for solving electromagnetics problems in a variety of formulations.
 
-New users and contributors should view the [Platypus documentation](https://aurora-multiphysics.github.io/platypus/) to get started.
-
-Platypus is under active development and is being updated frequently.
+Platypus functionality has now been merged upstream into [MOOSE](https://github.com/idaholab/moose),
+ and development of the MFEM backend for MOOSE has now migrated there.
